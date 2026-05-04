@@ -1,7 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
-import { WhatsAppFloat } from "@/components/sections/WhatsAppFloat";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 
 export default function StorefrontLayout({
@@ -17,7 +16,6 @@ export default function StorefrontLayout({
       </main>
       <Footer />
       <MobileTabBar />
-      <WhatsAppFloat />
       <CartDrawer />
     </>
   );

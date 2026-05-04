@@ -27,7 +27,7 @@ export function WhatsAppWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-20 right-6 md:bottom-8 md:right-8 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
       {/* Tooltip */}
       {showTooltip && !isOpen && (
         <div className="bg-white px-4 py-2 rounded-xl shadow-2xl border border-slate-100 text-sm font-medium text-slate-900 pointer-events-auto animate-in fade-in slide-in-from-right-4 duration-500">
