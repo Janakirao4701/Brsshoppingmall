@@ -39,16 +39,16 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+      <div className="container mx-auto flex h-24 items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center">
           <Image
             src="/bsr-logo.png"
             alt="BSR Shopping Mall"
-            width={200}
-            height={80}
-            className="h-16 w-auto object-contain"
+            width={300}
+            height={120}
+            className="h-[88px] w-auto object-contain"
             priority
           />
         </Link>
