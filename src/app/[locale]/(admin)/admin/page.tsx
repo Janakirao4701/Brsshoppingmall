@@ -1,4 +1,5 @@
 import { StatCard } from "@/components/admin/StatCard";
+import Link from "next/link";
 
 export default function AdminDashboard() {
   return (
@@ -9,9 +10,12 @@ export default function AdminDashboard() {
           <button className="px-4 py-2 bg-white text-sm font-medium text-[#171717] rounded-md shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] hover:bg-[#fafafa] transition-colors">
             Export Report
           </button>
-          <button className="px-4 py-2 bg-[#171717] text-sm font-medium text-white rounded-md hover:bg-[#333333] transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.12)]">
+          <Link 
+            href="/admin/products/new" 
+            className="px-4 py-2 bg-[#171717] text-sm font-medium text-white rounded-md hover:bg-[#333333] transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.12)]"
+          >
             Add Product
-          </button>
+          </Link>
         </div>
       </div>
 
