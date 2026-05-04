@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MessageCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 
 export function WhatsAppWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,15 +41,15 @@ export function WhatsAppWidget() {
         <div className="bg-white w-72 rounded-2xl shadow-2xl border border-slate-100 overflow-hidden pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
           <div className="bg-[#25D366] p-4 flex items-center justify-between text-white">
             <div className="flex items-center gap-3">
-              <div className="size-10 bg-white/20 rounded-full flex items-center justify-center">
-                <MessageCircle className="size-6" />
+              <div className="size-10 bg-white rounded-full flex items-center justify-center p-2 shadow-sm">
+                <WhatsAppIcon className="size-full text-[#25D366]" />
               </div>
               <div>
                 <p className="font-bold">BSR Support</p>
                 <p className="text-[10px] opacity-90">Usually replies in minutes</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:bg-black/10 p-1 rounded-full">
+            <button onClick={() => setIsOpen(false)} className="hover:bg-black/10 p-1 rounded-full transition-colors">
               <X className="size-4" />
             </button>
           </div>
@@ -58,9 +59,9 @@ export function WhatsAppWidget() {
             </div>
             <button 
               onClick={handleOpenWhatsApp}
-              className="w-full bg-[#25D366] hover:bg-[#1da851] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+              className="w-full bg-[#25D366] hover:bg-[#1da851] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-[#25D366]/20"
             >
-              <MessageCircle className="size-5" />
+              <WhatsAppIcon className="size-5" />
               Start WhatsApp Chat
             </button>
           </div>
@@ -71,11 +72,11 @@ export function WhatsAppWidget() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "pointer-events-auto size-14 rounded-full flex items-center justify-center text-white shadow-2xl transition-all hover:scale-110 active:scale-95",
+          "pointer-events-auto size-14 rounded-full flex items-center justify-center text-white shadow-2xl transition-all hover:scale-110 active:scale-90",
           isOpen ? "bg-slate-900" : "bg-[#25D366]"
         )}
       >
-        {isOpen ? <X className="size-6" /> : <MessageCircle className="size-7" />}
+        {isOpen ? <X className="size-6" /> : <WhatsAppIcon className="size-8" />}
       </button>
     </div>
   );

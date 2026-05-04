@@ -35,12 +35,25 @@ export function MobileTabBar() {
               key={tab.name} 
               href={tab.href}
               className={cn(
-                "flex flex-col items-center justify-center space-y-1 transition-colors",
-                isActive ? "text-brand-red" : "text-muted-foreground hover:text-foreground"
+                "relative flex flex-col items-center justify-center h-full w-full gap-1 transition-all duration-300 active:scale-90",
+                isActive ? "text-brand-red" : "text-slate-500 hover:text-slate-900"
               )}
             >
-              <Icon className="size-6" />
-              <span className="text-[10px] font-medium">{tab.name}</span>
+              {isActive && (
+                <div className="absolute inset-x-4 inset-y-2 bg-brand-red/5 rounded-xl -z-10 animate-in fade-in zoom-in-95 duration-300" />
+              )}
+              <div className={cn(
+                "p-1.5 rounded-full transition-all duration-300",
+                isActive ? "bg-brand-red/10 scale-110" : "group-active:bg-slate-100"
+              )}>
+                <Icon className={cn("size-6", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
+              </div>
+              <span className={cn(
+                "text-[10px] font-bold tracking-tight transition-all duration-300",
+                isActive ? "opacity-100" : "opacity-70"
+              )}>
+                {tab.name}
+              </span>
             </Link>
           );
         })}
