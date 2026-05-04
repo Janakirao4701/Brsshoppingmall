@@ -100,9 +100,11 @@ export function Navbar() {
             )}
           </Button>
 
-          <Button variant="ghost" size="icon" aria-label={t("account")} className="hidden sm:inline-flex">
-            <User className="size-5" />
-          </Button>
+          <Link href="/account">
+            <Button variant="ghost" size="icon" aria-label={t("account")} className="hidden sm:inline-flex">
+              <User className="size-5" />
+            </Button>
+          </Link>
 
           {/* Mobile Menu Trigger */}
           <div className="md:hidden">
