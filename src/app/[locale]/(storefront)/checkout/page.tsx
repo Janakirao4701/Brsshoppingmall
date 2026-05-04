@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Script from "next/script";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/store";
@@ -14,9 +15,17 @@ import {
   MessageCircle,
   Truck,
   Shield,
-  CheckCircle
+  CheckCircle,
+  Loader2,
+  Wallet
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 type Step = "address" | "review" | "complete";
 
@@ -36,6 +45,10 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<Step>("address");
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "whatsapp">("razorpay");
+  const [paying, setPaying] = useState(false);
+  const [completedOrderNumber, setCompletedOrderNumber] = useState("");
+  const [completedPaymentMethod, setCompletedPaymentMethod] = useState("");
 
   const [address, setAddress] = useState<AddressForm>({
     fullName: "",
@@ -94,8 +107,93 @@ export default function CheckoutPage() {
 
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     setOrderPlaced(true);
+    setCompletedPaymentMethod("whatsapp");
     setStep("complete");
     clearCart();
+  };
+
+  const handleRazorpayCheckout = async () => {
+    setPaying(true);
+    try {
+      // Create order on server
+      const res = await fetch("/api/razorpay/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: total,
+          customerName: address.fullName,
+          customerPhone: address.phone,
+          customerEmail: address.email,
+          shippingAddress: address.address,
+          shippingCity: address.city,
+          shippingState: address.state,
+          shippingPincode: address.pincode,
+          items: items.map(item => ({
+            productId: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+            size: item.selectedSize,
+            color: item.selectedColor,
+          })),
+          subtotal,
+          shippingCost: shipping,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create order");
+
+      // Open Razorpay checkout
+      const options = {
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: "BSR Shopping Mall",
+        description: `Order ${data.orderNumber}`,
+        order_id: data.orderId,
+        prefill: {
+          name: address.fullName,
+          contact: address.phone,
+          email: address.email || undefined,
+        },
+        theme: { color: "#DC2626" },
+        handler: async (response: any) => {
+          // Verify payment on server
+          const verifyRes = await fetch("/api/razorpay/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              order_number: data.orderNumber,
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+          if (verifyData.verified) {
+            setOrderPlaced(true);
+            setCompletedOrderNumber(data.orderNumber);
+            setCompletedPaymentMethod("razorpay");
+            setStep("complete");
+            clearCart();
+          } else {
+            alert("Payment verification failed. Please contact support.");
+          }
+        },
+        modal: {
+          ondismiss: () => setPaying(false),
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error: any) {
+      alert(error.message || "Payment failed. Please try again.");
+    } finally {
+      setPaying(false);
+    }
   };
 
   const isAddressValid = 
@@ -117,10 +215,18 @@ export default function CheckoutPage() {
         <div className="size-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
           <CheckCircle className="size-10 text-green-600" />
         </div>
-        <h2 className="text-2xl font-heading font-bold text-slate-900 mb-2">Order Sent!</h2>
+        <h2 className="text-2xl font-heading font-bold text-slate-900 mb-2">
+          {completedPaymentMethod === "razorpay" ? "Payment Successful!" : "Order Sent!"}
+        </h2>
+        {completedOrderNumber && (
+          <p className="text-sm font-mono bg-slate-100 px-4 py-2 rounded-lg mb-4">
+            Order #{completedOrderNumber}
+          </p>
+        )}
         <p className="text-slate-500 max-w-md mb-8">
-          Your order details have been sent via WhatsApp. Our team will confirm availability 
-          and share payment details shortly.
+          {completedPaymentMethod === "razorpay"
+            ? "Your payment has been received and your order is confirmed. We'll start processing it right away!"
+            : "Your order details have been sent via WhatsApp. Our team will confirm availability and share payment details shortly."}
         </p>
         <Button onClick={() => router.push("/")} className="bg-brand-red hover:bg-brand-red/90 text-white">
           Continue Shopping
@@ -276,15 +382,67 @@ export default function CheckoutPage() {
 
                 {/* Payment Method */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-6">
-                  <h3 className="text-sm font-bold text-slate-900 mb-4">Complete Your Order</h3>
-                  <Button onClick={handleWhatsAppCheckout}
-                    className="w-full bg-[#25D366] hover:bg-[#1da851] text-white font-bold h-14 text-base rounded-xl gap-3">
-                    <MessageCircle className="size-5" />
-                    Order via WhatsApp
-                  </Button>
-                  <p className="text-center text-xs text-slate-400 mt-3">
-                    Your order details will be sent via WhatsApp. Our team will confirm and share payment options.
-                  </p>
+                  <h3 className="text-sm font-bold text-slate-900 mb-4">Choose Payment Method</h3>
+
+                  {/* Payment method selector */}
+                  <div className="grid grid-cols-2 gap-3 mb-5">
+                    <button
+                      onClick={() => setPaymentMethod("razorpay")}
+                      className={cn(
+                        "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-sm font-medium",
+                        paymentMethod === "razorpay"
+                          ? "border-brand-red bg-brand-red/5 text-brand-red"
+                          : "border-slate-200 text-slate-500 hover:border-slate-300"
+                      )}
+                    >
+                      <CreditCard className="size-5" />
+                      Pay Online
+                      <span className="text-[10px] font-normal text-slate-400">UPI, Cards, NetBanking</span>
+                    </button>
+                    <button
+                      onClick={() => setPaymentMethod("whatsapp")}
+                      className={cn(
+                        "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-sm font-medium",
+                        paymentMethod === "whatsapp"
+                          ? "border-[#25D366] bg-[#25D366]/5 text-[#25D366]"
+                          : "border-slate-200 text-slate-500 hover:border-slate-300"
+                      )}
+                    >
+                      <MessageCircle className="size-5" />
+                      WhatsApp
+                      <span className="text-[10px] font-normal text-slate-400">Confirm & pay later</span>
+                    </button>
+                  </div>
+
+                  {/* Action button */}
+                  {paymentMethod === "razorpay" ? (
+                    <>
+                      <Button
+                        onClick={handleRazorpayCheckout}
+                        disabled={paying}
+                        className="w-full bg-brand-red hover:bg-brand-red/90 text-white font-bold h-14 text-base rounded-xl gap-3 disabled:opacity-70"
+                      >
+                        {paying ? <Loader2 className="size-5 animate-spin" /> : <Wallet className="size-5" />}
+                        {paying ? "Processing..." : `Pay ₹${total.toLocaleString("en-IN")}`}
+                      </Button>
+                      <p className="text-center text-xs text-slate-400 mt-3 flex items-center justify-center gap-1">
+                        <Shield className="size-3" /> Secured by Razorpay
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={handleWhatsAppCheckout}
+                        className="w-full bg-[#25D366] hover:bg-[#1da851] text-white font-bold h-14 text-base rounded-xl gap-3"
+                      >
+                        <MessageCircle className="size-5" />
+                        Order via WhatsApp
+                      </Button>
+                      <p className="text-center text-xs text-slate-400 mt-3">
+                        Order details sent to WhatsApp. Pay on delivery or via link.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -330,6 +488,9 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* Razorpay Script */}
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
     </div>
   );
 }

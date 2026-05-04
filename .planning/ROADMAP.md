@@ -58,8 +58,8 @@ Plans:
 
 Plans:
 - [x] 03-01: Cart State Management
-- [ ] 03-02: Checkout Flow & Shipping Estimates
-- [ ] 03-03: Razorpay Integration & Webhooks
+- [x] 03-02: Checkout Flow & Shipping Estimates
+- [x] 03-03: Razorpay Integration & Webhooks
 
 ### Phase 4: User Accounts
 **Goal**: Implement secure authentication and user profile management.
@@ -101,6 +101,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Project Setup & Storefront UI | 3/3 | Completed | 2026-05-04 |
 | 2. Product Catalog | 3/3 | Completed | 2026-05-04 |
-| 3. Checkout & Payments | 1/3 | In Progress | - |
+| 3. Checkout & Payments | 3/3 | Completed | 2026-05-04 |
 | 4. User Accounts | 0/3 | Not started | - |
 | 5. Admin Panel | 2/3 | In Progress | - |
