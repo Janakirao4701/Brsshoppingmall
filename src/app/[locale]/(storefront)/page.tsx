@@ -1,3 +1,4 @@
+import * as React from "react";
 import { HeroBanner } from "@/components/sections/HeroBanner";
 import { StoreLocator } from "@/components/sections/StoreLocator";
 import { Link } from "@/i18n/routing";
@@ -37,16 +38,13 @@ export default function Home({
               <h2 className="text-3xl font-heading font-bold">Featured Categories</h2>
               <p className="text-muted-foreground">Explore our curated collections for everyone</p>
             </div>
-            <Link href="/categories" className="hidden sm:flex items-center text-brand-red font-semibold hover:underline">
-              View All <ChevronRight className="size-4 ml-1" />
-            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {CATEGORIES.map((category) => (
               <Link 
                 key={category.nameKey} 
-                href={category.href}
+                href={category.href as "/men" | "/women" | "/kids"}
                 className="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200"
               >
                 {/* Background (Gradient placeholder) */}
@@ -109,5 +107,3 @@ export default function Home({
     </div>
   );
 }
-
-import * as React from "react";

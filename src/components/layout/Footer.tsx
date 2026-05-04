@@ -1,5 +1,5 @@
 import * as React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import { Phone, Mail, MapPin, Globe, Camera, X } from "lucide-react";
 
