@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/i18n/routing";
+import { usePathname } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { 
   Home, 
   LayoutGrid, 
@@ -11,15 +12,16 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const TABS = [
-  { name: "Home", href: "/", icon: Home },
-  { name: "Categories", href: "/categories", icon: LayoutGrid },
-  { name: "Cart", href: "/cart", icon: ShoppingCart },
-  { name: "Account", href: "/account", icon: User },
-];
-
 export function MobileTabBar() {
   const pathname = usePathname();
+  const t = useTranslations("Navbar");
+
+  const TABS = [
+    { name: t("home") || "Home", href: "/", icon: Home },
+    { name: t("categories") || "Categories", href: "/categories", icon: LayoutGrid },
+    { name: t("cart"), href: "/cart", icon: ShoppingCart },
+    { name: t("account"), href: "/account", icon: User },
+  ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t pb-safe">

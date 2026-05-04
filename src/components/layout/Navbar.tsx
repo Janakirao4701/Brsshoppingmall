@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { 
   Search, 
   ShoppingCart, 
   User, 
-  Menu, 
-  Globe 
+  Menu 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,15 +25,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-const NAV_LINKS = [
-  { name: "Men", href: "/men" },
-  { name: "Women", href: "/women" },
-  { name: "Kids", href: "/kids" },
-  { name: "Bulk Orders", href: "/bulk-orders" },
-];
+import { LanguageToggle } from "./LanguageToggle";
 
 export function Navbar() {
+  const t = useTranslations("Navbar");
+
+  const NAV_LINKS = [
+    { name: t("men"), href: "/men" },
+    { name: t("women"), href: "/women" },
+    { name: t("kids"), href: "/kids" },
+    { name: t("bulk"), href: "/bulk-orders" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -50,10 +53,8 @@ export function Navbar() {
             <NavigationMenuList>
               {NAV_LINKS.map((link) => (
                 <NavigationMenuItem key={link.name}>
-                  <Link href={link.href} legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      {link.name}
-                    </NavigationMenuLink>
+                  <Link href={link.href} className={navigationMenuTriggerStyle()}>
+                    {link.name}
                   </Link>
                 </NavigationMenuItem>
               ))}
@@ -63,22 +64,20 @@ export function Navbar() {
 
         {/* Right Icons */}
         <div className="flex items-center space-x-2 md:space-x-4">
-          <Button variant="ghost" size="icon" aria-label="Search">
+          <Button variant="ghost" size="icon" aria-label={t("search")}>
             <Search className="size-5" />
           </Button>
           
-          <Button variant="ghost" size="icon" aria-label="Language">
-            <Globe className="size-5" />
-          </Button>
+          <LanguageToggle />
 
-          <Button variant="ghost" size="icon" className="relative" aria-label="Cart">
+          <Button variant="ghost" size="icon" className="relative" aria-label={t("cart")}>
             <ShoppingCart className="size-5" />
             <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-white">
               0
             </span>
           </Button>
 
-          <Button variant="ghost" size="icon" aria-label="Account" className="hidden sm:inline-flex">
+          <Button variant="ghost" size="icon" aria-label={t("account")} className="hidden sm:inline-flex">
             <User className="size-5" />
           </Button>
 
@@ -108,7 +107,7 @@ export function Navbar() {
                     href="/account"
                     className="text-lg font-medium hover:text-brand-red transition-colors flex items-center"
                   >
-                    <User className="mr-2 size-5" /> Account
+                    <User className="mr-2 size-5" /> {t("account")}
                   </Link>
                 </nav>
               </SheetContent>

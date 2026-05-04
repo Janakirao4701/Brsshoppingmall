@@ -1,0 +1,29 @@
+{
+  "Navbar": {
+    "home": "Home",
+    "categories": "Categories",
+    "men": "Men",
+    "women": "Women",
+    "kids": "Kids",
+    "bulk": "Bulk Orders",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart"
+  },
+  "Hero": {
+    "summer": "Summer Collection 2026",
+    "premium": "Premium Readymade Garments",
+    "discount": "Up to 50% Off",
+    "cta": "Shop Now"
+  },
+  "Store": {
+    "visit": "Visit Our Stores",
+    "sompeta": "BSR Shopping Mall - Sompeta",
+    "palasa": "BSR Shopping Mall - Palasa",
+    "directions": "Get Directions"
+  },
+  "Common": {
+    "delivery": "All India Delivery",
+    "whatsapp": "Chat on WhatsApp"
+  }
+}

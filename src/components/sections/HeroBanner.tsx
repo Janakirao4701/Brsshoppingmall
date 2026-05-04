@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Autoplay from "embla-carousel-autoplay";
+import { useTranslations } from "next-intl";
 import { 
   Carousel, 
   CarouselContent, 
@@ -12,41 +13,37 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const SLIDES = [
-  {
-    title: "Summer Collection 2026",
-    subtitle: "Premium Readymade Garments",
-    discount: "Up to 50% Off",
-    cta: "Shop Now",
-    gradient: "from-[#DC2626] to-[#EA580C]",
-  },
-  {
-    title: "New Arrivals in Men's Wear",
-    subtitle: "Stay Stylish, Stay Comfortable",
-    discount: "Fresh Stock Just Arrived",
-    cta: "Explore Collection",
-    gradient: "from-[#EA580C] to-[#DC2626]",
-  },
-  {
-    title: "All India Home Delivery",
-    subtitle: "Pan-India Shipping Available",
-    discount: "Order from anywhere in India",
-    cta: "Start Shopping",
-    gradient: "from-[#991b1b] to-[#c2410c]",
-  },
-  {
-    title: "Bulk & School Orders",
-    subtitle: "Festival & Institution Specials",
-    discount: "Special Discounts on Bulk Orders",
-    cta: "Inquire Now",
-    gradient: "from-[#c2410c] to-[#991b1b]",
-  },
-];
-
 export function HeroBanner() {
+  const t = useTranslations("Hero");
+  const common = useTranslations("Common");
+  
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
   );
+
+  const SLIDES = [
+    {
+      title: t("summer"),
+      subtitle: t("premium"),
+      discount: t("discount"),
+      cta: t("cta"),
+      gradient: "from-[#DC2626] to-[#EA580C]",
+    },
+    {
+      title: "New Arrivals in Men's Wear",
+      subtitle: "Stay Stylish, Stay Comfortable",
+      discount: "Fresh Stock Just Arrived",
+      cta: "Explore Collection",
+      gradient: "from-[#EA580C] to-[#DC2626]",
+    },
+    {
+      title: common("delivery"),
+      subtitle: "Pan-India Shipping Available",
+      discount: "Order from anywhere in India",
+      cta: "Start Shopping",
+      gradient: "from-[#991b1b] to-[#c2410c]",
+    },
+  ];
 
   return (
     <section className="w-full">

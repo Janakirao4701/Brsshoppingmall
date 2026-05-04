@@ -1,15 +1,29 @@
 import { HeroBanner } from "@/components/sections/HeroBanner";
 import { StoreLocator } from "@/components/sections/StoreLocator";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { setRequestLocale } from 'next-intl/server';
 
 const CATEGORIES = [
-  { name: "Men", href: "/men", image: "/images/men-category.jpg", description: "Premium Shirts, Trousers & Ethnic" },
-  { name: "Women", href: "/women", image: "/images/women-category.jpg", description: "Sarees, Kurtas & Western Wear" },
-  { name: "Kids", href: "/kids", image: "/images/kids-category.jpg", description: "Cute & Comfortable Clothing" },
+  { nameKey: "men", href: "/men", descriptionKey: "menDesc" },
+  { nameKey: "women", href: "/women", descriptionKey: "womenDesc" },
+  { nameKey: "kids", href: "/kids", descriptionKey: "kidsDesc" },
 ];
 
-export default function Home() {
+export default function Home({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  // Get the locale from params
+  const { locale } = React.use(params);
+  
+  // Enable static rendering
+  setRequestLocale(locale);
+
+  const t = useTranslations("Navbar");
+
   return (
     <div className="flex flex-col w-full">
       {/* Hero Section */}
@@ -31,7 +45,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {CATEGORIES.map((category) => (
               <Link 
-                key={category.name} 
+                key={category.nameKey} 
                 href={category.href}
                 className="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200"
               >
@@ -41,12 +55,12 @@ export default function Home() {
                 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 w-full p-6 z-20 transform group-hover:-translate-y-2 transition-transform duration-300">
-                  <h3 className="text-2xl font-heading font-bold text-white mb-1">{category.name}</h3>
+                  <h3 className="text-2xl font-heading font-bold text-white mb-1">{t(category.nameKey)}</h3>
                   <p className="text-white/80 text-sm mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {category.description}
+                    Quality collection for {t(category.nameKey)}
                   </p>
                   <div className="inline-flex items-center text-white text-sm font-bold uppercase tracking-wider">
-                    Shop {category.name} <ChevronRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    Shop {t(category.nameKey)} <ChevronRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </Link>
@@ -95,3 +109,5 @@ export default function Home() {
     </div>
   );
 }
+
+import * as React from "react";
