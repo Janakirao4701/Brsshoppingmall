@@ -22,11 +22,15 @@ export function AdminSidebar() {
   return (
     <aside className="w-[240px] flex-shrink-0 flex flex-col h-screen sticky top-0 bg-[#fafafa] shadow-[1px_0_0_0_rgba(0,0,0,0.08)]">
       <div className="h-16 flex items-center px-6 shadow-[0_1px_0_0_rgba(0,0,0,0.08)]">
-        <Link href="/" className="font-bold text-[#171717] flex items-center gap-2">
-          <div className="w-6 h-6 bg-[#171717] rounded flex items-center justify-center">
-            <div className="w-3 h-3 bg-white rounded-sm" />
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex items-center justify-center h-10 w-auto bg-[#171717]/5 p-1 rounded-lg">
+            <img 
+              src="/bsr-logo.png" 
+              alt="BSR" 
+              className="h-full w-auto object-contain"
+            />
           </div>
-          BSR Admin
+          <span className="font-bold text-[#171717] text-sm tracking-tight">Admin</span>
         </Link>
       </div>
 

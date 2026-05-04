@@ -1,14 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, Shield, Phone, MapPin, Globe, CreditCard, Loader2, Megaphone, Mail } from "lucide-react";
+import { Save, Shield, Phone, MapPin, Globe, CreditCard, Loader2, Megaphone, Mail, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabase";
 
 const SETTINGS_ID = '00000000-0000-0000-0000-000000000000';
 
@@ -22,7 +17,7 @@ export default function AdminSettingsPage() {
     whatsapp_number: "917829333444",
     store_email: "bsrshoppingmall@gmail.com",
     store_address: "Main Road, Sompeta, Srikakulam District, AP",
-    announcement_text: "",
+    announcements: [] as string[],
     announcement_active: false,
     razorpay_key: "rzp_test_...",
     free_shipping_threshold: 2000,
@@ -32,20 +27,7 @@ export default function AdminSettingsPage() {
     fetchSettings();
   }, []);
 
-  const getClient = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) return null;
-    return createClient(url, key);
-  };
-
   const fetchSettings = async () => {
-    const supabase = getClient();
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-
     const { data } = await supabase
       .from("settings")
       .select("*")
@@ -58,40 +40,56 @@ export default function AdminSettingsPage() {
         whatsapp_number: data.whatsapp_number || "",
         store_email: data.store_email || "",
         store_address: data.store_address || "",
-        announcement_text: data.announcement_text || "",
+        announcements: Array.isArray(data.announcements) ? data.announcements : (data.announcement_text ? [data.announcement_text] : []),
         announcement_active: data.announcement_active || false,
         razorpay_key: data.razorpay_key || "",
-        free_shipping_threshold: data.free_shipping_threshold || 2000,
+        free_shipping_threshold: data.free_shipping_threshold || 0,
       });
     }
     setLoading(false);
   };
 
   const handleSave = async () => {
-    const supabase = getClient();
-    if (!supabase) {
-      alert("Supabase not configured");
-      return;
-    }
-
     setSaving(true);
     setSaveStatus("idle");
 
-    const { error } = await supabase
-      .from("settings")
-      .upsert({ 
-        id: SETTINGS_ID,
-        ...settings,
-        updated_at: new Date().toISOString()
-      });
+    try {
+      const { error } = await supabase
+        .from("settings")
+        .upsert({ 
+          id: SETTINGS_ID,
+          ...settings,
+          updated_at: new Date().toISOString()
+        });
 
-    if (error) {
-      setSaveStatus("error");
-    } else {
+      if (error) throw error;
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 3000);
+    } catch (err) {
+      console.error("Save error:", err);
+      setSaveStatus("error");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
+  };
+
+  const addAnnouncement = () => {
+    if (settings.announcements.length < 5) {
+      setSettings(p => ({ ...p, announcements: [...p.announcements, ""] }));
+    }
+  };
+
+  const removeAnnouncement = (index: number) => {
+    setSettings(p => ({
+      ...p,
+      announcements: p.announcements.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateAnnouncement = (index: number, value: string) => {
+    const newAnns = [...settings.announcements];
+    newAnns[index] = value;
+    setSettings(p => ({ ...p, announcements: newAnns }));
   };
 
   if (loading) {
@@ -138,21 +136,22 @@ export default function AdminSettingsPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-[#888] mb-1.5 uppercase tracking-wider">Email Address</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-3 text-[#888]" />
-              <input type="email" value={settings.store_email} onChange={(e) => setSettings(p => ({ ...p, store_email: e.target.value }))}
-                className="w-full pl-8 pr-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-[#888] mb-1.5 uppercase tracking-wider">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-3 text-[#888]" />
+                <input type="email" value={settings.store_email} onChange={(e) => setSettings(p => ({ ...p, store_email: e.target.value }))}
+                  className="w-full pl-8 pr-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10" />
+              </div>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-[#888] mb-1.5 uppercase tracking-wider">Store Address</label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 size-3 text-[#888]" />
-              <textarea rows={2} value={settings.store_address} onChange={(e) => setSettings(p => ({ ...p, store_address: e.target.value }))}
-                className="w-full pl-8 pr-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10 resize-none" />
+            <div>
+              <label className="block text-xs font-medium text-[#888] mb-1.5 uppercase tracking-wider">Store Address</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 size-3 text-[#888]" />
+                <textarea rows={1} value={settings.store_address} onChange={(e) => setSettings(p => ({ ...p, store_address: e.target.value }))}
+                  className="w-full pl-8 pr-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10 resize-none" />
+              </div>
             </div>
           </div>
         </div>
@@ -184,7 +183,7 @@ export default function AdminSettingsPage() {
         <div className="bg-white rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] p-6 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-[#171717] flex items-center gap-2">
-              <Megaphone className="size-4 text-[#888]" /> Announcement Banner
+              <Megaphone className="size-4 text-[#888]" /> Announcement Bar
             </h2>
             <div className="flex items-center gap-2">
               <span className="text-xs text-[#888]">Active</span>
@@ -196,8 +195,34 @@ export default function AdminSettingsPage() {
               </button>
             </div>
           </div>
-          <input value={settings.announcement_text} onChange={(e) => setSettings(p => ({ ...p, announcement_text: e.target.value }))}
-            placeholder="e.g. Festival Sale is Live! Get 20% off on all ethnic wear." className="w-full px-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10" />
+          
+          <div className="space-y-3">
+            {settings.announcements.map((ann, idx) => (
+              <div key={idx} className="flex gap-2">
+                <input 
+                  value={ann} 
+                  onChange={(e) => updateAnnouncement(idx, e.target.value)}
+                  placeholder={`Announcement ${idx + 1}`} 
+                  className="flex-1 px-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10" 
+                />
+                <button 
+                  onClick={() => removeAnnouncement(idx)}
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            ))}
+            
+            {settings.announcements.length < 5 && (
+              <button 
+                onClick={addAnnouncement}
+                className="w-full py-2 border border-dashed border-[#eaeaea] rounded-lg text-xs font-medium text-[#888] hover:bg-[#fafafa] transition-colors"
+              >
+                + Add Announcement (Up to 5)
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="bg-slate-50 rounded-xl border border-slate-200 p-6">
@@ -206,7 +231,7 @@ export default function AdminSettingsPage() {
           </h2>
           <p className="text-xs text-slate-500 leading-relaxed">
             This dashboard is protected by <span className="font-bold text-slate-700">AdminGuard</span>. 
-            Only authorized emails can access these settings. Current user session is active.
+            Only authorized profiles with the 'admin' role can modify these settings.
           </p>
         </div>
       </div>

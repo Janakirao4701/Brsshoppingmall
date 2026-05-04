@@ -30,7 +30,7 @@ import {
 import { LanguageToggle } from "./LanguageToggle";
 import { SearchOverlay } from "./SearchOverlay";
 import { useCart, useWishlist } from "@/lib/store";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 export function Navbar() {
   const t = useTranslations("Navbar");
@@ -38,31 +38,37 @@ export function Navbar() {
   const wishlist = useWishlist();
   const [mounted, setMounted] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const [announcement, setAnnouncement] = React.useState<{ text: string; active: boolean } | null>(null);
+  const [announcements, setAnnouncements] = React.useState<string[]>([]);
+  const [announcementActive, setAnnouncementActive] = React.useState(false);
+  const [currentIdx, setCurrentIdx] = React.useState(0);
 
   React.useEffect(() => {
     setMounted(true);
     fetchAnnouncement();
   }, []);
 
+  React.useEffect(() => {
+    if (announcements.length > 1 && announcementActive) {
+      const interval = setInterval(() => {
+        setCurrentIdx((prev) => (prev + 1) % announcements.length);
+      }, 5000); // Switch every 5 seconds
+      return () => clearInterval(interval);
+    }
+  }, [announcements, announcementActive]);
+
   const fetchAnnouncement = async () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) return;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
     const { data } = await supabase
       .from("settings")
-      .select("announcement_text, announcement_active")
+      .select("announcement_text, announcement_active, announcements")
       .eq("id", '00000000-0000-0000-0000-000000000000')
       .single();
     
     if (data) {
-      setAnnouncement({
-        text: data.announcement_text,
-        active: data.announcement_active
-      });
+      setAnnouncementActive(data.announcement_active);
+      const anns = Array.isArray(data.announcements) && data.announcements.length > 0 
+        ? data.announcements 
+        : (data.announcement_text ? [data.announcement_text] : []);
+      setAnnouncements(anns);
     }
   };
 
@@ -76,9 +82,14 @@ export function Navbar() {
 
   return (
     <>
-      {mounted && announcement?.active && announcement.text && (
-        <div className="bg-brand-red text-white text-center py-2.5 text-[10px] sm:text-xs font-bold tracking-widest uppercase animate-in fade-in slide-in-from-top duration-700">
-          {announcement.text}
+      {mounted && announcementActive && announcements.length > 0 && (
+        <div className="bg-brand-red text-white text-center py-2.5 text-[10px] sm:text-xs font-bold tracking-widest uppercase overflow-hidden whitespace-nowrap">
+          <div 
+            key={currentIdx}
+            className="animate-in fade-in slide-in-from-right duration-700"
+          >
+            {announcements[currentIdx]}
+          </div>
         </div>
       )}
       <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md shadow-sm">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "@/i18n/routing";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,10 +13,6 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // If it's the login page, we are already authorized to see it
     if (isLoginPage) return;
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
 
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();

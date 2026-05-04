@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { Upload, X, Loader2, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, Crop } from "lucide-react";
+import { Upload, X, Loader2, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, Crop, Pencil } from "lucide-react";
 import Link from "next/link";
 import { ImageCropper } from "@/components/admin/ImageCropper";
 
@@ -45,6 +45,8 @@ export default function BannersPage() {
     cta_link: "/",
   });
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+
   useEffect(() => {
     fetchBanners();
   }, []);
@@ -57,6 +59,20 @@ export default function BannersPage() {
       .order("sort_order", { ascending: true });
     setBanners(data || []);
     setLoading(false);
+  };
+
+  const startEdit = (banner: Banner) => {
+    setForm({
+      title: banner.title,
+      subtitle: banner.subtitle || "",
+      discount_text: banner.discount_text || "",
+      cta_text: banner.cta_text,
+      cta_link: banner.cta_link,
+    });
+    setImagePreview(banner.image_url);
+    setEditingId(banner.id);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +103,7 @@ export default function BannersPage() {
 
     try {
       const supabase = getSupabase();
-      let imageUrl = "";
+      let imageUrl = imagePreview || "";
 
       if (imageFile) {
         const fileExt = imageFile.name.split(".").pop();
@@ -102,28 +118,41 @@ export default function BannersPage() {
           .from("products")
           .getPublicUrl(`banners/${fileName}`);
         imageUrl = publicUrl;
-      } else {
-        throw new Error("Please select an image for the banner.");
       }
 
-      const { error: dbError } = await supabase.from("hero_banners").insert([{
+      if (!imageUrl) throw new Error("Please select an image for the banner.");
+
+      const bannerData = {
         title: form.title,
         subtitle: form.subtitle || null,
         discount_text: form.discount_text || null,
         cta_text: form.cta_text,
         cta_link: form.cta_link,
         image_url: imageUrl,
-        sort_order: banners.length,
+        sort_order: editingId ? banners.find(b => b.id === editingId)?.sort_order : banners.length,
         is_active: true,
-      }]);
+      };
 
-      if (dbError) throw new Error("Database error: " + dbError.message);
+      if (editingId) {
+        const { error: dbError } = await supabase
+          .from("hero_banners")
+          .update(bannerData)
+          .eq("id", editingId);
+        if (dbError) throw new Error("Database error: " + dbError.message);
+        setSuccess("Banner updated successfully!");
+      } else {
+        const { error: dbError } = await supabase
+          .from("hero_banners")
+          .insert([bannerData]);
+        if (dbError) throw new Error("Database error: " + dbError.message);
+        setSuccess("Banner added successfully!");
+      }
 
-      setSuccess("Banner added successfully!");
       setForm({ title: "", subtitle: "", discount_text: "", cta_text: "Shop Now", cta_link: "/" });
       setImageFile(null);
       setImagePreview(null);
       setShowForm(false);
+      setEditingId(null);
       fetchBanners();
     } catch (err: any) {
       setError(err.message);
@@ -180,7 +209,7 @@ export default function BannersPage() {
       {/* Add Banner Form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] p-8 space-y-6">
-          <h2 className="text-lg font-semibold text-[#171717]">New Banner</h2>
+          <h2 className="text-lg font-semibold text-[#171717]">{editingId ? "Edit Banner" : "New Banner"}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -259,12 +288,12 @@ export default function BannersPage() {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#eaeaea]">
-            <button type="button" onClick={() => setShowForm(false)}
+            <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }}
               className="px-4 py-2 text-sm font-medium text-[#666666] hover:text-[#171717]">Cancel</button>
             <button type="submit" disabled={saving}
               className="px-6 py-2.5 bg-[#171717] text-sm font-medium text-white rounded-md hover:bg-[#333333] transition-colors disabled:opacity-70 flex items-center gap-2">
               {saving ? <Loader2 className="size-4 animate-spin" /> : null}
-              {saving ? "Uploading..." : "Save Banner"}
+              {saving ? "Saving..." : editingId ? "Update Banner" : "Save Banner"}
             </button>
           </div>
         </form>
@@ -322,6 +351,10 @@ export default function BannersPage() {
                     className={`p-2 rounded-md transition-colors ${banner.is_active ? 'text-green-600 hover:bg-green-50' : 'text-[#888888] hover:bg-[#fafafa]'}`}
                     title={banner.is_active ? "Hide" : "Show"}>
                     {banner.is_active ? <Eye size={15} /> : <EyeOff size={15} />}
+                  </button>
+                  <button onClick={() => startEdit(banner)}
+                    className="p-2 text-[#888888] hover:text-brand-red hover:bg-slate-50 rounded-md transition-colors" title="Edit">
+                    <Pencil size={15} />
                   </button>
                   <button onClick={() => deleteBanner(banner.id)}
                     className="p-2 text-[#888888] hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Delete">

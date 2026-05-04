@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Loader2, Mail, Lock, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,11 +20,6 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,

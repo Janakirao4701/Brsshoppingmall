@@ -6,36 +6,36 @@ import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { ImageCropper } from "./ImageCropper";
 
-export function ProductForm() {
+export function ProductForm({ initialData }: { initialData?: any }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(initialData?.images?.[0] || null);
   const [showCropper, setShowCropper] = useState(false);
   const [rawImage, setRawImage] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    price: "",
-    original_price: "",
-    category: "men",
-    subcategory: "",
-    brand: "",
-    sizes: "",
-    colors: "",
+    name: initialData?.name || "",
+    slug: initialData?.slug || "",
+    description: initialData?.description || "",
+    price: initialData?.price?.toString() || "",
+    original_price: initialData?.original_price?.toString() || "",
+    category: initialData?.category || "men",
+    subcategory: initialData?.subcategory || "",
+    brand: initialData?.brand || "",
+    sizes: initialData?.sizes?.join(", ") || "",
+    colors: initialData?.colors?.join(", ") || "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Auto-generate slug from name
-    if (name === "name") {
+    // Auto-generate slug from name (only if not editing or slug is empty)
+    if (name === "name" && !initialData) {
       setFormData(prev => ({ 
         ...prev, 
         slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
@@ -74,9 +74,9 @@ export function ProductForm() {
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
       const supabase = createClient(supabaseUrl, supabaseKey);
 
-      let imageUrl = "/images/bsr-placeholder.jpg";
+      let imageUrl = imagePreview || "/images/bsr-placeholder.jpg";
 
-      // 1. Upload Image to Supabase Storage if provided
+      // 1. Upload Image to Supabase Storage if a NEW file was provided
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
@@ -86,10 +86,9 @@ export function ProductForm() {
           .upload(fileName, imageFile);
 
         if (uploadError) {
-          throw new Error("Failed to upload image. Please ensure you have created a 'products' bucket in Supabase and made it public. Error: " + uploadError.message);
+          throw new Error("Failed to upload image. Error: " + uploadError.message);
         }
 
-        // Get public URL
         const { data: { publicUrl } } = supabase.storage
           .from("products")
           .getPublicUrl(fileName);
@@ -97,11 +96,11 @@ export function ProductForm() {
         imageUrl = publicUrl;
       }
 
-      // 2. Insert into Database
-      const sizesArray = formData.sizes.split(",").map(s => s.trim()).filter(Boolean);
-      const colorsArray = formData.colors.split(",").map(s => s.trim()).filter(Boolean);
+      // 2. Prepare Data
+      const sizesArray = formData.sizes.split(",").map((s: string) => s.trim()).filter(Boolean);
+      const colorsArray = formData.colors.split(",").map((s: string) => s.trim()).filter(Boolean);
 
-      const newProduct = {
+      const productData = {
         name: formData.name,
         slug: formData.slug,
         description: formData.description,
@@ -114,28 +113,40 @@ export function ProductForm() {
         colors: colorsArray.length > 0 ? colorsArray : ["Default"],
         images: [imageUrl],
         in_stock: true,
-        featured: false
+        featured: initialData?.featured || false
       };
 
-      const { error: dbError } = await supabase
-        .from("products")
-        .insert([newProduct]);
+      if (initialData) {
+        // UPDATE
+        const { error: dbError } = await supabase
+          .from("products")
+          .update(productData)
+          .eq("id", initialData.id);
+        
+        if (dbError) throw new Error("Database Error: " + dbError.message);
+        setSuccess(true);
+      } else {
+        // INSERT
+        const { error: dbError } = await supabase
+          .from("products")
+          .insert([productData]);
 
-      if (dbError) throw new Error("Database Error: " + dbError.message);
-
-      setSuccess(true);
-      
-      // Reset form
-      setFormData({
-        name: "", slug: "", description: "", price: "", original_price: "",
-        category: "men", subcategory: "", brand: "", sizes: "", colors: "",
-      });
-      setImageFile(null);
-      setImagePreview(null);
+        if (dbError) throw new Error("Database Error: " + dbError.message);
+        setSuccess(true);
+        
+        // Reset form for new entry
+        setFormData({
+          name: "", slug: "", description: "", price: "", original_price: "",
+          category: "men", subcategory: "", brand: "", sizes: "", colors: "",
+        });
+        setImageFile(null);
+        setImagePreview(null);
+      }
       
       setTimeout(() => {
+        router.push("/admin/products");
         router.refresh();
-      }, 2000);
+      }, 1500);
 
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
