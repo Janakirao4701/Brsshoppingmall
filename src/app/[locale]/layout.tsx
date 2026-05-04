@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   },
 };
 
-import { WhatsAppWidget } from "@/components/ui/WhatsAppWidget";
+
 
 export default async function RootLayout({
   children,
@@ -81,7 +81,6 @@ export default async function RootLayout({
           <div className="flex-1 flex flex-col">
             {children}
           </div>
-          <WhatsAppWidget />
         </NextIntlClientProvider>
       </body>
     </html>
