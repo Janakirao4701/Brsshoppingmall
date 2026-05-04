@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { 
@@ -39,12 +40,17 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-20 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-heading font-bold text-brand-gradient">
-            BSR Shopping Mall
-          </span>
+          <Image
+            src="/bsr-logo.png"
+            alt="BSR Shopping Mall"
+            width={200}
+            height={80}
+            className="h-16 w-auto object-contain"
+            priority
+          />
         </Link>
 
         {/* Desktop Navigation */}

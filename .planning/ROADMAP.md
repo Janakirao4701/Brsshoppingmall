@@ -26,8 +26,8 @@ This roadmap defines the end-to-end journey for building the BSR Shopping Mall e
 
 Plans:
 - [x] 01-01: Next.js Setup & Global Layout
-- [ ] 01-02: Hero Banner & Store Locator Sections
-- [ ] 01-03: Language Toggle Implementation
+- [x] 01-02: Hero Banner & Store Locator Sections
+- [x] 01-03: Language Toggle Implementation
 
 ### Phase 2: Product Catalog
 **Goal**: Implement dynamic product listing, search capabilities, and detailed product views.
@@ -99,7 +99,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Setup & Storefront UI | 0/3 | Not started | - |
+| 1. Project Setup & Storefront UI | 3/3 | Completed | 2026-05-04 |
 | 2. Product Catalog | 0/3 | Not started | - |
 | 3. Checkout & Payments | 0/3 | Not started | - |
 | 4. User Accounts | 0/3 | Not started | - |

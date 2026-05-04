@@ -1,5 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Phone, Mail, MapPin, Globe, Camera, X } from "lucide-react";
 
 export function Footer() {
@@ -9,7 +10,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand Info */}
           <div className="space-y-4">
-            <h3 className="text-xl font-heading font-bold text-white">BSR Shopping Mall</h3>
+            <div className="bg-white rounded-lg p-2 inline-block">
+              <Image
+                src="/bsr-logo.png"
+                alt="BSR Shopping Mall"
+                width={160}
+                height={64}
+                className="h-12 w-auto object-contain"
+              />
+            </div>
             <p className="text-sm leading-relaxed">
               Readymade Garments for Men, Women & Kids. A unit of Baratam Group, serving Sompeta and Palasa since 2004.
             </p>
