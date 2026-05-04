@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { Upload, X, Loader2, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react";
+import { Upload, X, Loader2, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, Crop } from "lucide-react";
 import Link from "next/link";
+import { ImageCropper } from "@/components/admin/ImageCropper";
 
 interface Banner {
   id: string;
@@ -33,6 +34,8 @@ export default function BannersPage() {
   const [success, setSuccess] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [rawImage, setRawImage] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -59,9 +62,21 @@ export default function BannersPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onload = () => {
+        setRawImage(reader.result as string);
+        setShowCropper(true);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "banner_image.jpg", { type: "image/jpeg" });
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(croppedBlob));
+    setShowCropper(false);
+    setRawImage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -207,12 +222,29 @@ export default function BannersPage() {
             <label className="text-sm font-medium text-[#171717]">Banner Image *</label>
             <div className="border-2 border-dashed border-[#eaeaea] rounded-xl p-6 flex flex-col items-center justify-center bg-[#fafafa] relative hover:bg-[#f5f5f5] transition-colors">
               {imagePreview ? (
-                <div className="relative w-full max-w-md h-40">
+                <div className="relative w-full max-w-md h-40 group">
                   <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-md shadow-sm" />
-                  <button type="button" onClick={() => { setImageFile(null); setImagePreview(null); }}
-                    className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full shadow-[0_0_0_1px_rgba(0,0,0,0.1)] p-1 hover:bg-red-50">
-                    <X size={14} />
-                  </button>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setRawImage(imagePreview);
+                        setShowCropper(true);
+                      }}
+                      className="bg-white text-brand-red rounded-full p-2.5 hover:bg-slate-50 transition-colors"
+                      title="Edit Crop"
+                    >
+                      <Crop size={18} />
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => { setImageFile(null); setImagePreview(null); }}
+                      className="bg-white text-red-500 rounded-full p-2.5 hover:bg-slate-50 transition-colors"
+                      title="Remove Image"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -301,6 +333,15 @@ export default function BannersPage() {
           ))
         )}
       </div>
+
+      {showCropper && rawImage && (
+        <ImageCropper 
+          image={rawImage}
+          aspect={21/9}
+          onCropComplete={handleCropComplete}
+          onCancel={() => { setShowCropper(false); setRawImage(null); }}
+        />
+      )}
     </div>
   );
 }

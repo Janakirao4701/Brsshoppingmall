@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, Crop } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import { ImageCropper } from "./ImageCropper";
 
 export function ProductForm() {
   const router = useRouter();
@@ -12,6 +13,8 @@ export function ProductForm() {
   const [success, setSuccess] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [rawImage, setRawImage] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -43,9 +46,21 @@ export function ProductForm() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onload = () => {
+        setRawImage(reader.result as string);
+        setShowCropper(true);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "product_image.jpg", { type: "image/jpeg" });
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(croppedBlob));
+    setShowCropper(false);
+    setRawImage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -269,15 +284,29 @@ export function ProductForm() {
         <label className="text-sm font-medium text-[#171717]">Product Image</label>
         <div className="border-2 border-dashed border-[#eaeaea] rounded-xl p-8 flex flex-col items-center justify-center bg-[#fafafa] relative hover:bg-[#f5f5f5] transition-colors">
           {imagePreview ? (
-            <div className="relative w-32 h-40">
+            <div className="relative w-32 h-40 group">
               <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-md shadow-sm" />
-              <button 
-                type="button"
-                onClick={() => { setImageFile(null); setImagePreview(null); }}
-                className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full shadow-[0_0_0_1px_rgba(0,0,0,0.1)] p-1 hover:bg-red-50 transition-colors"
-              >
-                <X size={14} />
-              </button>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md gap-2">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setRawImage(imagePreview);
+                    setShowCropper(true);
+                  }}
+                  className="bg-white text-brand-red rounded-full p-2 hover:bg-slate-50 transition-colors"
+                  title="Edit Crop"
+                >
+                  <Crop size={16} />
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => { setImageFile(null); setImagePreview(null); }}
+                  className="bg-white text-red-500 rounded-full p-2 hover:bg-slate-50 transition-colors"
+                  title="Remove Image"
+                >
+                  <X size={16} />
+                </button>
+              </div>
             </div>
           ) : (
             <>
@@ -306,6 +335,15 @@ export function ProductForm() {
           {loading ? "Uploading..." : "Save Product"}
         </button>
       </div>
+
+      {showCropper && rawImage && (
+        <ImageCropper 
+          image={rawImage}
+          aspect={3/4}
+          onCropComplete={handleCropComplete}
+          onCancel={() => { setShowCropper(false); setRawImage(null); }}
+        />
+      )}
     </form>
   );
 }
