@@ -10,7 +10,7 @@ This roadmap defines the end-to-end journey for building the BSR Shopping Mall e
 - [x] **Phase 2: Product Catalog** - Implement the product browsing experience including categories, search, filtering, and detail pages.
 - [x] **Phase 3: Checkout & Payments** - Build the shopping cart, checkout flow, Razorpay integration, and shipping calculators.
 - [x] **Phase 4: User Accounts** - Implement authentication, profile management, and order history viewing.
-- [ ] **Phase 5: Admin Panel** - Create protected routes for managing products, inventory, and viewing orders/inquiries.
+- [x] **Phase 5: Admin Panel** - Create protected routes for managing products, inventory, and viewing orders/inquiries.
 
 ## Phase Details
 
@@ -88,9 +88,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [x] 05-01: Admin Middleware & Layout
-- [x] 05-02: Product & Inventory Management
-- [ ] 05-03: Order & Inquiry Management
+- [x] 05-01: Admin Dashboard & CRUD for Products
+- [x] 05-02: Admin Hero Banner Management
+- [x] 05-03: Order & Inquiry Management
 
 ## Progress
 
@@ -99,8 +99,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Setup & Storefront UI | 3/3 | Completed | 2026-05-04 |
-| 2. Product Catalog | 3/3 | Completed | 2026-05-04 |
-| 3. Checkout & Payments | 3/3 | Completed | 2026-05-04 |
-| 4. User Accounts | 3/3 | Completed | 2026-05-04 |
-| 5. Admin Panel | 2/3 | In Progress | - |
+| 1. Project Setup & Storefront UI | 3/3 | ✅ Completed | 2026-05-04 |
+| 2. Product Catalog | 3/3 | ✅ Completed | 2026-05-04 |
+| 3. Checkout & Payments | 3/3 | ✅ Completed | 2026-05-04 |
+| 4. User Accounts | 3/3 | ✅ Completed | 2026-05-04 |
+| 5. Admin Panel | 3/3 | ✅ Completed | 2026-05-04 |
