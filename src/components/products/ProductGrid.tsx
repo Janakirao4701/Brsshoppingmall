@@ -1,17 +1,26 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Product } from "@/lib/types";
 import { getBrands, getSubcategories, getPriceRange } from "@/lib/products";
 import { ProductCard } from "./ProductCard";
-import { ProductFilters } from "./ProductFilters";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ProductGridProps {
   products: Product[];
   categoryTitle: string;
   categoryDescription?: string;
 }
+
+const PRICE_RANGES: { label: string; range: [number, number] }[] = [
+  { label: "Under ₹500", range: [0, 500] },
+  { label: "₹500 – ₹1,000", range: [500, 1000] },
+  { label: "₹1,000 – ₹2,000", range: [1000, 2000] },
+  { label: "₹2,000 – ₹5,000", range: [2000, 5000] },
+  { label: "Above ₹5,000", range: [5000, 100000] },
+];
 
 export function ProductGrid({
   products: allProducts,
@@ -23,6 +32,7 @@ export function ProductGrid({
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [selectedPriceRange, setSelectedPriceRange] = useState<[number, number] | null>(null);
   const [sortBy, setSortBy] = useState<string>("newest");
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Apply filters
   const filteredProducts = useMemo(() => {
@@ -72,7 +82,6 @@ export function ProductGrid({
         });
         break;
       default:
-        // newest first (default)
         break;
     }
 
@@ -81,7 +90,7 @@ export function ProductGrid({
 
   const brands = getBrands(allProducts);
   const subcategories = getSubcategories(allProducts);
-  const priceRange = getPriceRange(allProducts);
+  const hasFilters = selectedBrand || selectedSubcategory || selectedPriceRange;
 
   const handleClearAll = () => {
     setSearchQuery("");
@@ -89,6 +98,100 @@ export function ProductGrid({
     setSelectedSubcategory(null);
     setSelectedPriceRange(null);
   };
+
+  // Reusable filter content
+  const filterContent = (
+    <div className="space-y-6">
+      {hasFilters && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-slate-500">
+            {filteredProducts.length} result{filteredProducts.length !== 1 ? "s" : ""}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearAll}
+            className="text-brand-red hover:text-brand-red/80 text-xs"
+          >
+            <X className="size-3 mr-1" /> Clear All
+          </Button>
+        </div>
+      )}
+
+      {/* Subcategory Filter */}
+      {subcategories.length > 0 && (
+        <div>
+          <h4 className="text-sm font-semibold text-slate-900 mb-3">Category</h4>
+          <div className="space-y-1.5">
+            {subcategories.map((sub) => (
+              <button
+                key={sub}
+                onClick={() => setSelectedSubcategory(selectedSubcategory === sub ? null : sub)}
+                className={cn(
+                  "block w-full text-left text-sm px-3 py-2 rounded-lg transition-colors",
+                  selectedSubcategory === sub
+                    ? "bg-brand-red/10 text-brand-red font-medium"
+                    : "text-slate-600 hover:bg-slate-100"
+                )}
+              >
+                {sub}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Brand Filter */}
+      {brands.length > 0 && (
+        <div>
+          <h4 className="text-sm font-semibold text-slate-900 mb-3">Brand</h4>
+          <div className="space-y-1.5">
+            {brands.map((brand) => (
+              <button
+                key={brand}
+                onClick={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
+                className={cn(
+                  "block w-full text-left text-sm px-3 py-2 rounded-lg transition-colors",
+                  selectedBrand === brand
+                    ? "bg-brand-red/10 text-brand-red font-medium"
+                    : "text-slate-600 hover:bg-slate-100"
+                )}
+              >
+                {brand}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Price Filter */}
+      <div>
+        <h4 className="text-sm font-semibold text-slate-900 mb-3">Price</h4>
+        <div className="space-y-1.5">
+          {PRICE_RANGES.map(({ label, range }) => (
+            <button
+              key={label}
+              onClick={() =>
+                setSelectedPriceRange(
+                  selectedPriceRange?.[0] === range[0] && selectedPriceRange?.[1] === range[1]
+                    ? null
+                    : range
+                )
+              }
+              className={cn(
+                "block w-full text-left text-sm px-3 py-2 rounded-lg transition-colors",
+                selectedPriceRange?.[0] === range[0] && selectedPriceRange?.[1] === range[1]
+                  ? "bg-brand-red/10 text-brand-red font-medium"
+                  : "text-slate-600 hover:bg-slate-100"
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="py-8 px-4">
@@ -105,7 +208,7 @@ export function ProductGrid({
           )}
         </div>
 
-        {/* Search + Sort Bar */}
+        {/* Search + Sort + Mobile Filter Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
@@ -119,20 +222,20 @@ export function ProductGrid({
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Mobile Filter Trigger */}
-            <ProductFilters
-              brands={brands}
-              subcategories={subcategories}
-              priceRange={priceRange}
-              selectedBrand={selectedBrand}
-              selectedSubcategory={selectedSubcategory}
-              selectedPriceRange={selectedPriceRange}
-              onBrandChange={setSelectedBrand}
-              onSubcategoryChange={setSelectedSubcategory}
-              onPriceRangeChange={setSelectedPriceRange}
-              onClearAll={handleClearAll}
-              totalResults={filteredProducts.length}
-            />
+            {/* Mobile Filter Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setMobileFiltersOpen(true)}
+              className="lg:hidden border-slate-300"
+            >
+              <SlidersHorizontal className="size-4 mr-2" /> Filters
+              {hasFilters && (
+                <span className="ml-1.5 size-5 rounded-full bg-brand-red text-white text-[10px] font-bold flex items-center justify-center">
+                  !
+                </span>
+              )}
+            </Button>
 
             {/* Sort */}
             <select
@@ -148,24 +251,17 @@ export function ProductGrid({
           </div>
         </div>
 
-        {/* Content */}
+        {/* Main Content: Sidebar + Grid */}
         <div className="flex gap-8">
-          {/* Desktop Sidebar (rendered inside ProductFilters) */}
-          <div className="hidden lg:block">
-            <ProductFilters
-              brands={brands}
-              subcategories={subcategories}
-              priceRange={priceRange}
-              selectedBrand={selectedBrand}
-              selectedSubcategory={selectedSubcategory}
-              selectedPriceRange={selectedPriceRange}
-              onBrandChange={setSelectedBrand}
-              onSubcategoryChange={setSelectedSubcategory}
-              onPriceRangeChange={setSelectedPriceRange}
-              onClearAll={handleClearAll}
-              totalResults={filteredProducts.length}
-            />
-          </div>
+          {/* Desktop Sidebar */}
+          <aside className="hidden lg:block w-64 shrink-0">
+            <div className="sticky top-28 bg-white rounded-2xl border border-slate-200 p-5">
+              <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center">
+                <SlidersHorizontal className="size-4 mr-2" /> Filters
+              </h3>
+              {filterContent}
+            </div>
+          </aside>
 
           {/* Product Grid */}
           <div className="flex-1">
@@ -194,6 +290,37 @@ export function ProductGrid({
             )}
           </div>
         </div>
+
+        {/* Mobile Filter Drawer */}
+        {mobileFiltersOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setMobileFiltersOpen(false)}
+            />
+            <div className="absolute bottom-0 left-0 right-0 max-h-[80vh] bg-white rounded-t-3xl p-6 overflow-y-auto animate-in slide-in-from-bottom">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold">Filters</h3>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMobileFiltersOpen(false)}
+                >
+                  <X className="size-5" />
+                </Button>
+              </div>
+              {filterContent}
+              <div className="mt-6 pt-4 border-t">
+                <Button
+                  className="w-full bg-brand-red hover:bg-brand-red/90 text-white"
+                  onClick={() => setMobileFiltersOpen(false)}
+                >
+                  Show {filteredProducts.length} Results
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

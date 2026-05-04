@@ -6,7 +6,8 @@ import {
   Settings, 
   ShoppingCart,
   Inbox,
-  LogOut
+  LogOut,
+  Image as ImageIcon
 } from "lucide-react";
 
 export function AdminSidebar() {
@@ -31,6 +32,7 @@ export function AdminSidebar() {
         <div className="space-y-1 mb-8">
           <p className="px-3 text-xs font-semibold text-[#888888] mb-2 uppercase tracking-wider">Store</p>
           <NavItem href="/admin/products" icon={<Package size={18} />} label="Products" />
+          <NavItem href="/admin/banners" icon={<ImageIcon size={18} />} label="Hero Banners" />
           <NavItem href="/admin/orders" icon={<ShoppingCart size={18} />} label="Orders" />
           <NavItem href="/admin/customers" icon={<Users size={18} />} label="Customers" />
         </div>
