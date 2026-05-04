@@ -4,6 +4,7 @@ import { useCart } from "@/lib/store";
 import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export function CartDrawer() {
@@ -145,16 +146,23 @@ export function CartDrawer() {
           <div className="p-4 border-t bg-slate-50">
             <div className="flex justify-between items-center mb-4 text-lg font-bold">
               <span>Total</span>
-              <span>₹{getTotalPrice()}</span>
+              <span>₹{getTotalPrice().toLocaleString("en-IN")}</span>
             </div>
             <Button 
-              className="w-full bg-brand-green hover:bg-brand-green/90 text-white font-bold h-12 text-base"
+              className="w-full bg-brand-red hover:bg-brand-red/90 text-white font-bold h-12 text-base mb-2"
+              onClick={() => { setIsOpen(false); window.location.href = "/en/checkout"; }}
+            >
+              Proceed to Checkout
+            </Button>
+            <Button 
+              variant="outline"
+              className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 font-bold h-10 text-sm"
               onClick={handleCheckout}
             >
-              Checkout via WhatsApp
+              Quick Order via WhatsApp
             </Button>
             <p className="text-center text-xs text-slate-500 mt-3">
-              Shipping and taxes calculated during confirmation.
+              Free shipping on orders above ₹2,000
             </p>
           </div>
         )}
