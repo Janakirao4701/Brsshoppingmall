@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
-// List of allowed admin emails
-const ADMIN_EMAILS = ["bsrshoppingmall@gmail.com", "janakirao4701@gmail.com"];
-
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const router = useRouter();
@@ -22,16 +19,22 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
       
       if (!session) {
         setAuthorized(false);
-        router.push("/login?redirect=/admin");
+        router.push("/admin/login");
         return;
       }
 
-      const userEmail = session.user.email;
-      if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
-        setAuthorized(true);
-      } else {
+      // Check for admin role in profiles table
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error || profile?.role !== "admin") {
         setAuthorized(false);
         router.push("/"); // Redirect non-admins to home
+      } else {
+        setAuthorized(true);
       }
     };
 
