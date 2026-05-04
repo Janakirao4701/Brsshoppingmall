@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product } from './types';
+export type { Product };
 
 export interface CartItem {
   product: Product;
@@ -85,6 +86,45 @@ export const useCart = create<CartStore>()(
     {
       name: 'bsr-cart-storage',
       partialize: (state) => ({ items: state.items }), // Only persist items, not isOpen state
+    }
+  )
+);
+
+interface WishlistStore {
+  items: Product[];
+  addItem: (product: Product) => void;
+  removeItem: (productId: string) => void;
+  toggleItem: (product: Product) => void;
+  isInWishlist: (productId: string) => boolean;
+  clearWishlist: () => void;
+}
+
+export const useWishlist = create<WishlistStore>()(
+  persist(
+    (set, get) => ({
+      items: [],
+      addItem: (product) => {
+        if (!get().isInWishlist(product.id)) {
+          set((state) => ({ items: [...state.items, product] }));
+        }
+      },
+      removeItem: (productId) => {
+        set((state) => ({ items: state.items.filter((i) => i.id !== productId) }));
+      },
+      toggleItem: (product) => {
+        if (get().isInWishlist(product.id)) {
+          get().removeItem(product.id);
+        } else {
+          get().addItem(product);
+        }
+      },
+      isInWishlist: (productId) => {
+        return get().items.some((i) => i.id === productId);
+      },
+      clearWishlist: () => set({ items: [] }),
+    }),
+    {
+      name: 'bsr-wishlist-storage',
     }
   )
 );

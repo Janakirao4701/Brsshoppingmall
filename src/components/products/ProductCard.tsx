@@ -2,15 +2,19 @@
 
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
-import { Heart } from "lucide-react";
-import { Product } from "@/lib/types";
+import { useWishlist } from "@/lib/store";
+import { Product } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { Heart } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { toggleItem, isInWishlist } = useWishlist();
+  const isWishlisted = isInWishlist(product.id);
+
   const discount = product.original_price
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
@@ -24,6 +28,7 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       {/* Image */}
       <div className="relative aspect-[3/4] bg-slate-100 overflow-hidden">
+        {/* ... image logic ... */}
         {hasImage ? (
           <Image
             src={product.images[0]}
@@ -54,14 +59,18 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Wishlist */}
         <button
-          className="absolute top-3 right-3 z-10 size-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+          className={cn(
+            "absolute top-3 right-3 z-10 size-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm transition-all hover:bg-white",
+            isWishlisted ? "opacity-100 bg-white" : "opacity-0 group-hover:opacity-100"
+          )}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            toggleItem(product);
           }}
           aria-label="Add to wishlist"
         >
-          <Heart className="size-4 text-slate-600" />
+          <Heart className={cn("size-4 transition-colors", isWishlisted ? "fill-brand-red text-brand-red" : "text-slate-600")} />
         </button>
 
         {/* Hover overlay */}

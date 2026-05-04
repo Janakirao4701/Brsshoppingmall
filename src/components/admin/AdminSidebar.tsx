@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { 
   LayoutDashboard, 
   Package, 
@@ -11,6 +14,8 @@ import {
 } from "lucide-react";
 
 export function AdminSidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="w-[240px] flex-shrink-0 flex flex-col h-screen sticky top-0 bg-[#fafafa] shadow-[1px_0_0_0_rgba(0,0,0,0.08)]">
       <div className="h-16 flex items-center px-6 shadow-[0_1px_0_0_rgba(0,0,0,0.08)]">
@@ -25,21 +30,21 @@ export function AdminSidebar() {
       <div className="flex-1 overflow-y-auto p-4">
         <div className="space-y-1 mb-8">
           <p className="px-3 text-xs font-semibold text-[#888888] mb-2 uppercase tracking-wider">Overview</p>
-          <NavItem href="/admin" icon={<LayoutDashboard size={18} />} label="Dashboard" active />
-          <NavItem href="/admin/inquiries" icon={<Inbox size={18} />} label="Bulk Inquiries" badge="12" />
+          <NavItem href="/admin" icon={<LayoutDashboard size={18} />} label="Dashboard" pathname={pathname} />
+          <NavItem href="/admin/inquiries" icon={<Inbox size={18} />} label="Bulk Inquiries" pathname={pathname} />
         </div>
 
         <div className="space-y-1 mb-8">
           <p className="px-3 text-xs font-semibold text-[#888888] mb-2 uppercase tracking-wider">Store</p>
-          <NavItem href="/admin/products" icon={<Package size={18} />} label="Products" />
-          <NavItem href="/admin/banners" icon={<ImageIcon size={18} />} label="Hero Banners" />
-          <NavItem href="/admin/orders" icon={<ShoppingCart size={18} />} label="Orders" />
-          <NavItem href="/admin/customers" icon={<Users size={18} />} label="Customers" />
+          <NavItem href="/admin/products" icon={<Package size={18} />} label="Products" pathname={pathname} />
+          <NavItem href="/admin/banners" icon={<ImageIcon size={18} />} label="Hero Banners" pathname={pathname} />
+          <NavItem href="/admin/orders" icon={<ShoppingCart size={18} />} label="Orders" pathname={pathname} />
+          <NavItem href="/admin/customers" icon={<Users size={18} />} label="Customers" pathname={pathname} />
         </div>
 
         <div className="space-y-1">
           <p className="px-3 text-xs font-semibold text-[#888888] mb-2 uppercase tracking-wider">System</p>
-          <NavItem href="/admin/settings" icon={<Settings size={18} />} label="Settings" />
+          <NavItem href="/admin/settings" icon={<Settings size={18} />} label="Settings" pathname={pathname} />
         </div>
       </div>
 
@@ -53,12 +58,28 @@ export function AdminSidebar() {
   );
 }
 
-function NavItem({ href, icon, label, active, badge }: { href: string; icon: React.ReactNode; label: string; active?: boolean; badge?: string }) {
+function NavItem({ 
+  href, 
+  icon, 
+  label, 
+  pathname, 
+  badge 
+}: { 
+  href: string; 
+  icon: React.ReactNode; 
+  label: string; 
+  pathname: string; 
+  badge?: string 
+}) {
+  // Extract locale from pathname (e.g., /en/admin -> /admin)
+  const normalizedPathname = pathname.replace(/^\/[a-z]{2}/, "") || "/";
+  const isActive = normalizedPathname === href || (href !== "/admin" && normalizedPathname.startsWith(href));
+
   return (
     <Link 
       href={href}
       className={`flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
-        active 
+        isActive 
           ? "bg-black/5 text-[#171717] font-medium" 
           : "text-[#4d4d4d] hover:text-[#171717] hover:bg-black/5"
       }`}

@@ -8,7 +8,8 @@ import {
   Search, 
   ShoppingCart, 
   User, 
-  Menu 
+  Menu,
+  Heart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,17 +28,43 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { LanguageToggle } from "./LanguageToggle";
-
-import { useCart } from "@/lib/store";
+import { SearchOverlay } from "./SearchOverlay";
+import { useCart, useWishlist } from "@/lib/store";
+import { createClient } from "@supabase/supabase-js";
 
 export function Navbar() {
   const t = useTranslations("Navbar");
   const cart = useCart();
+  const wishlist = useWishlist();
   const [mounted, setMounted] = React.useState(false);
+  const [searchOpen, setSearchOpen] = React.useState(false);
+  const [announcement, setAnnouncement] = React.useState<{ text: string; active: boolean } | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
+    fetchAnnouncement();
   }, []);
+
+  const fetchAnnouncement = async () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) return;
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const { data } = await supabase
+      .from("settings")
+      .select("announcement_text, announcement_active")
+      .eq("id", '00000000-0000-0000-0000-000000000000')
+      .single();
+    
+    if (data) {
+      setAnnouncement({
+        text: data.announcement_text,
+        active: data.announcement_active
+      });
+    }
+  };
 
   const NAV_LINKS = [
     { name: t("home"), href: "/" },
@@ -48,98 +75,136 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="container mx-auto flex h-24 items-center justify-between px-4">
-        {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/bsr-logo.png"
-            alt="BSR Shopping Mall"
-            width={300}
-            height={120}
-            className="h-[88px] w-auto object-contain"
-            priority
-          />
-        </Link>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-4">
-          <NavigationMenu>
-            <NavigationMenuList>
-              {NAV_LINKS.map((link) => (
-                <NavigationMenuItem key={link.name}>
-                  <Link href={link.href} className={navigationMenuTriggerStyle()}>
-                    {link.name}
-                  </Link>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
+    <>
+      {mounted && announcement?.active && announcement.text && (
+        <div className="bg-brand-red text-white text-center py-2.5 text-[10px] sm:text-xs font-bold tracking-widest uppercase animate-in fade-in slide-in-from-top duration-700">
+          {announcement.text}
         </div>
-
-        {/* Right Icons */}
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <Button variant="ghost" size="icon" aria-label={t("search")}>
-            <Search className="size-5" />
-          </Button>
-          
-          <LanguageToggle />
-
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative" 
-            aria-label={t("cart")}
-            onClick={() => cart.setIsOpen(true)}
-          >
-            <ShoppingCart className="size-5" />
-            {mounted && cart.getTotalItems() > 0 && (
-              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-white">
-                {cart.getTotalItems()}
-              </span>
-            )}
-          </Button>
-
-          <Link href="/account">
-            <Button variant="ghost" size="icon" aria-label={t("account")} className="hidden sm:inline-flex">
-              <User className="size-5" />
-            </Button>
+      )}
+      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md shadow-sm">
+        <div className="container mx-auto flex h-24 items-center justify-between px-4">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/bsr-logo.png"
+              alt="BSR Shopping Mall"
+              width={300}
+              height={120}
+              className="h-[88px] w-auto object-contain"
+              priority
+            />
           </Link>
 
-          {/* Mobile Menu Trigger */}
-          <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Menu">
-                  <Menu className="size-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetHeader>
-                  <SheetTitle className="text-brand-gradient">BSR Menu</SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col space-y-4 mt-8">
-                  {NAV_LINKS.map((link) => (
-                    <Link
-                      key={link.name}
-                      href={link.href}
-                      className="text-lg font-medium hover:text-brand-red transition-colors"
-                    >
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {NAV_LINKS.map((link) => (
+                  <NavigationMenuItem key={link.name}>
+                    <Link href={link.href} className={navigationMenuTriggerStyle()}>
                       {link.name}
                     </Link>
-                  ))}
-                  <Link
-                    href="/account"
-                    className="text-lg font-medium hover:text-brand-red transition-colors flex items-center"
-                  >
-                    <User className="mr-2 size-5" /> {t("account")}
-                  </Link>
-                </nav>
-              </SheetContent>
-            </Sheet>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+
+          {/* Right Icons */}
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              aria-label={t("search")}
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search className="size-5" />
+            </Button>
+            
+            <LanguageToggle />
+
+            {/* Wishlist Icon */}
+            <Link href="/account" className="hidden sm:inline-flex">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative" 
+                aria-label="Wishlist"
+              >
+                <Heart className="size-5" />
+                {mounted && wishlist.items.length > 0 && (
+                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
+                    {wishlist.items.length}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative" 
+              aria-label={t("cart")}
+              onClick={() => cart.setIsOpen(true)}
+            >
+              <ShoppingCart className="size-5" />
+              {mounted && cart.getTotalItems() > 0 && (
+                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-white">
+                  {cart.getTotalItems()}
+                </span>
+              )}
+            </Button>
+
+            <Link href="/account">
+              <Button variant="ghost" size="icon" aria-label={t("account")} className="hidden sm:inline-flex">
+                <User className="size-5" />
+              </Button>
+            </Link>
+
+            {/* Mobile Menu Trigger */}
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Menu">
+                    <Menu className="size-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right">
+                  <SheetHeader>
+                    <SheetTitle className="text-brand-gradient text-left">BSR Menu</SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col space-y-4 mt-8">
+                    {NAV_LINKS.map((link) => (
+                      <Link
+                        key={link.name}
+                        href={link.href}
+                        className="text-lg font-medium hover:text-brand-red transition-colors"
+                      >
+                        {link.name}
+                      </Link>
+                    ))}
+                    <div className="h-px bg-slate-100 my-2" />
+                    <Link
+                      href="/account"
+                      className="text-lg font-medium hover:text-brand-red transition-colors flex items-center"
+                    >
+                      <User className="mr-3 size-5" /> {t("account")}
+                    </Link>
+                    <Link
+                      href="/account"
+                      className="text-lg font-medium hover:text-brand-red transition-colors flex items-center"
+                    >
+                      <Heart className="mr-3 size-5" /> Wishlist
+                    </Link>
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+
+        <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      </header>
+    </>
   );
 }

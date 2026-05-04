@@ -5,11 +5,12 @@ import { Link } from "@/i18n/routing";
 import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { setRequestLocale } from 'next-intl/server';
+import Image from "next/image";
 
 const CATEGORIES = [
-  { nameKey: "men", href: "/men", descriptionKey: "menDesc" },
-  { nameKey: "women", href: "/women", descriptionKey: "womenDesc" },
-  { nameKey: "kids", href: "/kids", descriptionKey: "kidsDesc" },
+  { nameKey: "men", href: "/men", image: "/category-men.png" },
+  { nameKey: "women", href: "/women", image: "/category-women.png" },
+  { nameKey: "kids", href: "/kids", image: "/category-kids.png" },
 ];
 
 export default function Home({
@@ -35,30 +36,39 @@ export default function Home({
         <div className="container mx-auto">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-heading font-bold">Featured Categories</h2>
-              <p className="text-muted-foreground">Explore our curated collections for everyone</p>
+              <h2 className="text-3xl font-heading font-bold text-slate-900">Featured Categories</h2>
+              <p className="text-slate-500">Explore our curated collections for everyone</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {CATEGORIES.map((category) => (
+            {CATEGORIES.map((category, idx) => (
               <Link 
                 key={category.nameKey} 
                 href={category.href as "/men" | "/women" | "/kids"}
-                className="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200"
+                className="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200 shadow-sm"
               >
-                {/* Background (Gradient placeholder) */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
-                <div className="absolute inset-0 bg-brand-red/10 group-hover:bg-brand-red/0 transition-colors duration-500" />
+                {/* Image */}
+                <Image
+                  src={category.image}
+                  alt={t(category.nameKey)}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  priority={idx === 0}
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 opacity-80 group-hover:opacity-100 transition-opacity" />
                 
                 {/* Content */}
-                <div className="absolute bottom-0 left-0 w-full p-6 z-20 transform group-hover:-translate-y-2 transition-transform duration-300">
-                  <h3 className="text-2xl font-heading font-bold text-white mb-1">{t(category.nameKey)}</h3>
-                  <p className="text-white/80 text-sm mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Quality collection for {t(category.nameKey)}
+                <div className="absolute bottom-0 left-0 w-full p-8 z-20 transform group-hover:-translate-y-2 transition-transform duration-500">
+                  <p className="text-brand-orange text-xs font-bold uppercase tracking-widest mb-2 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
+                    Premium Collection
                   </p>
-                  <div className="inline-flex items-center text-white text-sm font-bold uppercase tracking-wider">
-                    Shop {t(category.nameKey)} <ChevronRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  <h3 className="text-3xl font-heading font-bold text-white mb-2">{t(category.nameKey)}</h3>
+                  <div className="inline-flex items-center text-white/90 text-sm font-medium">
+                    Shop Collection <ChevronRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </Link>

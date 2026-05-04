@@ -24,13 +24,34 @@ interface ProductDetailProps {
   relatedProducts: Product[];
 }
 
-import { useCart } from "@/lib/store";
+import { useCart, useWishlist } from "@/lib/store";
 
 export function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string>(product.colors[0] || "Default");
   const [quantity, setQuantity] = useState(1);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const { addItem } = useCart();
+  const { toggleItem, isInWishlist } = useWishlist();
+
+  const isWishlisted = isInWishlist(product.id);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: `Check out ${product.name} on BSR Shopping Mall!`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
@@ -71,19 +92,31 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
 
         {/* Product Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-          {/* Left: Image */}
+          {/* Left: Images */}
           <div className="space-y-4">
-            <div className="relative aspect-[3/4] bg-slate-100 rounded-2xl overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center text-slate-300">
-                <div className="text-center space-y-4">
-                  <div className="size-24 mx-auto rounded-full bg-slate-200 flex items-center justify-center">
-                    <span className="text-5xl">👕</span>
+            <div className="relative aspect-[3/4] bg-slate-100 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+              {product.images && product.images.length > 0 ? (
+                <Image
+                  src={product.images[activeImageIndex]}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+                  <div className="text-center space-y-4">
+                    <div className="size-24 mx-auto rounded-full bg-slate-200 flex items-center justify-center">
+                      <span className="text-5xl">
+                        {product.category === "men" ? "👔" : product.category === "women" ? "👗" : "🧒"}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium text-slate-400">
+                      {product.subcategory}
+                    </p>
                   </div>
-                  <p className="text-sm font-medium text-slate-400">
-                    {product.subcategory}
-                  </p>
                 </div>
-              </div>
+              )}
 
               {discount > 0 && (
                 <div className="absolute top-4 left-4 z-10 bg-brand-red text-white text-sm font-bold px-3 py-1.5 rounded-full">
@@ -91,6 +124,31 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
                 </div>
               )}
             </div>
+
+            {/* Thumbnails */}
+            {product.images && product.images.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                {product.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImageIndex(index)}
+                    className={cn(
+                      "relative size-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all",
+                      activeImageIndex === index
+                        ? "border-brand-red shadow-md"
+                        : "border-transparent hover:border-slate-300"
+                    )}
+                  >
+                    <Image
+                      src={image}
+                      alt={`${product.name} thumbnail ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: Details */}
@@ -231,10 +289,20 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
 
             {/* Action Icons */}
             <div className="flex gap-4 pt-2">
-              <button className="flex items-center text-sm text-slate-500 hover:text-brand-red transition-colors">
-                <Heart className="size-4 mr-1.5" /> Wishlist
+              <button 
+                onClick={() => toggleItem(product)}
+                className={cn(
+                  "flex items-center text-sm transition-colors",
+                  isWishlisted ? "text-brand-red font-bold" : "text-slate-500 hover:text-brand-red"
+                )}
+              >
+                <Heart className={cn("size-4 mr-1.5", isWishlisted && "fill-brand-red")} />
+                {isWishlisted ? "In Wishlist" : "Wishlist"}
               </button>
-              <button className="flex items-center text-sm text-slate-500 hover:text-brand-red transition-colors">
+              <button 
+                onClick={handleShare}
+                className="flex items-center text-sm text-slate-500 hover:text-brand-red transition-colors"
+              >
                 <Share2 className="size-4 mr-1.5" /> Share
               </button>
             </div>

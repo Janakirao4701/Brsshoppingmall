@@ -134,7 +134,7 @@ export function HeroBanner() {
                   </h2>
                   {slide.discount_text && (
                     <div className="inline-block py-1 px-4 bg-white/20 backdrop-blur-md rounded-full text-white font-semibold text-lg md:text-xl">
-                      {slide.discount_text}
+                      {slide.discount_text.replace(/upto/i, "Up to")}
                     </div>
                   )}
                   <div className="pt-4">
