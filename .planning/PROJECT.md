@@ -8,6 +8,11 @@ A professional e-commerce and business website for BSR Shopping Mall, a readymad
 
 To provide a seamless, mobile-first shopping experience that expands BSR Shopping Mall's reach beyond local walk-ins to a pan-India customer base, while preserving the family-friendly trust of their physical stores.
 
+## Guiding Principles
+
+- **Intelligence-First**: Use `graphify` and `code_review_graph` before every major code change to ensure architectural alignment and prevent regressions.
+- **UI/UX Excellence**: Maintain a premium, high-conversion aesthetic with strict adherence to HSL color palettes and modern motion design.
+
 ## Requirements
 
 ### Validated

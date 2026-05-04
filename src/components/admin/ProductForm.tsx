@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, X, Loader2, Crop } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { ImageCropper } from "./ImageCropper";
+import { BasicInfoFields } from "./product-form/BasicInfoFields";
+import { PricingCategoryFields } from "./product-form/PricingCategoryFields";
+import { AttributesFields } from "./product-form/AttributesFields";
+import { ImageUploadSection } from "./product-form/ImageUploadSection";
 
 export function ProductForm({ initialData }: { initialData?: any }) {
   const router = useRouter();
@@ -76,12 +80,11 @@ export function ProductForm({ initialData }: { initialData?: any }) {
 
       let imageUrl = imagePreview || "/images/bsr-placeholder.jpg";
 
-      // 1. Upload Image to Supabase Storage if a NEW file was provided
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
         
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("products")
           .upload(fileName, imageFile);
 
@@ -96,7 +99,6 @@ export function ProductForm({ initialData }: { initialData?: any }) {
         imageUrl = publicUrl;
       }
 
-      // 2. Prepare Data
       const sizesArray = formData.sizes.split(",").map((s: string) => s.trim()).filter(Boolean);
       const colorsArray = formData.colors.split(",").map((s: string) => s.trim()).filter(Boolean);
 
@@ -117,7 +119,6 @@ export function ProductForm({ initialData }: { initialData?: any }) {
       };
 
       if (initialData) {
-        // UPDATE
         const { error: dbError } = await supabase
           .from("products")
           .update(productData)
@@ -126,7 +127,6 @@ export function ProductForm({ initialData }: { initialData?: any }) {
         if (dbError) throw new Error("Database Error: " + dbError.message);
         setSuccess(true);
       } else {
-        // INSERT
         const { error: dbError } = await supabase
           .from("products")
           .insert([productData]);
@@ -134,7 +134,6 @@ export function ProductForm({ initialData }: { initialData?: any }) {
         if (dbError) throw new Error("Database Error: " + dbError.message);
         setSuccess(true);
         
-        // Reset form for new entry
         setFormData({
           name: "", slug: "", description: "", price: "", original_price: "",
           category: "men", subcategory: "", brand: "", sizes: "", colors: "",
@@ -156,7 +155,7 @@ export function ProductForm({ initialData }: { initialData?: any }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {error && (
         <div className="p-4 bg-red-50 text-red-600 rounded-md text-sm border border-red-100">
           {error}
@@ -165,185 +164,54 @@ export function ProductForm({ initialData }: { initialData?: any }) {
       
       {success && (
         <div className="p-4 bg-green-50 text-green-600 rounded-md text-sm border border-green-100">
-          Product successfully added!
+          Product successfully saved!
         </div>
       )}
 
-      {/* Basic Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">Product Name</label>
-          <input 
-            required
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">URL Slug (Auto)</label>
-          <input 
-            required
-            name="slug"
-            value={formData.slug}
-            onChange={handleChange}
-            className="w-full bg-[#fafafa] text-[#666666] shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2"
-          />
-        </div>
+      {/* Basic Information Section */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-[#171717] border-b pb-2">Basic Information</h3>
+        <BasicInfoFields formData={formData} onChange={handleChange} />
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-[#171717]">Description</label>
-        <textarea 
-          required
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          rows={3}
-          className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
+      {/* Pricing & Classification Section */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-[#171717] border-b pb-2">Pricing & Category</h3>
+        <PricingCategoryFields formData={formData} onChange={handleChange} />
+      </div>
+
+      {/* Attributes Section */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-[#171717] border-b pb-2">Product Attributes</h3>
+        <AttributesFields formData={formData} onChange={handleChange} />
+      </div>
+
+      {/* Image Upload Section */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-[#171717] border-b pb-2">Media</h3>
+        <ImageUploadSection 
+          imagePreview={imagePreview}
+          onImageChange={handleImageChange}
+          onEditCrop={() => {
+            setRawImage(imagePreview);
+            setShowCropper(true);
+          }}
+          onRemoveImage={() => {
+            setImageFile(null);
+            setImagePreview(null);
+          }}
         />
       </div>
 
-      {/* Pricing & Category */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">Price (₹)</label>
-          <input 
-            required
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">Original Price (₹) Optional</label>
-          <input 
-            type="number"
-            name="original_price"
-            value={formData.original_price}
-            onChange={handleChange}
-            className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">Category</label>
-          <select 
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-          >
-            <option value="men">Men's Wear</option>
-            <option value="women">Women's Wear</option>
-            <option value="kids">Kids' Wear</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">Subcategory</label>
-          <input 
-            required
-            name="subcategory"
-            placeholder="e.g. Shirts, Sarees, Jeans"
-            value={formData.subcategory}
-            onChange={handleChange}
-            className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">Brand</label>
-          <input 
-            required
-            name="brand"
-            value={formData.brand}
-            onChange={handleChange}
-            className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">Sizes (comma separated)</label>
-          <input 
-            name="sizes"
-            placeholder="S, M, L, XL"
-            value={formData.sizes}
-            onChange={handleChange}
-            className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#171717]">Colors (comma separated)</label>
-          <input 
-            name="colors"
-            placeholder="Red, Blue, Black"
-            value={formData.colors}
-            onChange={handleChange}
-            className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-          />
-        </div>
-      </div>
-
-      {/* Image Upload */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-[#171717]">Product Image</label>
-        <div className="border-2 border-dashed border-[#eaeaea] rounded-xl p-8 flex flex-col items-center justify-center bg-[#fafafa] relative hover:bg-[#f5f5f5] transition-colors">
-          {imagePreview ? (
-            <div className="relative w-32 h-40 group">
-              <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-md shadow-sm" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md gap-2">
-                <button 
-                  type="button"
-                  onClick={() => {
-                    setRawImage(imagePreview);
-                    setShowCropper(true);
-                  }}
-                  className="bg-white text-brand-red rounded-full p-2 hover:bg-slate-50 transition-colors"
-                  title="Edit Crop"
-                >
-                  <Crop size={16} />
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => { setImageFile(null); setImagePreview(null); }}
-                  className="bg-white text-red-500 rounded-full p-2 hover:bg-slate-50 transition-colors"
-                  title="Remove Image"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <Upload className="size-8 text-[#888888] mb-3" />
-              <p className="text-sm font-medium text-[#171717]">Click to upload or drag and drop</p>
-              <p className="text-xs text-[#888888] mt-1">SVG, PNG, JPG or WEBP (max. 5MB)</p>
-            </>
-          )}
-          <input 
-            type="file" 
-            accept="image/*"
-            onChange={handleImageChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-          />
-        </div>
-      </div>
-
-      {/* Submit */}
-      <div className="pt-4 border-t border-[#eaeaea] flex justify-end">
+      {/* Submit Button */}
+      <div className="pt-6 border-t border-[#eaeaea] flex justify-end">
         <button 
           type="submit" 
           disabled={loading}
-          className="px-6 py-2.5 bg-[#171717] text-sm font-medium text-white rounded-md hover:bg-[#333333] transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.12)] disabled:opacity-70 flex items-center gap-2"
+          className="px-8 py-3 bg-[#171717] text-sm font-semibold text-white rounded-md hover:bg-[#333333] transition-all shadow-[0_4px_12px_rgba(0,0,0,0.1)] disabled:opacity-70 flex items-center gap-2 active:scale-95"
         >
           {loading ? <Loader2 className="size-4 animate-spin" /> : null}
-          {loading ? "Uploading..." : "Save Product"}
+          {loading ? "Processing..." : "Save Product Details"}
         </button>
       </div>
 

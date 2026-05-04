@@ -10,5 +10,8 @@
     "verifier": true,
     "nyquist_validation": false,
     "discuss_mode": "discuss"
+  },
+  "graphify": {
+    "enabled": true
   }
 }

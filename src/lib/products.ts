@@ -2,8 +2,18 @@ import { supabase } from "@/lib/supabase";
 import { MOCK_PRODUCTS } from "@/data/products";
 import { Product } from "@/lib/types";
 
+// Helper to check if Supabase is properly configured
+const isSupabaseConfigured = () => {
+  return (
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_URL !== "https://placeholder.supabase.co" &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "placeholder"
+  );
+};
+
 /**
- * Fetch all products — from Supabase if configured, otherwise mock data.
+ * Fetch all products — from Supabase if configured, otherwise fallback to mock data in development.
  */
 export async function getProducts(filters?: {
   category?: string;
@@ -13,89 +23,110 @@ export async function getProducts(filters?: {
   maxPrice?: number;
   search?: string;
 }): Promise<Product[]> {
-  if (supabase) {
-    let query = supabase.from("products").select("*");
+  if (isSupabaseConfigured()) {
+    try {
+      let query = supabase.from("products").select("*");
+
+      if (filters?.category) {
+        query = query.eq("category", filters.category);
+      }
+      if (filters?.subcategory) {
+        query = query.eq("subcategory", filters.subcategory);
+      }
+      if (filters?.brand) {
+        query = query.eq("brand", filters.brand);
+      }
+      if (filters?.minPrice) {
+        query = query.gte("price", filters.minPrice);
+      }
+      if (filters?.maxPrice) {
+        query = query.lte("price", filters.maxPrice);
+      }
+      if (filters?.search) {
+        query = query.ilike("name", `%${filters.search}%`);
+      }
+
+      const { data, error } = await query.order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Supabase error fetching products:", error);
+        // Fallback to mock only in dev
+        return process.env.NODE_ENV === "development" ? MOCK_PRODUCTS : [];
+      }
+
+      return (data as Product[]) ?? [];
+    } catch (err) {
+      console.error("Unexpected error fetching products:", err);
+      return process.env.NODE_ENV === "development" ? MOCK_PRODUCTS : [];
+    }
+  }
+
+  // Fallback to mock data (primarily for development/initial setup)
+  if (process.env.NODE_ENV === "development") {
+    console.warn("Supabase not configured. Using MOCK_PRODUCTS as fallback.");
+    let products = [...MOCK_PRODUCTS];
 
     if (filters?.category) {
-      query = query.eq("category", filters.category);
+      products = products.filter((p) => p.category === filters.category);
     }
     if (filters?.subcategory) {
-      query = query.eq("subcategory", filters.subcategory);
+      products = products.filter((p) => p.subcategory === filters.subcategory);
     }
     if (filters?.brand) {
-      query = query.eq("brand", filters.brand);
+      products = products.filter((p) => p.brand === filters.brand);
     }
     if (filters?.minPrice) {
-      query = query.gte("price", filters.minPrice);
+      products = products.filter((p) => p.price >= filters.minPrice!);
     }
     if (filters?.maxPrice) {
-      query = query.lte("price", filters.maxPrice);
+      products = products.filter((p) => p.price <= filters.maxPrice!);
     }
     if (filters?.search) {
-      query = query.ilike("name", `%${filters.search}%`);
+      const q = filters.search.toLowerCase();
+      products = products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q)
+      );
     }
-
-    const { data, error } = await query.order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Supabase error:", error);
-      return MOCK_PRODUCTS;
-    }
-
-    return (data as Product[]) ?? [];
+    return products;
   }
 
-  // Fallback to mock data
-  let products = [...MOCK_PRODUCTS];
-
-  if (filters?.category) {
-    products = products.filter((p) => p.category === filters.category);
-  }
-  if (filters?.subcategory) {
-    products = products.filter((p) => p.subcategory === filters.subcategory);
-  }
-  if (filters?.brand) {
-    products = products.filter((p) => p.brand === filters.brand);
-  }
-  if (filters?.minPrice) {
-    products = products.filter((p) => p.price >= filters.minPrice!);
-  }
-  if (filters?.maxPrice) {
-    products = products.filter((p) => p.price <= filters.maxPrice!);
-  }
-  if (filters?.search) {
-    const q = filters.search.toLowerCase();
-    products = products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q)
-    );
-  }
-
-  return products;
+  return [];
 }
 
 /**
  * Fetch a single product by slug.
  */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  if (supabase) {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("slug", slug)
-      .single();
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("slug", slug)
+        .maybeSingle();
 
-    if (error) {
-      console.error("Supabase error:", error);
-      return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
+      if (error) {
+        console.error("Supabase error fetching product by slug:", error);
+        return process.env.NODE_ENV === "development" 
+          ? MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null 
+          : null;
+      }
+
+      return data as Product;
+    } catch (err) {
+      console.error("Unexpected error fetching product by slug:", err);
+      return null;
     }
-
-    return data as Product;
   }
 
-  return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
+  if (process.env.NODE_ENV === "development") {
+    return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
+  }
+
+  return null;
 }
 
 /**
@@ -116,6 +147,7 @@ export function getSubcategories(products: Product[]): string[] {
  * Get price range for filter UI.
  */
 export function getPriceRange(products: Product[]): { min: number; max: number } {
+  if (products.length === 0) return { min: 0, max: 0 };
   const prices = products.map((p) => p.price);
   return {
     min: Math.min(...prices),
