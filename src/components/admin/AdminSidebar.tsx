@@ -15,6 +15,9 @@ import {
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const isLoginPage = pathname?.includes("/admin/login");
+
+  if (isLoginPage) return null;
 
   return (
     <aside className="w-[240px] flex-shrink-0 flex flex-col h-screen sticky top-0 bg-[#fafafa] shadow-[1px_0_0_0_rgba(0,0,0,0.08)]">

@@ -1,6 +1,14 @@
+"use client";
+
 import { Search, Bell } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export function AdminHeader() {
+  const pathname = usePathname();
+  const isLoginPage = pathname?.includes("/admin/login");
+
+  if (isLoginPage) return null;
+
   return (
     <header className="h-16 flex items-center justify-between px-8 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.08)] sticky top-0 z-10">
       <div className="flex-1 max-w-md relative">
