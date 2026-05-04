@@ -40,6 +40,7 @@ export function Navbar() {
   }, []);
 
   const NAV_LINKS = [
+    { name: t("home"), href: "/" },
     { name: t("men"), href: "/men" },
     { name: t("women"), href: "/women" },
     { name: t("kids"), href: "/kids" },
