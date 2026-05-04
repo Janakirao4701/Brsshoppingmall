@@ -6,7 +6,7 @@ This roadmap defines the end-to-end journey for building the BSR Shopping Mall e
 
 ## Phases
 
-- [ ] **Phase 1: Project Setup & Storefront UI** - Scaffold the application and build the landing page, navigation, and contact elements.
+- [x] **Phase 1: Project Setup & Storefront UI** - Scaffold the application and build the landing page, navigation, and contact elements.
 - [ ] **Phase 2: Product Catalog** - Implement the product browsing experience including categories, search, filtering, and detail pages.
 - [ ] **Phase 3: Checkout & Payments** - Build the shopping cart, checkout flow, Razorpay integration, and shipping calculators.
 - [ ] **Phase 4: User Accounts** - Implement authentication, profile management, and order history viewing.
@@ -41,9 +41,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Database Schema & Supabase connection
-- [ ] 02-02: Product Listing & Filtering UI
-- [ ] 02-03: Product Detail Page & Bulk Inquiry Form
+- [x] 02-01: Database Schema & Supabase connection
+- [x] 02-02: Product Listing & Filtering UI
+- [x] 02-03: Product Detail Page & Bulk Inquiry Form
 
 ### Phase 3: Checkout & Payments
 **Goal**: Enable users to add items to cart, proceed through checkout, and make payments via Razorpay.
@@ -57,7 +57,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Cart State Management
+- [x] 03-01: Cart State Management
 - [ ] 03-02: Checkout Flow & Shipping Estimates
 - [ ] 03-03: Razorpay Integration & Webhooks
 
@@ -88,8 +88,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: Admin Middleware & Layout
-- [ ] 05-02: Product & Inventory Management
+- [x] 05-01: Admin Middleware & Layout
+- [x] 05-02: Product & Inventory Management
 - [ ] 05-03: Order & Inquiry Management
 
 ## Progress
@@ -100,7 +100,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Project Setup & Storefront UI | 3/3 | Completed | 2026-05-04 |
-| 2. Product Catalog | 0/3 | Not started | - |
-| 3. Checkout & Payments | 0/3 | Not started | - |
+| 2. Product Catalog | 3/3 | Completed | 2026-05-04 |
+| 3. Checkout & Payments | 1/3 | In Progress | - |
 | 4. User Accounts | 0/3 | Not started | - |
-| 5. Admin Panel | 0/3 | Not started | - |
+| 5. Admin Panel | 2/3 | In Progress | - |

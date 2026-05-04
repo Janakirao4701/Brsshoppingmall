@@ -15,6 +15,8 @@ export function ProductCard({ product }: ProductCardProps) {
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
 
+  const hasImage = product.images && product.images.length > 0 && product.images[0];
+
   return (
     <Link
       href={`/product/${product.slug}`}
@@ -22,14 +24,26 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       {/* Image */}
       <div className="relative aspect-[3/4] bg-slate-100 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center text-slate-400">
-          <div className="text-center space-y-2 p-4">
-            <div className="size-16 mx-auto rounded-full bg-slate-200 flex items-center justify-center">
-              <span className="text-2xl">👕</span>
+        {hasImage ? (
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-slate-400">
+            <div className="text-center space-y-2 p-4">
+              <div className="size-16 mx-auto rounded-full bg-slate-200 flex items-center justify-center">
+                <span className="text-2xl">
+                  {product.category === "men" ? "👔" : product.category === "women" ? "👗" : "🧒"}
+                </span>
+              </div>
+              <p className="text-xs font-medium">{product.subcategory}</p>
             </div>
-            <p className="text-xs font-medium">{product.subcategory}</p>
           </div>
-        </div>
+        )}
 
         {/* Discount Badge */}
         {discount > 0 && (
@@ -64,21 +78,23 @@ export function ProductCard({ product }: ProductCardProps) {
         </h3>
 
         {/* Sizes */}
-        <div className="flex flex-wrap gap-1">
-          {product.sizes.slice(0, 4).map((size) => (
-            <span
-              key={size}
-              className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium"
-            >
-              {size}
-            </span>
-          ))}
-          {product.sizes.length > 4 && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
-              +{product.sizes.length - 4}
-            </span>
-          )}
-        </div>
+        {product.sizes && product.sizes.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {product.sizes.slice(0, 4).map((size) => (
+              <span
+                key={size}
+                className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium"
+              >
+                {size}
+              </span>
+            ))}
+            {product.sizes.length > 4 && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
+                +{product.sizes.length - 4}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Price */}
         <div className="flex items-baseline gap-2 pt-1">
