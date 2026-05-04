@@ -10,6 +10,7 @@ See: .planning/PROJECT.md (updated 2026-05-04)
 ## Key Decisions
 - Set granularity to coarse, parallelization enabled, with full verification workflow.
 - Chose Next.js + Tailwind + Supabase + Razorpay as the technology stack.
+- **Branding**: UI will feature a vibrant Red and Orange gradient color scheme, matching the official "BSR Shopping Mall - Baratam Group" logo.
 
 ## Blockers
 (None yet)
