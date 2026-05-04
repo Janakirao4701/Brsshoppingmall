@@ -25,7 +25,7 @@ This roadmap defines the end-to-end journey for building the BSR Shopping Mall e
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Next.js Setup & Global Layout
+- [x] 01-01: Next.js Setup & Global Layout
 - [ ] 01-02: Hero Banner & Store Locator Sections
 - [ ] 01-03: Language Toggle Implementation
 
