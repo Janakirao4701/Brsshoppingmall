@@ -39,9 +39,17 @@ export default function AdminLoginPage() {
         .eq("id", data.user.id)
         .single();
 
-      if (profileError || profile?.role !== "admin") {
+      if (profileError) {
         await supabase.auth.signOut();
-        throw new Error("Access denied. You do not have administrator privileges.");
+        if (profileError.code === "PGRST116") {
+          throw new Error("No profile found. Please run the SQL guide to set up the profiles table.");
+        }
+        throw new Error(`Profile check failed: ${profileError.message}`);
+      }
+
+      if (profile?.role !== "admin") {
+        await supabase.auth.signOut();
+        throw new Error(`Unauthorized. Your role is '${profile?.role || 'none'}', but 'admin' is required.`);
       }
 
       router.push("/admin");

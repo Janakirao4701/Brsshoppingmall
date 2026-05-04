@@ -35,8 +35,9 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error || profile?.role !== "admin") {
+        console.error("Admin verification failed:", error || "Not an admin");
         setAuthorized(false);
-        window.location.href = "/"; // Redirect non-admins to home
+        window.location.href = "/admin/login"; // Redirect to login for re-auth
       } else {
         setAuthorized(true);
       }
