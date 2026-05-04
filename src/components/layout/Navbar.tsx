@@ -28,8 +28,16 @@ import {
 } from "@/components/ui/sheet";
 import { LanguageToggle } from "./LanguageToggle";
 
+import { useCart } from "@/lib/store";
+
 export function Navbar() {
   const t = useTranslations("Navbar");
+  const cart = useCart();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const NAV_LINKS = [
     { name: t("men"), href: "/men" },
@@ -76,11 +84,19 @@ export function Navbar() {
           
           <LanguageToggle />
 
-          <Button variant="ghost" size="icon" className="relative" aria-label={t("cart")}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative" 
+            aria-label={t("cart")}
+            onClick={() => cart.setIsOpen(true)}
+          >
             <ShoppingCart className="size-5" />
-            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-white">
-              0
-            </span>
+            {mounted && cart.getTotalItems() > 0 && (
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-white">
+                {cart.getTotalItems()}
+              </span>
+            )}
           </Button>
 
           <Button variant="ghost" size="icon" aria-label={t("account")} className="hidden sm:inline-flex">

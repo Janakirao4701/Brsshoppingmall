@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "../globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { MobileTabBar } from "@/components/layout/MobileTabBar";
-import { WhatsAppFloat } from "@/components/sections/WhatsAppFloat";
+
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
@@ -79,13 +76,9 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
-          <Navbar />
-          <main className="flex-1 pb-16 md:pb-0">
+          <div className="flex-1 flex flex-col">
             {children}
-          </main>
-          <Footer />
-          <MobileTabBar />
-          <WhatsAppFloat />
+          </div>
         </NextIntlClientProvider>
       </body>
     </html>

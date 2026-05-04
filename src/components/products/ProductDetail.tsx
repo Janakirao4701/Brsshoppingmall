@@ -24,10 +24,18 @@ interface ProductDetailProps {
   relatedProducts: Product[];
 }
 
+import { useCart } from "@/lib/store";
+
 export function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string>(product.colors[0]);
+  const [selectedColor, setSelectedColor] = useState<string>(product.colors[0] || "Default");
   const [quantity, setQuantity] = useState(1);
+  const { addItem } = useCart();
+
+  const handleAddToCart = () => {
+    if (!selectedSize) return;
+    addItem(product, quantity, selectedSize, selectedColor);
+  };
 
   const discount = product.original_price
     ? Math.round(
@@ -121,53 +129,57 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
             <p className="text-slate-600 leading-relaxed">{product.description}</p>
 
             {/* Color Selection */}
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">
-                Color: <span className="font-normal text-slate-600">{selectedColor}</span>
-              </h3>
-              <div className="flex gap-2">
-                {product.colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={cn(
-                      "px-4 py-2 rounded-lg border text-sm font-medium transition-all",
-                      selectedColor === color
-                        ? "border-brand-red bg-brand-red/5 text-brand-red"
-                        : "border-slate-200 text-slate-600 hover:border-slate-400"
-                    )}
-                  >
-                    {color}
-                  </button>
-                ))}
+            {product.colors && product.colors.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">
+                  Color: <span className="font-normal text-slate-600">{selectedColor}</span>
+                </h3>
+                <div className="flex gap-2">
+                  {product.colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={cn(
+                        "px-4 py-2 rounded-lg border text-sm font-medium transition-all",
+                        selectedColor === color
+                          ? "border-brand-red bg-brand-red/5 text-brand-red"
+                          : "border-slate-200 text-slate-600 hover:border-slate-400"
+                      )}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Size Selection */}
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">
-                Size:{" "}
-                <span className="font-normal text-slate-600">
-                  {selectedSize || "Select a size"}
-                </span>
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={cn(
-                      "min-w-[48px] px-4 py-2.5 rounded-lg border text-sm font-medium transition-all",
-                      selectedSize === size
-                        ? "border-brand-red bg-brand-red text-white"
-                        : "border-slate-200 text-slate-600 hover:border-slate-400"
-                    )}
-                  >
-                    {size}
-                  </button>
-                ))}
+            {product.sizes && product.sizes.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">
+                  Size:{" "}
+                  <span className="font-normal text-slate-600">
+                    {selectedSize || "Select a size"}
+                  </span>
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={cn(
+                        "min-w-[48px] px-4 py-2.5 rounded-lg border text-sm font-medium transition-all",
+                        selectedSize === size
+                          ? "border-brand-red bg-brand-red text-white"
+                          : "border-slate-200 text-slate-600 hover:border-slate-400"
+                      )}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Quantity */}
             <div>
@@ -196,7 +208,8 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
               <Button
                 size="lg"
                 className="flex-1 bg-brand-red hover:bg-brand-red/90 text-white py-6 text-base font-bold"
-                disabled={!selectedSize}
+                disabled={!selectedSize && product.sizes && product.sizes.length > 0}
+                onClick={handleAddToCart}
               >
                 <ShoppingCart className="size-5 mr-2" /> Add to Cart
               </Button>
