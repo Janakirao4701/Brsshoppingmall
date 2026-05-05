@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export function Footer() {
   return (
-    <footer className="bg-[#111111] text-white pb-20 md:pb-0">
+    <footer id="main-footer" className="bg-[#111111] text-white pb-20 md:pb-0">
       {/* Top CTA Band */}
       <div className="border-b border-white/[0.08]">
         <div className="container mx-auto px-4 py-10 md:py-14">

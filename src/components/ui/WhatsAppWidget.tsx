@@ -4,18 +4,34 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WhatsAppIcon } from "./WhatsAppIcon";
+import { useCart } from "@/lib/store";
 
 export function WhatsAppWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const cart = useCart();
 
   useEffect(() => {
     // Show tooltip after 3 seconds, hide after 8
     const timer = setTimeout(() => setShowTooltip(true), 3000);
     const hideTimer = setTimeout(() => setShowTooltip(false), 8000);
+    
+    // Intersection Observer for Footer
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    const footer = document.getElementById("main-footer");
+    if (footer) observer.observe(footer);
+
     return () => {
       clearTimeout(timer);
       clearTimeout(hideTimer);
+      if (footer) observer.unobserve(footer);
     };
   }, []);
 
@@ -27,8 +43,11 @@ export function WhatsAppWidget() {
     setIsOpen(false);
   };
 
+  // Hide if cart is open or footer is visible
+  if (cart.isOpen || isFooterVisible) return null;
+
   return (
-    <div className="fixed bottom-20 right-6 md:bottom-8 md:right-8 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
       {/* Tooltip */}
       {showTooltip && !isOpen && (
         <div className="bg-white px-4 py-2 rounded-xl shadow-2xl border border-slate-100 text-sm font-medium text-slate-900 pointer-events-auto animate-in fade-in slide-in-from-right-4 duration-500">
