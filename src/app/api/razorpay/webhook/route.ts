@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 import { supabase } from "@/lib/supabase";
+import { sendOrderConfirmation } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -113,7 +114,7 @@ async function handlePaymentCaptured(payload: Record<string, unknown>) {
   if (!supabase || !razorpayOrderId) return;
 
   // Idempotent update — only update if not already paid
-  const { error } = await supabase
+  const { data: updatedOrders, error } = await supabase
     .from("orders")
     .update({
       payment_status: "paid",
@@ -124,10 +125,34 @@ async function handlePaymentCaptured(payload: Record<string, unknown>) {
       webhook_amount_paise: amountPaise,
     })
     .eq("razorpay_order_id", razorpayOrderId)
-    .in("payment_status", ["pending", "created"]); // Only update if not already processed
+    .in("payment_status", ["pending", "created"]) // Only update if not already processed
+    .select("*, order_items(*, products(name)), profiles(email, full_name)");
 
   if (error) {
     console.error("[Webhook] payment.captured update error:", error);
+    return;
+  }
+
+  // Trigger Email Notification if the order was successfully updated
+  if (updatedOrders && updatedOrders.length > 0) {
+    const order = updatedOrders[0];
+    const customerEmail = order.profiles?.email || order.shipping_address?.email;
+    
+    if (customerEmail) {
+      const items = order.order_items.map((item: any) => ({
+        name: item.products?.name || "Item",
+        quantity: item.quantity,
+        price: item.price_at_time
+      }));
+
+      await sendOrderConfirmation({
+        orderId: order.id,
+        customerName: order.profiles?.full_name || order.shipping_address?.first_name || "Customer",
+        customerEmail: customerEmail,
+        amount: order.total_amount,
+        items: items
+      });
+    }
   }
 }
 

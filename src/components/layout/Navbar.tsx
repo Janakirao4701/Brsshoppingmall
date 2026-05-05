@@ -133,7 +133,7 @@ export function Navbar() {
             </Button>
 
             {/* Wishlist Icon */}
-            <Link href="/account" className="hidden sm:inline-flex">
+            <Link href="/wishlist" className="hidden sm:inline-flex">
               <Button 
                 variant="ghost" 
                 size="icon" 

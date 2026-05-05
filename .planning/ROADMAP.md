@@ -134,8 +134,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: Wishlist System
-- [ ] 08-02: Automated Order Notifications (Email)
+- [x] 08-01: Wishlist System
+- [x] 08-02: Automated Order Notifications (Email)
 
 ## Progress
 
@@ -151,4 +151,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 5. Admin Panel | 3/3 | ✅ Completed | 2026-05-04 |
 | 6. Core Hardening & Quality Fixes | 4/4 | ✅ Completed | 2026-05-05 |
 | 7. Performance & Search Visibility | 3/3 | ✅ Completed | 2026-05-05 |
-| 8. Engagement Features | 0/2 | ⏳ Not started | - |
+| 8. Engagement Features | 2/2 | ✅ Completed | 2026-05-05 |
