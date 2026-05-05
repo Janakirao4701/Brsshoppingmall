@@ -65,9 +65,12 @@ export default function AdminSettingsPage() {
       if (error) throw error;
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 3000);
-    } catch (err) {
-      console.error("Save error:", err);
+    } catch (err: any) {
+      console.error("Save error details:", err);
+      // Supabase errors often have a more specific message in the response
+      const errorMessage = err.message || "Failed to save settings.";
       setSaveStatus("error");
+      alert(`Save failed: ${errorMessage}`);
     } finally {
       setSaving(false);
     }
