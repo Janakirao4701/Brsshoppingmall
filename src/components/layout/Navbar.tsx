@@ -11,7 +11,6 @@ import {
   Menu,
   Heart
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -29,7 +28,7 @@ import {
 } from "@/components/ui/sheet";
 import { SearchOverlay } from "./SearchOverlay";
 import { useCart, useWishlist } from "@/lib/store";
-import { supabase } from "@/lib/supabase";
+import { OfferTicker } from "./OfferTicker";
 
 export function Navbar() {
   const t = useTranslations("Navbar");
@@ -37,39 +36,10 @@ export function Navbar() {
   const wishlist = useWishlist();
   const [mounted, setMounted] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const [announcements, setAnnouncements] = React.useState<string[]>([]);
-  const [announcementActive, setAnnouncementActive] = React.useState(false);
-  const [currentIdx, setCurrentIdx] = React.useState(0);
 
   React.useEffect(() => {
     setMounted(true);
-    fetchAnnouncement();
   }, []);
-
-  React.useEffect(() => {
-    if (announcements.length > 1 && announcementActive) {
-      const interval = setInterval(() => {
-        setCurrentIdx((prev) => (prev + 1) % announcements.length);
-      }, 5000); // Switch every 5 seconds
-      return () => clearInterval(interval);
-    }
-  }, [announcements, announcementActive]);
-
-  const fetchAnnouncement = async () => {
-    const { data } = await supabase
-      .from("settings")
-      .select("announcement_text, announcement_active, announcements")
-      .eq("id", '00000000-0000-0000-0000-000000000000')
-      .single();
-    
-    if (data) {
-      setAnnouncementActive(data.announcement_active);
-      const anns = Array.isArray(data.announcements) && data.announcements.length > 0 
-        ? data.announcements 
-        : (data.announcement_text ? [data.announcement_text] : []);
-      setAnnouncements(anns);
-    }
-  };
 
   const NAV_LINKS = [
     { name: t("home"), href: "/" },
@@ -81,16 +51,6 @@ export function Navbar() {
 
   return (
     <>
-      {mounted && announcementActive && announcements.length > 0 && (
-        <div className="bg-brand-red text-white text-center py-2.5 text-nav text-[10px] sm:text-[11px] tracking-widest overflow-hidden whitespace-nowrap">
-          <div 
-            key={currentIdx}
-            className="animate-in fade-in slide-in-from-right duration-700"
-          >
-            {announcements[currentIdx]}
-          </div>
-        </div>
-      )}
       <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/80 backdrop-blur-xl shadow-sm">
         <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4">
           {/* Logo */}
@@ -224,6 +184,7 @@ export function Navbar() {
 
         <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       </header>
+      <OfferTicker />
     </>
   );
 }
