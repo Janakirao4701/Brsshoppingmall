@@ -24,8 +24,8 @@ export function MobileTabBar() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t pb-safe">
-      <div className="grid h-full grid-cols-4 items-center">
+    <nav className="md:hidden fixed bottom-0 left-0 z-50 w-full bg-white/80 backdrop-blur-xl border-t border-slate-200/50 pb-safe shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)]">
+      <div className="grid h-16 grid-cols-4 items-center px-2">
         {TABS.map((tab) => {
           const isActive = pathname === tab.href;
           const Icon = tab.icon;
@@ -35,22 +35,27 @@ export function MobileTabBar() {
               key={tab.name} 
               href={tab.href}
               className={cn(
-                "relative flex flex-col items-center justify-center h-full w-full gap-1 transition-all duration-300 active:scale-90",
-                isActive ? "text-brand-red" : "text-slate-500 hover:text-slate-900"
+                "relative flex flex-col items-center justify-center h-full w-full gap-1 transition-all duration-300",
+                isActive ? "text-brand-red" : "text-slate-400 hover:text-slate-900"
               )}
             >
-              {isActive && (
-                <div className="absolute inset-x-4 inset-y-2 bg-brand-red/5 rounded-xl -z-10 animate-in fade-in zoom-in-95 duration-300" />
-              )}
               <div className={cn(
-                "p-1.5 rounded-full transition-all duration-300",
-                isActive ? "bg-brand-red/10 scale-110" : "group-active:bg-slate-100"
+                "relative p-1 rounded-full transition-all duration-300 flex items-center justify-center",
+                isActive ? "-translate-y-1" : ""
               )}>
-                <Icon className={cn("size-6", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
+                {isActive && (
+                  <span className="absolute inset-0 bg-brand-red/10 rounded-full animate-in zoom-in duration-300" />
+                )}
+                <Icon 
+                  className={cn(
+                    "size-5 transition-all duration-300 relative z-10", 
+                    isActive ? "stroke-[2.5px]" : "stroke-[2px]"
+                  )} 
+                />
               </div>
               <span className={cn(
-                "text-[10px] font-bold tracking-tight transition-all duration-300",
-                isActive ? "opacity-100" : "opacity-70"
+                "text-[10px] tracking-tight transition-all duration-300 font-medium",
+                isActive ? "opacity-100 font-bold" : "opacity-80"
               )}>
                 {tab.name}
               </span>

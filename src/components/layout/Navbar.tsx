@@ -92,16 +92,16 @@ export function Navbar() {
           </div>
         </div>
       )}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md shadow-sm">
-        <div className="container mx-auto flex h-24 items-center justify-between px-4">
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/80 backdrop-blur-xl shadow-sm">
+        <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4">
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
               src="/bsr-logo.png"
               alt="BSR Shopping Mall"
-              width={300}
-              height={120}
-              className="h-[88px] w-auto object-contain"
+              width={200}
+              height={80}
+              className="h-10 md:h-14 w-auto object-contain"
               priority
             />
           </Link>
@@ -122,29 +122,32 @@ export function Navbar() {
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center space-x-2 md:space-x-4">
+          <div className="flex items-center space-x-1 md:space-x-2">
             <Button 
               variant="ghost" 
               size="icon" 
               aria-label={t("search")}
               onClick={() => setSearchOpen(true)}
+              className="size-10 rounded-full"
             >
               <Search className="size-5" />
             </Button>
             
-            <LanguageToggle />
+            <div className="hidden sm:block">
+              <LanguageToggle />
+            </div>
 
             {/* Wishlist Icon */}
             <Link href="/account" className="hidden sm:inline-flex">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative" 
+                className="relative size-10 rounded-full" 
                 aria-label="Wishlist"
               >
                 <Heart className="size-5" />
                 {mounted && wishlist.items.length > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
+                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
                     {wishlist.items.length}
                   </span>
                 )}
@@ -154,20 +157,20 @@ export function Navbar() {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="relative" 
+              className="relative size-10 rounded-full" 
               aria-label={t("cart")}
               onClick={() => cart.setIsOpen(true)}
             >
               <ShoppingCart className="size-5" />
               {mounted && cart.getTotalItems() > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-white">
+                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-white">
                   {cart.getTotalItems()}
                 </span>
               )}
             </Button>
 
             <Link href="/account">
-              <Button variant="ghost" size="icon" aria-label={t("account")} className="hidden sm:inline-flex">
+              <Button variant="ghost" size="icon" aria-label={t("account")} className="hidden sm:inline-flex size-10 rounded-full">
                 <User className="size-5" />
               </Button>
             </Link>
@@ -176,38 +179,38 @@ export function Navbar() {
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label="Menu">
+                  <Button variant="ghost" size="icon" aria-label="Menu" className="size-10 rounded-full">
                     <Menu className="size-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right">
-                  <SheetHeader>
-                    <SheetTitle className="text-brand-gradient text-left">BSR Menu</SheetTitle>
-                  </SheetHeader>
-                  <nav className="flex flex-col space-y-4 mt-8">
-                    {NAV_LINKS.map((link) => (
-                      <Link
-                        key={link.name}
-                        href={link.href}
-                        className="text-lg font-heading font-normal hover:text-brand-red transition-colors"
-                      >
-                        {link.name}
-                      </Link>
-                    ))}
-                    <div className="h-px bg-slate-100 my-2" />
-                    <Link
-                      href="/account"
-                      className="text-lg font-heading font-normal hover:text-brand-red transition-colors flex items-center"
-                    >
-                      <User className="mr-3 size-5" /> {t("account")}
-                    </Link>
-                    <Link
-                      href="/account"
-                      className="text-lg font-heading font-normal hover:text-brand-red transition-colors flex items-center"
-                    >
-                      <Heart className="mr-3 size-5" /> Wishlist
-                    </Link>
-                  </nav>
+                <SheetContent side="right" className="w-[85vw] sm:w-[350px] p-0">
+                  <div className="flex flex-col h-full bg-slate-50">
+                    <SheetHeader className="p-6 bg-white border-b border-slate-100 text-left">
+                      <SheetTitle className="text-xl font-heading font-semibold text-slate-900">
+                        Menu
+                      </SheetTitle>
+                    </SheetHeader>
+                    <div className="flex-1 overflow-y-auto py-6 px-4">
+                      <nav className="flex flex-col space-y-2">
+                        {NAV_LINKS.map((link) => (
+                          <Link
+                            key={link.name}
+                            href={link.href}
+                            className="text-base font-medium text-slate-700 hover:text-brand-red hover:bg-white bg-slate-50 border border-transparent hover:border-slate-100 px-4 py-3 rounded-2xl transition-all"
+                          >
+                            {link.name}
+                          </Link>
+                        ))}
+                      </nav>
+                      
+                      <div className="mt-8">
+                        <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Preferences</p>
+                        <div className="bg-white rounded-2xl p-2 border border-slate-100 shadow-sm">
+                          <LanguageToggle />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </SheetContent>
               </Sheet>
             </div>

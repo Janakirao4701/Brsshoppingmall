@@ -102,7 +102,7 @@ export function HeroBanner() {
           {slides.map((slide, index) => (
             <CarouselItem key={slide.id}>
               <div className={cn(
-                "relative w-full h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center text-center px-4 overflow-hidden bg-gradient-to-br",
+                "relative w-full h-[80vh] min-h-[500px] md:h-[600px] lg:h-[700px] flex items-end md:items-center justify-center md:justify-start text-center md:text-left px-6 pb-24 md:pb-0 md:px-16 lg:px-24 overflow-hidden bg-gradient-to-br",
                 slide.gradient
               )}>
                 {/* Background Image */}
@@ -116,32 +116,32 @@ export function HeroBanner() {
                   />
                 )}
 
-                {/* Dark overlay for text readability */}
-                <div className="absolute inset-0 bg-black/40 z-[1]" />
+                {/* Dark overlay for text readability - heavier at bottom on mobile */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 z-[1] md:bg-black/40" />
 
                 {/* Visual decoration */}
                 <div className="absolute -top-24 -left-24 size-96 rounded-full bg-white/10 blur-3xl z-[2]" />
-                <div className="absolute -bottom-24 -right-24 size-96 rounded-full bg-black/10 blur-3xl z-[2]" />
+                <div className="absolute -bottom-24 -right-24 size-96 rounded-full bg-brand-orange/20 blur-3xl z-[2] md:bg-black/10" />
 
-                <div className="relative z-10 max-w-3xl space-y-4 md:space-y-6">
+                <div className="relative z-10 w-full max-w-2xl space-y-5 md:space-y-6">
                   {slide.subtitle && (
-                    <p className="text-nav text-white/80">
+                    <p className="text-[11px] md:text-sm font-bold tracking-[0.2em] text-white/90 uppercase animate-in slide-in-from-bottom-4 duration-700">
                       {slide.subtitle}
                     </p>
                   )}
-                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-heading font-normal text-white leading-tight drop-shadow-lg">
+                  <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading font-normal text-white leading-[1.1] drop-shadow-lg animate-in slide-in-from-bottom-6 duration-700 delay-100">
                     {slide.title}
                   </h2>
                   {slide.discount_text && (
-                    <div className="inline-block py-1.5 px-5 bg-white/15 backdrop-blur-md rounded-full text-white font-heading text-lg md:text-xl italic tracking-wide">
+                    <div className="inline-block py-2 px-6 bg-white/20 backdrop-blur-md rounded-full text-white font-heading text-lg md:text-2xl italic tracking-wide animate-in slide-in-from-bottom-8 duration-700 delay-200">
                       {slide.discount_text.replace(/upto/i, "Up to")}
                     </div>
                   )}
-                  <div className="pt-4">
+                  <div className="pt-6 animate-in slide-in-from-bottom-10 duration-700 delay-300">
                     <Button 
                       size="lg" 
                       variant="secondary"
-                      className="bg-white text-brand-red hover:bg-slate-50 px-10 py-6 text-sm font-medium tracking-wider uppercase shadow-xl transition-all hover:scale-105"
+                      className="bg-white text-brand-red hover:bg-slate-50 px-12 py-7 rounded-full text-sm font-bold tracking-widest uppercase shadow-[0_8px_30px_rgba(220,38,38,0.3)] transition-all hover:scale-105 active:scale-95"
                     >
                       {slide.cta_text}
                     </Button>

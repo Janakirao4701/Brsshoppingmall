@@ -42,12 +42,12 @@ export default function Home({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory hide-scrollbar">
             {CATEGORIES.map((category, idx) => (
               <Link 
                 key={category.nameKey} 
                 href={category.href as "/men" | "/women" | "/kids"}
-                className="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200 shadow-sm"
+                className="group relative flex-none w-[75vw] sm:w-[300px] md:w-auto overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200 shadow-sm snap-center"
               >
                 {/* Image */}
                 <Image
@@ -56,20 +56,20 @@ export default function Home({
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                   priority={idx === 0}
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 768px) 75vw, 33vw"
                 />
 
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 opacity-80 group-hover:opacity-100 transition-opacity" />
                 
                 {/* Content */}
-                <div className="absolute bottom-0 left-0 w-full p-8 z-20 transform group-hover:-translate-y-2 transition-transform duration-500">
-                  <p className="text-nav text-brand-orange text-xs mb-2 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
+                <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 z-20 transform group-hover:-translate-y-2 transition-transform duration-500">
+                  <p className="text-[10px] font-bold tracking-[0.2em] text-brand-orange uppercase mb-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity delay-100">
                     Premium Collection
                   </p>
-                  <h3 className="text-3xl md:text-4xl font-heading font-normal text-white mb-3">{t(category.nameKey)}</h3>
-                  <span className="text-cta-link text-white/90">
-                    Shop Collection
+                  <h3 className="text-3xl md:text-4xl font-heading font-normal text-white mb-2 md:mb-3">{t(category.nameKey)}</h3>
+                  <span className="text-xs font-bold text-white/90 uppercase tracking-widest flex items-center gap-2">
+                    Shop Collection <span className="text-brand-orange">&rarr;</span>
                   </span>
                 </div>
               </Link>
