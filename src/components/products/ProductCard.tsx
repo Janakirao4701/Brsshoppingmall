@@ -5,10 +5,18 @@ import { Link } from "@/i18n/routing";
 import { useWishlist } from "@/lib/store";
 import { Product } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { Heart } from "lucide-react";
+import { Heart, Eye } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
+}
+
+function isNewArrival(createdAt?: string): boolean {
+  if (!createdAt) return false;
+  const created = new Date(createdAt);
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+  return created > fourteenDaysAgo;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -20,6 +28,8 @@ export function ProductCard({ product }: ProductCardProps) {
     : 0;
 
   const hasImage = product.images && product.images.length > 0 && product.images[0];
+  const hasSecondImage = product.images && product.images.length > 1 && product.images[1];
+  const isNew = isNewArrival((product as any).created_at);
 
   return (
     <Link
@@ -28,13 +38,16 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       {/* Image */}
       <div className="relative aspect-[3/4] bg-slate-100 overflow-hidden">
-        {/* ... image logic ... */}
+        {/* Primary Image */}
         {hasImage ? (
           <Image
             src={product.images[0]}
             alt={product.name}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className={cn(
+              "object-cover transition-all duration-500",
+              hasSecondImage ? "group-hover:opacity-0 group-hover:scale-105" : "group-hover:scale-105"
+            )}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
@@ -47,12 +60,35 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         )}
 
-        {/* Discount Badge */}
-        {discount > 0 && (
-          <div className="absolute top-3 left-3 z-10 bg-brand-red text-white text-xs font-bold px-2.5 py-1 rounded-full">
-            {discount}% OFF
-          </div>
+        {/* Secondary Image (revealed on hover) */}
+        {hasSecondImage && (
+          <Image
+            src={product.images[1]}
+            alt={`${product.name} - alternate view`}
+            fill
+            className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-105 group-hover:scale-100"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
         )}
+
+        {/* Badges Row */}
+        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
+          {discount > 0 && (
+            <div className="bg-brand-red text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+              {discount}% OFF
+            </div>
+          )}
+          {isNew && (
+            <div className="bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+              NEW
+            </div>
+          )}
+          {!product.in_stock && (
+            <div className="bg-slate-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+              SOLD OUT
+            </div>
+          )}
+        </div>
 
         {/* Wishlist */}
         <button
@@ -70,8 +106,16 @@ export function ProductCard({ product }: ProductCardProps) {
           <Heart className={cn("size-4 transition-colors", isWishlisted ? "fill-brand-red text-brand-red" : "text-slate-600")} />
         </button>
 
+        {/* Quick View Overlay */}
+        <div className="absolute inset-x-0 bottom-0 z-10 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+          <div className="flex items-center justify-center gap-1.5 bg-white/95 backdrop-blur-sm text-slate-900 text-[11px] font-bold uppercase tracking-widest py-2.5 rounded-lg shadow-lg">
+            <Eye className="size-3.5" />
+            Quick View
+          </div>
+        </div>
+
         {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       </div>
 
       {/* Info */}
@@ -113,11 +157,6 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
         </div>
-
-        {/* Stock */}
-        {!product.in_stock && (
-          <p className="text-xs text-red-500 font-medium">Out of Stock</p>
-        )}
       </div>
     </Link>
   );

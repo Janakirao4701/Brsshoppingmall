@@ -1,0 +1,248 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab { font-size: 12px; padding: 6px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; color: var(--color-text-secondary); background: var(--color-background-primary); font-family: inherit; }
+.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.panel { display: none; }
+.panel.active { display: block; }
+.site-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.site-dot { width: 40px; height: 40px; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.site-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.site-type { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.summary-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--color-text-primary); line-height: 1.6; }
+.section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--color-text-secondary); margin: 14px 0 8px; }
+.feature-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 7px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.dot-good { background: #1D9E75; }
+.dot-warn { background: #BA7517; }
+.dot-bsr { background: #534AB7; }
+.feat-text { font-size: 13px; color: var(--color-text-primary); line-height: 1.45; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; }
+.b-green { background: #E1F5EE; color: #085041; }
+.b-amber { background: #FAEEDA; color: #633806; }
+.b-purple { background: #EEEDFE; color: #3C3489; }
+.b-gray { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 14px 0; }
+
+.bsr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.bsr-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 14px; }
+.bsr-card-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.bsr-card-src { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; }
+.bsr-card-desc { font-size: 12px; color: var(--color-text-primary); line-height: 1.5; }
+.priority { font-size: 10px; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 6px; }
+.p-high { background: #FCEBEB; color: #A32D2D; }
+.p-med { background: #FAEEDA; color: #633806; }
+.p-low { background: #E1F5EE; color: #085041; }
+</style>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('pantaloons',this)">🛍️ Pantaloons</button>
+  <button class="tab" onclick="show('nuvrah',this)">💎 Nuvrah</button>
+  <button class="tab" onclick="show('nykaa',this)">💄 Nykaa Fashion</button>
+  <button class="tab" onclick="show('myntra',this)">👗 Myntra</button>
+  <button class="tab" onclick="show('bsr',this)">⭐ BSR takeaways</button>
+</div>
+
+<div id="pantaloons" class="panel active">
+  <div class="site-header">
+    <div class="site-dot" style="background:#E1F5EE;color:#085041;">PL</div>
+    <div>
+      <div class="site-name">Pantaloons</div>
+      <div class="site-type">Mid-market family retail · Aditya Birla Group · Brick + click</div>
+    </div>
+  </div>
+  <div class="summary-box">A large-format Indian fashion retailer targeting middle-income families. Operates 450+ physical stores across India with a full online storefront. Covers women, men, kids, footwear, accessories and fragrances. Runs a loyalty programme (GreenCard) and gift cards. Strongest in ethnic + western wear for women and kids. Price range: ₹300–₹3,000.</div>
+  <div class="section-label">✅ What they do well</div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Top utility bar — GreenCard, Gift Card, Store Locator, Track Order, Contact — all visible before the fold</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Shop by Occasion filter (Party wear, Wedding wear, Festive wear, Work wear) — extremely useful for Indian shoppers</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Shop by Brand section under each gender — builds trust and makes browsing faster</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Store Mode toggle — shows what's physically available in a nearby store vs online only</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Deep subcategory nav — prevents dead-end browsing, customers find exactly what they want</div></div>
+  <hr class="divider">
+  <div class="section-label">⚠️ Weak spots</div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">Homepage feels cluttered — too many banners competing for attention</div></div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">No WhatsApp integration — misses India's largest customer communication channel</div></div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">Mobile nav is heavy and slow to load</div></div>
+  <div class="badge-row">
+    <span class="badge b-purple">Loyalty programme</span>
+    <span class="badge b-purple">Shop by occasion</span>
+    <span class="badge b-purple">Store locator</span>
+    <span class="badge b-purple">Track order</span>
+    <span class="badge b-purple">Gift cards</span>
+  </div>
+</div>
+
+<div id="nuvrah" class="panel">
+  <div class="site-header">
+    <div class="site-dot" style="background:#EEEDFE;color:#3C3489;">NV</div>
+    <div>
+      <div class="site-name">Nuvrah</div>
+      <div class="site-type">Luxury designer multi-brand · Shopify · Hyderabad</div>
+    </div>
+  </div>
+  <div class="summary-box">A Hyderabad-based premium multi-brand fashion store carrying 40+ Indian designers including Manish Malhotra, Gaurav Gupta, Raghavendra Rathore and Anushree Reddy. Physical store + online. 752 products across men, women, accessories and jewellery. Price range: ₹5,000–₹5,89,999. Has a private shopping service and a café inside the store. Strong branding and editorial imagery.</div>
+  <div class="section-label">✅ What they do well</div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Professional campaign-quality photography — every product shot is editorial grade</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Designer filter on collection page — lets customers browse by their favourite label</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Private Shopping page — builds exclusivity and premium positioning</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">New Arrivals section per gender — keeps returning customers engaged with fresh stock</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">WebP images served via Shopify CDN at 4K source resolution — crisp on all screens</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Discover Nuvrah section (Café, About Us, Locate Us) — humanises the brand beyond a product catalogue</div></div>
+  <hr class="divider">
+  <div class="section-label">⚠️ Weak spots</div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">No customer reviews visible on product cards — missing for a ₹10k+ price point</div></div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">Subcategory tags in filters are inconsistent (e.g. "kurta" and "Kurta" listed as separate items)</div></div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">No WhatsApp CTA despite being a premium Indian brand</div></div>
+  <div class="badge-row">
+    <span class="badge b-purple">Designer filter</span>
+    <span class="badge b-purple">New arrivals</span>
+    <span class="badge b-purple">Private shopping</span>
+    <span class="badge b-purple">About us story</span>
+    <span class="badge b-purple">Café / experience</span>
+  </div>
+</div>
+
+<div id="nykaa" class="panel">
+  <div class="site-header">
+    <div class="site-dot" style="background:#FBEAF0;color:#72243E;">NF</div>
+    <div>
+      <div class="site-name">Nykaa Fashion</div>
+      <div class="site-type">Fashion + beauty marketplace · Multi-brand · Pan-India</div>
+    </div>
+  </div>
+  <div class="summary-box">Nykaa's fashion vertical — a marketplace connecting 2,000+ brands with shoppers. Covers women, men, kids, home, footwear, lingerie, sports and accessories. Known for its "Hidden Gems" section promoting emerging Indian designers. Has a Global Store section for international brands. Strong mobile app with beauty + fashion bundled. Price range: ₹299–₹50,000+.</div>
+  <div class="section-label">✅ What they do well</div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Visual category tiles on homepage — image-first circles for each category, instantly scannable</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Hidden Gems section — curated emerging brands, creates discovery appeal and loyalty</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Fit Zone — dedicated activewear/sports section with its own landing page</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Global Store — imported international labels, adds premium aspiration</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">App download prompt is prominent but non-intrusive</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Image tiles load at 150px with lazy loading — fast even on slow connections</div></div>
+  <hr class="divider">
+  <div class="section-label">⚠️ Weak spots</div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">Homepage is extremely image-heavy — poor experience on slow mobile networks</div></div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">No local store integration — purely online, no physical presence angle</div></div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">Nav has too many "More" items — creates decision fatigue</div></div>
+  <div class="badge-row">
+    <span class="badge b-purple">Image category tiles</span>
+    <span class="badge b-purple">Hidden gems curation</span>
+    <span class="badge b-purple">Fit zone</span>
+    <span class="badge b-purple">App download CTA</span>
+    <span class="badge b-purple">Brand all-page</span>
+  </div>
+</div>
+
+<div id="myntra" class="panel">
+  <div class="site-header">
+    <div class="site-dot" style="background:#FAECE7;color:#712B13;">MY</div>
+    <div>
+      <div class="site-name">Myntra</div>
+      <div class="site-type">India's largest fashion marketplace · Flipkart Group</div>
+    </div>
+  </div>
+  <div class="summary-box">India's dominant fashion e-commerce platform. 6,000+ brands, 1M+ products. Covers fashion, beauty, home and lifestyle. Known for M-Now (2-hour delivery in select cities), Studio (video try-on content), and Style Cast (AI outfit recommendations). Has a loyalty tier (Myntra Insider) and a strong sale event culture (EORS — End of Reason Sale). Price range: ₹199–₹1,00,000+.</div>
+  <div class="section-label">✅ What they do well</div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Scrolling offer ticker strip below nav — shows active sale, free delivery threshold, and return policy at all times</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Product cards show brand name + product type + price + discount % — complete info without clicking</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Wishlist with one-tap heart icon on every product card — reduces friction</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Size selector directly on collection page — no need to open product detail</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Studio section — influencer/video content styled as editorial, drives aspiration</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Insider loyalty badge shown on account — makes membership feel earned and visible</div></div>
+  <div class="feature-row"><div class="dot dot-good"></div><div class="feat-text">Recently viewed section — keeps bounce rate low, pulls users back into browsing</div></div>
+  <hr class="divider">
+  <div class="section-label">⚠️ Weak spots</div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">Site blocked bot fetch — aggressive bot protection hurts SEO and scraping tools</div></div>
+  <div class="feature-row"><div class="dot dot-warn"></div><div class="feat-text">Homepage is overwhelming for first-time visitors — too many simultaneous promotions</div></div>
+  <div class="badge-row">
+    <span class="badge b-purple">Offer ticker strip</span>
+    <span class="badge b-purple">Wishlist on card</span>
+    <span class="badge b-purple">Recently viewed</span>
+    <span class="badge b-purple">Loyalty insider</span>
+    <span class="badge b-purple">Studio content</span>
+    <span class="badge b-purple">Size on collection page</span>
+  </div>
+</div>
+
+<div id="bsr" class="panel">
+  <div class="section-label" style="margin-top:0;">What BSR should steal — prioritised</div>
+  <div class="bsr-grid">
+
+    <div class="bsr-card">
+      <span class="priority p-high">🔴 High priority</span>
+      <div class="bsr-card-title">📣 Scrolling offer ticker</div>
+      <div class="bsr-card-src">From: Myntra</div>
+      <div class="bsr-card-desc">A thin strip below the nav showing free delivery threshold, WhatsApp number, and store hours. Persistent across all pages. One line of CSS + JS. Maximum visibility, zero clutter.</div>
+    </div>
+
+    <div class="bsr-card">
+      <span class="priority p-high">🔴 High priority</span>
+      <div class="bsr-card-title">🛍️ Shop by occasion</div>
+      <div class="bsr-card-src">From: Pantaloons</div>
+      <div class="bsr-card-desc">Add "Wedding", "Festival / Ugadi", "Casual", "Office" filter tags. AP/Telangana shoppers think in occasions, not categories. This directly increases conversion.</div>
+    </div>
+
+    <div class="bsr-card">
+      <span class="priority p-high">🔴 High priority</span>
+      <div class="bsr-card-title">🖼️ Image category tiles</div>
+      <div class="bsr-card-src">From: Nykaa Fashion</div>
+      <div class="bsr-card-desc">Replace text-only category nav with visual circular/square image tiles — Men, Women, Kids, Bulk. One image per tile, loaded at 150px. Instantly scannable on mobile.</div>
+    </div>
+
+    <div class="bsr-card">
+      <span class="priority p-med">🟡 Medium priority</span>
+      <div class="bsr-card-title">🆕 New arrivals section</div>
+      <div class="bsr-card-src">From: Nuvrah</div>
+      <div class="bsr-card-desc">A dedicated "New this week" section on the homepage. Gives repeat visitors a reason to come back. Update weekly — even 5–10 new products is enough.</div>
+    </div>
+
+    <div class="bsr-card">
+      <span class="priority p-med">🟡 Medium priority</span>
+      <div class="bsr-card-title">❤️ Wishlist on product cards</div>
+      <div class="bsr-card-src">From: Myntra</div>
+      <div class="bsr-card-desc">A heart icon on each product card. Reduces abandonment — customers save items without adding to cart. Simple to implement in Next.js with localStorage or user account.</div>
+    </div>
+
+    <div class="bsr-card">
+      <span class="priority p-med">🟡 Medium priority</span>
+      <div class="bsr-card-title">📍 Store locator + hours</div>
+      <div class="bsr-card-src">From: Pantaloons</div>
+      <div class="bsr-card-desc">A dedicated store page with Sompeta and Palasa addresses, Google Maps embed, phone number, and opening hours. Pantaloons puts this in the top utility bar. Should be 2 clicks from anywhere.</div>
+    </div>
+
+    <div class="bsr-card">
+      <span class="priority p-med">🟡 Medium priority</span>
+      <div class="bsr-card-title">🕐 Recently viewed</div>
+      <div class="bsr-card-src">From: Myntra</div>
+      <div class="bsr-card-desc">Show the last 4–6 products a visitor browsed at the bottom of every page. Keeps them in the funnel when they navigate away. Pure frontend — no backend needed, uses localStorage.</div>
+    </div>
+
+    <div class="bsr-card">
+      <span class="priority p-low">🟢 Nice to have</span>
+      <div class="bsr-card-title">📖 Our story section</div>
+      <div class="bsr-card-src">From: Nuvrah (Discover Nuvrah)</div>
+      <div class="bsr-card-desc">A short "About BSR" page — 20 years, family-owned, Sompeta & Palasa community. Builds emotional trust. One page, 200 words, one good photo of the store. Hugely underrated for local brands.</div>
+    </div>
+
+    <div class="bsr-card">
+      <span class="priority p-low">🟢 Nice to have</span>
+      <div class="bsr-card-title">🎁 Gift card or voucher</div>
+      <div class="bsr-card-src">From: Pantaloons</div>
+      <div class="bsr-card-desc">A WhatsApp-shareable gift voucher (even a simple PDF with a code) for festivals. Easy to implement, drives gifting purchases — especially relevant for wedding season and Ugadi.</div>
+    </div>
+
+  </div>
+  <div style="margin-top:16px; padding:12px 14px; background:var(--color-background-secondary); border-radius:var(--border-radius-md); font-size:13px; color:var(--color-text-secondary); line-height:1.6;">
+    The 3 most impactful changes for BSR right now — in order: (1) offer ticker strip, (2) shop by occasion, (3) image category tiles. All three can be done in under a week with minimal dev work.
+  </div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>

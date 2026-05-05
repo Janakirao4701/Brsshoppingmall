@@ -1,5 +1,6 @@
 import * as React from "react";
 import { HeroBanner } from "@/components/sections/HeroBanner";
+import { QuickCategories } from "@/components/sections/QuickCategories";
 import { StoreLocator } from "@/components/sections/StoreLocator";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
@@ -29,6 +30,9 @@ export default function Home({
     <div className="flex flex-col w-full">
       {/* Hero Section */}
       <HeroBanner />
+
+      {/* Visual Navigation */}
+      <QuickCategories />
 
       {/* Featured Categories */}
       <section className="py-16 px-4">
