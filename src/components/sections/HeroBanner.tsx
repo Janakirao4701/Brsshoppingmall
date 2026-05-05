@@ -37,7 +37,8 @@ const FALLBACK_SLIDES = [
     cta_link: "/men",
     image_url: "",
     mobile_image_url: "",
-    gradient: "from-[#DC2626] to-[#EA580C]",
+    gradient: "from-[#1a1a2e] via-[#16213e] to-[#0f3460]",
+    accentColor: "text-orange-400",
   },
   {
     id: "fallback-2",
@@ -48,7 +49,8 @@ const FALLBACK_SLIDES = [
     cta_link: "/men",
     image_url: "",
     mobile_image_url: "",
-    gradient: "from-[#EA580C] to-[#DC2626]",
+    gradient: "from-[#2d1b69] via-[#1e1145] to-[#11071f]",
+    accentColor: "text-violet-400",
   },
   {
     id: "fallback-3",
@@ -59,19 +61,20 @@ const FALLBACK_SLIDES = [
     cta_link: "/women",
     image_url: "",
     mobile_image_url: "",
-    gradient: "from-[#991b1b] to-[#c2410c]",
+    gradient: "from-[#1a0000] via-[#3d0c0c] to-[#5c1a1a]",
+    accentColor: "text-red-400",
   },
 ];
 
-const GRADIENTS = [
-  "from-[#DC2626] to-[#EA580C]",
-  "from-[#EA580C] to-[#DC2626]",
-  "from-[#991b1b] to-[#c2410c]",
+const SLIDE_THEMES = [
+  { gradient: "from-[#1a1a2e] via-[#16213e] to-[#0f3460]", accentColor: "text-orange-400" },
+  { gradient: "from-[#2d1b69] via-[#1e1145] to-[#11071f]", accentColor: "text-violet-400" },
+  { gradient: "from-[#1a0000] via-[#3d0c0c] to-[#5c1a1a]", accentColor: "text-red-400" },
 ];
 
 export function HeroBanner() {
   const t = useTranslations("Hero");
-  const [slides, setSlides] = React.useState<(HeroBannerSlide & { gradient: string })[]>(FALLBACK_SLIDES);
+  const [slides, setSlides] = React.useState<(HeroBannerSlide & { gradient: string; accentColor: string })[]>(FALLBACK_SLIDES);
 
   React.useEffect(() => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -81,12 +84,10 @@ export function HeroBanner() {
     const supabase = createClient(supabaseUrl, supabaseKey);
     supabase
       .from("hero_banners")
-      // Safely try to select mobile_image_url if it exists in the schema. 
-      // Using a fallback approach if the column doesn't exist yet.
       .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
-      .then(async ({ data, error }) => {
+      .then(async ({ data }) => {
         if (data && data.length > 0) {
           let mobileData: any[] | null = null;
           try {
@@ -95,16 +96,18 @@ export function HeroBanner() {
               .select("id, mobile_image_url")
               .eq("is_active", true);
             mobileData = res.data;
-          } catch (e) {
-            // Safe to ignore, column might not exist yet
+          } catch {
+            // Column might not exist yet
           }
 
           const enrichedData = data.map((s, i) => {
             const mobileImg = mobileData?.find(m => m.id === s.id)?.mobile_image_url;
+            const theme = SLIDE_THEMES[i % SLIDE_THEMES.length];
             return {
               ...s,
               mobile_image_url: mobileImg,
-              gradient: GRADIENTS[i % GRADIENTS.length]
+              gradient: theme.gradient,
+              accentColor: theme.accentColor,
             };
           });
           setSlides(enrichedData);
@@ -126,66 +129,147 @@ export function HeroBanner() {
         <CarouselContent>
           {slides.map((slide, index) => (
             <CarouselItem key={slide.id}>
-              <div className={cn(
-                "relative w-full h-[70vh] min-h-[450px] md:h-[600px] lg:h-[700px] flex items-end md:items-center justify-center md:justify-start text-center md:text-left px-6 pb-20 md:pb-0 md:px-16 lg:px-24 overflow-hidden bg-gradient-to-br",
-                slide.gradient
-              )}>
-                {/* Background Image */}
-                {slide.image_url && (
-                  <>
-                    {/* Desktop Image */}
+              {/* ─── DESKTOP: Side-by-side layout ─── */}
+              <div className="hidden md:flex w-full h-[600px] lg:h-[700px]">
+                {/* Left: Text Panel */}
+                <div className={cn(
+                  "w-[45%] lg:w-[42%] flex flex-col justify-center px-12 lg:px-20 bg-gradient-to-br relative overflow-hidden",
+                  slide.gradient
+                )}>
+                  {/* Decorative elements */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.03] rounded-full -translate-y-1/2 translate-x-1/3" />
+                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/[0.02] rounded-full translate-y-1/3 -translate-x-1/4" />
+
+                  <div className="relative z-10 space-y-6">
+                    {slide.subtitle && (
+                      <p className={cn(
+                        "text-xs font-bold tracking-[0.3em] uppercase animate-in slide-in-from-left-4 duration-700",
+                        slide.accentColor
+                      )}>
+                        {slide.subtitle}
+                      </p>
+                    )}
+                    <h2 className="text-5xl lg:text-6xl xl:text-7xl font-heading font-normal text-white leading-[1.05] animate-in slide-in-from-left-6 duration-700 delay-100">
+                      {slide.title}
+                    </h2>
+                    {slide.discount_text && (
+                      <div className="inline-flex items-center gap-2 py-2 px-5 bg-white/[0.08] backdrop-blur-sm border border-white/[0.1] rounded-full animate-in slide-in-from-left-8 duration-700 delay-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-white/80 text-xs font-semibold uppercase tracking-[0.2em]">
+                          {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
+                        </span>
+                      </div>
+                    )}
+                    <div className="pt-4 animate-in slide-in-from-left-10 duration-700 delay-300">
+                      <Button 
+                        size="lg" 
+                        variant="secondary"
+                        className="bg-white text-slate-900 hover:bg-white/90 px-10 py-6 rounded-full text-sm font-bold tracking-widest uppercase shadow-2xl shadow-black/20 transition-all hover:scale-105 active:scale-95"
+                      >
+                        {slide.cta_text}
+                        <span className="ml-2">&rarr;</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Image Panel */}
+                <div className="w-[55%] lg:w-[58%] relative overflow-hidden">
+                  {slide.image_url ? (
                     <Image
                       src={slide.image_url}
                       alt={slide.title}
                       fill
-                      className={cn(
-                        "object-cover object-[80%_center] md:object-center",
-                        slide.mobile_image_url ? "hidden md:block" : "block"
-                      )}
+                      className="object-cover object-center"
                       priority={index === 0}
                     />
-                    {/* Mobile Image (If Provided) */}
-                    {slide.mobile_image_url && (
-                      <Image
-                        src={slide.mobile_image_url}
-                        alt={slide.title}
-                        fill
-                        className="object-cover object-center md:hidden"
-                        priority={index === 0}
-                      />
+                  ) : (
+                    <div className={cn("w-full h-full bg-gradient-to-br opacity-60", slide.gradient)} />
+                  )}
+                  {/* Subtle left-edge blend */}
+                  <div className={cn(
+                    "absolute inset-y-0 left-0 w-24 bg-gradient-to-r to-transparent",
+                    slide.gradient.includes("1a1a2e") ? "from-[#0f3460]" :
+                    slide.gradient.includes("2d1b69") ? "from-[#11071f]" :
+                    "from-[#5c1a1a]"
+                  )} />
+                </div>
+              </div>
+
+              {/* ─── MOBILE: Stacked layout ─── */}
+              <div className="flex md:hidden flex-col w-full">
+                {/* Top: Image Area */}
+                <div className="relative w-full h-[45vh] min-h-[280px] overflow-hidden">
+                  {slide.image_url ? (
+                    <>
+                      {slide.mobile_image_url ? (
+                        <Image
+                          src={slide.mobile_image_url}
+                          alt={slide.title}
+                          fill
+                          className="object-cover object-top"
+                          priority={index === 0}
+                        />
+                      ) : (
+                        <Image
+                          src={slide.image_url}
+                          alt={slide.title}
+                          fill
+                          className="object-cover object-[70%_top]"
+                          priority={index === 0}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <div className={cn("w-full h-full bg-gradient-to-br opacity-60", slide.gradient)} />
+                  )}
+                  {/* Bottom fade into text area */}
+                  <div className={cn(
+                    "absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t to-transparent",
+                    slide.gradient.includes("1a1a2e") ? "from-[#1a1a2e]" :
+                    slide.gradient.includes("2d1b69") ? "from-[#2d1b69]" :
+                    "from-[#1a0000]"
+                  )} />
+                </div>
+
+                {/* Bottom: Text Area */}
+                <div className={cn(
+                  "px-6 pt-4 pb-8 bg-gradient-to-br relative overflow-hidden",
+                  slide.gradient
+                )}>
+                  {/* Decorative circle */}
+                  <div className="absolute -top-16 -right-16 w-40 h-40 bg-white/[0.03] rounded-full" />
+
+                  <div className="relative z-10 space-y-4">
+                    {slide.subtitle && (
+                      <p className={cn(
+                        "text-[10px] font-bold tracking-[0.3em] uppercase",
+                        slide.accentColor
+                      )}>
+                        {slide.subtitle}
+                      </p>
                     )}
-                  </>
-                )}
-
-                {/* Dark overlay for text readability - heavier at bottom on mobile */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 z-[1] md:bg-black/40" />
-
-                {/* Visual decoration */}
-                <div className="absolute -top-24 -left-24 size-96 rounded-full bg-white/10 blur-3xl z-[2]" />
-                <div className="absolute -bottom-24 -right-24 size-96 rounded-full bg-brand-orange/20 blur-3xl z-[2] md:bg-black/10" />
-
-                <div className="relative z-10 w-full max-w-2xl space-y-5 md:space-y-6">
-                  {slide.subtitle && (
-                    <p className="text-xs md:text-sm font-bold tracking-[0.3em] text-brand-orange uppercase animate-in slide-in-from-bottom-4 duration-700 drop-shadow-md">
-                      {slide.subtitle}
-                    </p>
-                  )}
-                  <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading font-normal text-white leading-[1.05] drop-shadow-2xl animate-in slide-in-from-bottom-6 duration-700 delay-100">
-                    {slide.title}
-                  </h2>
-                  {slide.discount_text && (
-                    <div className="inline-block py-2.5 px-8 bg-black/20 backdrop-blur-md border border-white/20 rounded-full text-white text-xs md:text-sm font-bold uppercase tracking-[0.25em] shadow-2xl animate-in slide-in-from-bottom-8 duration-700 delay-200">
-                      {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
+                    <h2 className="text-3xl sm:text-4xl font-heading font-normal text-white leading-[1.1]">
+                      {slide.title}
+                    </h2>
+                    {slide.discount_text && (
+                      <div className="inline-flex items-center gap-2 py-1.5 px-4 bg-white/[0.08] border border-white/[0.1] rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-white/80 text-[10px] font-semibold uppercase tracking-[0.2em]">
+                          {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
+                        </span>
+                      </div>
+                    )}
+                    <div className="pt-2">
+                      <Button 
+                        size="default" 
+                        variant="secondary"
+                        className="bg-white text-slate-900 hover:bg-white/90 px-8 py-5 rounded-full text-xs font-bold tracking-widest uppercase shadow-xl"
+                      >
+                        {slide.cta_text}
+                        <span className="ml-2">&rarr;</span>
+                      </Button>
                     </div>
-                  )}
-                  <div className="pt-6 animate-in slide-in-from-bottom-10 duration-700 delay-300">
-                    <Button 
-                      size="lg" 
-                      variant="secondary"
-                      className="bg-white text-brand-red hover:bg-slate-50 px-12 py-7 rounded-full text-sm font-bold tracking-widest uppercase shadow-[0_8px_30px_rgba(220,38,38,0.3)] transition-all hover:scale-105 active:scale-95"
-                    >
-                      {slide.cta_text}
-                    </Button>
                   </div>
                 </div>
               </div>
@@ -193,8 +277,8 @@ export function HeroBanner() {
           ))}
         </CarouselContent>
         <div className="hidden md:block">
-          <CarouselPrevious className="left-8 size-12 bg-white/20 hover:bg-white/40 border-none text-white" />
-          <CarouselNext className="right-8 size-12 bg-white/20 hover:bg-white/40 border-none text-white" />
+          <CarouselPrevious className="left-[46%] lg:left-[43%] top-1/2 size-12 bg-black/20 hover:bg-black/40 border-none text-white backdrop-blur-sm" />
+          <CarouselNext className="right-8 size-12 bg-black/20 hover:bg-black/40 border-none text-white backdrop-blur-sm" />
         </div>
       </Carousel>
     </section>
