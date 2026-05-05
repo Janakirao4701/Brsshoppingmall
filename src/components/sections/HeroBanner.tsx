@@ -25,6 +25,7 @@ interface HeroBannerSlide {
   image_url: string;
   mobile_image_url?: string | null;
   text_position?: "left" | "center" | "right";
+  object_position?: string;
 }
 
 // Fallback slides when database is empty
@@ -39,6 +40,7 @@ const FALLBACK_SLIDES = [
     image_url: "/hero-ethnic.png",
     mobile_image_url: "/hero-ethnic.png",
     text_position: "left" as const,
+    object_position: "center",
     gradient: "from-[#1a1a1a] to-transparent",
   },
   {
@@ -51,6 +53,7 @@ const FALLBACK_SLIDES = [
     image_url: "/hero-western.png",
     mobile_image_url: "/hero-western.png",
     text_position: "center" as const,
+    object_position: "center",
     gradient: "from-[#111827] to-transparent",
   },
   {
@@ -63,6 +66,7 @@ const FALLBACK_SLIDES = [
     image_url: "/hero-boutique.png",
     mobile_image_url: "/hero-boutique.png",
     text_position: "right" as const,
+    object_position: "center",
     gradient: "from-[#0f172a] to-transparent",
   },
 ];
@@ -85,7 +89,7 @@ export function HeroBanner() {
     const supabase = createClient(supabaseUrl, supabaseKey);
     supabase
       .from("hero_banners")
-      .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url, text_position")
+      .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url, text_position, object_position")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
       .then(async ({ data }) => {
@@ -129,7 +133,7 @@ export function HeroBanner() {
           {slides.map((slide, index) => (
             <CarouselItem key={slide.id}>
               <div className={cn(
-                "relative w-full h-[60vh] min-h-[400px] md:h-[600px] lg:h-[700px] overflow-hidden bg-gradient-to-br",
+                "relative w-full h-[85vh] md:h-[600px] lg:h-[700px] overflow-hidden bg-gradient-to-br",
                 slide.gradient
               )}>
                 {/* Full-bleed Background Image */}
@@ -140,8 +144,9 @@ export function HeroBanner() {
                       src={slide.image_url}
                       alt={slide.title}
                       fill
+                      style={{ objectPosition: slide.object_position || "center" }}
                       className={cn(
-                        "object-cover object-center",
+                        "object-cover",
                         slide.mobile_image_url ? "hidden md:block" : "block"
                       )}
                       priority={index === 0}
@@ -153,7 +158,8 @@ export function HeroBanner() {
                         src={slide.mobile_image_url}
                         alt={slide.title}
                         fill
-                        className="object-cover object-top md:hidden"
+                        style={{ objectPosition: slide.object_position || "center" }}
+                        className="object-cover md:hidden"
                         priority={index === 0}
                         sizes="100vw"
                       />
@@ -166,7 +172,7 @@ export function HeroBanner() {
 
                 {/* ─── Glassmorphism Text Card — position controlled by admin ─── */}
                 <div className={cn(
-                  "absolute bottom-8 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
+                  "absolute bottom-12 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
                   (slide.text_position || "left") === "left" && "md:left-10 md:right-auto",
                   (slide.text_position || "left") === "center" && "md:left-1/2 md:right-auto md:-translate-x-1/2",
                   (slide.text_position || "left") === "right" && "md:right-10 md:left-auto"
