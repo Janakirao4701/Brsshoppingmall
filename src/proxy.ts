@@ -14,7 +14,7 @@ const intlMiddleware = createMiddleware(routing);
  * - Admin route protection with auth check
  * - Role verification deferred to AdminGuard (avoids DB query in middleware for performance)
  */
-export default async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = intlMiddleware(request);
 
   // Skip Supabase auth if not configured (local dev without keys)

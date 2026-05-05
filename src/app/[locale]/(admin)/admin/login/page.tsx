@@ -49,7 +49,10 @@ export default function AdminLoginPage() {
 
       router.push("/admin");
     } catch (err: any) {
-      setError(err.message || "Login failed. Please try again.");
+      console.error("Login Error Details:", err);
+      // Supabase errors often have a more specific message in the response
+      const errorMessage = err.message || "Login failed. Please try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
