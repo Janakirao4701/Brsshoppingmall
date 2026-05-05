@@ -5,13 +5,30 @@ import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
+/**
+ * Middleware: handles i18n routing and admin authentication.
+ * 
+ * Security features:
+ * - Graceful fallback when Supabase is not configured (dev mode)
+ * - Session refresh on every request (prevents stale tokens)
+ * - Admin route protection with auth check
+ * - Role verification deferred to AdminGuard (avoids DB query in middleware for performance)
+ */
 export default async function proxy(request: NextRequest) {
   let response = intlMiddleware(request);
 
+  // Skip Supabase auth if not configured (local dev without keys)
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes("placeholder")) {
+    return response;
+  }
+
   // Create a Supabase client configured to use cookies
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name: string) {
@@ -59,9 +76,14 @@ export default async function proxy(request: NextRequest) {
     // If you need strict role check in middleware, you'd fetch the profile here.
   }
 
+  // Security headers
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)" ],
 };
