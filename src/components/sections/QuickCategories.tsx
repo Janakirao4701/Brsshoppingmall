@@ -28,6 +28,7 @@ export function QuickCategories() {
                   alt={cat.name}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-700"
+                  sizes="96px"
                 />
               </div>
               <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-brand-red transition-colors">
