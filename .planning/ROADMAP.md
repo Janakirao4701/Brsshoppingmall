@@ -106,10 +106,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 06-01: Fix Admin Sidebar & Missing Pages
-- [ ] 06-02: Implement Admin Authentication Middleware
-- [ ] 06-03: Add Floating WhatsApp Chat Widget
-- [ ] 06-04: UI Polish & Grammar Fixes
+- [x] 06-01: Fix Admin Sidebar & Missing Pages
+- [x] 06-02: Implement Admin Authentication Middleware
+- [x] 06-03: Add Floating WhatsApp Chat Widget
+- [x] 06-04: UI Polish & Grammar Fixes
 
 ### Phase 7: Performance & Search Visibility
 **Goal**: Ensure the store is discoverable and fast.
@@ -149,6 +149,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 3. Checkout & Payments | 3/3 | ✅ Completed | 2026-05-04 |
 | 4. User Accounts | 3/3 | ✅ Completed | 2026-05-04 |
 | 5. Admin Panel | 3/3 | ✅ Completed | 2026-05-04 |
-| 6. Core Hardening & Quality Fixes | 0/4 | ⏳ Not started | - |
+| 6. Core Hardening & Quality Fixes | 4/4 | ✅ Completed | 2026-05-05 |
 | 7. Performance & Search Visibility | 0/3 | ⏳ Not started | - |
 | 8. Engagement Features | 0/2 | ⏳ Not started | - |
