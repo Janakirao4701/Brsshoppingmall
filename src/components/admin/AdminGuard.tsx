@@ -11,31 +11,35 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // If it's the login page, we are already authorized to see it
     if (isLoginPage) return;
 
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        setAuthorized(false);
-        window.location.href = "/admin/login";
-        return;
-      }
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          setAuthorized(false);
+          router.replace("/admin/login");
+          return;
+        }
 
-      // Check for admin role in profiles table
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .single();
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
 
-      if (error || profile?.role !== "admin") {
-        console.error("Admin verification failed:", error || "Not an admin");
+        if (error || profile?.role !== "admin") {
+          console.error("Admin verification failed:", error || "Not an admin");
+          setAuthorized(false);
+          router.replace("/admin/login");
+        } else {
+          setAuthorized(true);
+        }
+      } catch (err) {
+        console.error("Auth check crash:", err);
         setAuthorized(false);
-        window.location.href = "/admin/login"; // Redirect to login for re-auth
-      } else {
-        setAuthorized(true);
+        router.replace("/admin/login");
       }
     };
 
@@ -44,12 +48,22 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
 
   if (authorized === null) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#fafafa]">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <div className="size-8 animate-spin rounded-full border-4 border-[#171717] border-t-transparent" />
-          <div>
-            <p className="text-sm font-medium text-[#171717]">Verifying admin access...</p>
-            <p className="text-xs text-[#888] mt-1">If you are not redirected, <a href="/admin/login" className="text-brand-red hover:underline">click here to login</a></p>
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-white animate-in fade-in duration-700">
+        <div className="relative flex flex-col items-center">
+          {/* Premium Logo Placeholder / Spinner */}
+          <div className="size-16 relative mb-8">
+            <div className="absolute inset-0 rounded-full border-[3px] border-[#f3f3f3]" />
+            <div className="absolute inset-0 rounded-full border-[3px] border-[#171717] border-t-transparent animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-[10px] font-black tracking-tighter text-[#171717]">BSR</span>
+            </div>
+          </div>
+          
+          <div className="space-y-1.5 text-center">
+            <h2 className="text-sm font-bold text-[#171717] tracking-tight uppercase">Security Verification</h2>
+            <p className="text-[11px] text-[#888] max-w-[200px] leading-relaxed">
+              Establishing a secure connection to the admin gateway...
+            </p>
           </div>
         </div>
       </div>
@@ -58,5 +72,9 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
 
   if (authorized === false) return null;
 
-  return <>{children}</>;
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-1 duration-500 fill-mode-both">
+      {children}
+    </div>
+  );
 }

@@ -4,11 +4,12 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Loader2, Mail, Lock, ShieldCheck } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/i18n/routing";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [honeypot, setHoneypot] = useState(""); // Bot deterrent
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -16,6 +17,13 @@ export default function AdminLoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Bot check
+    if (honeypot) {
+      console.warn("Honeypot filled. Bot detected.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -50,7 +58,8 @@ export default function AdminLoginPage() {
       router.push("/admin");
     } catch (err: any) {
       console.error("Login Error Details:", err);
-      // Supabase errors often have a more specific message in the response
+      // Subtle delay on failure to slow down bots
+      await new Promise(resolve => setTimeout(resolve, 800));
       const errorMessage = err.message || "Login failed. Please try again.";
       setError(errorMessage);
     } finally {
@@ -70,6 +79,18 @@ export default function AdminLoginPage() {
         </div>
 
         <form onSubmit={handleLogin} className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8 space-y-6">
+          {/* Honeypot Field (Invisible to users) */}
+          <div className="sr-only" aria-hidden="true">
+            <input 
+              type="text" 
+              name="website_url" 
+              value={honeypot} 
+              onChange={(e) => setHoneypot(e.target.value)} 
+              tabIndex={-1} 
+              autoComplete="off" 
+            />
+          </div>
+
           {error && (
             <div className="p-4 bg-red-50 text-red-600 rounded-xl text-xs font-medium border border-red-100 animate-in fade-in slide-in-from-top-2">
               {error}
@@ -130,12 +151,12 @@ export default function AdminLoginPage() {
         </form>
         
         <div className="mt-8 text-center">
-          <button 
-            onClick={() => router.push("/")}
+          <Link 
+            href="/"
             className="text-xs font-medium text-slate-400 hover:text-brand-red transition-colors"
           >
             ← Back to storefront
-          </button>
+          </Link>
         </div>
       </div>
     </div>
