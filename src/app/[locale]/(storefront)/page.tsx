@@ -47,7 +47,7 @@ export default function Home({
               <Link 
                 key={category.nameKey} 
                 href={category.href as "/men" | "/women" | "/kids"}
-                className="group relative flex-none w-[75vw] sm:w-[300px] md:w-auto overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200 shadow-sm snap-center"
+                className="group relative flex-none w-[75vw] sm:w-[300px] md:w-auto overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200 shadow-sm snap-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
               >
                 {/* Image */}
                 <Image
@@ -79,7 +79,7 @@ export default function Home({
       </section>
 
       {/* Why BSR Section */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-24 px-4 bg-white">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">

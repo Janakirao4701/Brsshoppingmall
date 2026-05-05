@@ -18,7 +18,7 @@ export function WhatsAppFloat() {
       rel="noopener noreferrer"
       className={cn(
         "fixed z-50 flex items-center justify-center size-14 md:size-16 rounded-full bg-[#25D366] text-white shadow-2xl transition-all hover:scale-110 active:scale-95 animate-whatsapp-pulse",
-        "bottom-20 right-6 md:bottom-8 md:right-8" // Positioned above mobile tab bar
+        "bottom-24 right-4 md:bottom-8 md:right-8" // Adjusted to prevent overlap with other sticky mobile elements
       )}
       aria-label={t("whatsapp")}
     >

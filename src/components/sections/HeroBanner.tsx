@@ -125,16 +125,16 @@ export function HeroBanner() {
 
                 <div className="relative z-10 w-full max-w-2xl space-y-5 md:space-y-6">
                   {slide.subtitle && (
-                    <p className="text-[11px] md:text-sm font-bold tracking-[0.2em] text-white/90 uppercase animate-in slide-in-from-bottom-4 duration-700">
+                    <p className="text-xs md:text-sm font-bold tracking-[0.3em] text-brand-orange uppercase animate-in slide-in-from-bottom-4 duration-700 drop-shadow-md">
                       {slide.subtitle}
                     </p>
                   )}
-                  <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading font-normal text-white leading-[1.1] drop-shadow-lg animate-in slide-in-from-bottom-6 duration-700 delay-100">
+                  <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading font-normal text-white leading-[1.05] drop-shadow-2xl animate-in slide-in-from-bottom-6 duration-700 delay-100">
                     {slide.title}
                   </h2>
                   {slide.discount_text && (
-                    <div className="inline-block py-2 px-6 bg-white/20 backdrop-blur-md rounded-full text-white font-heading text-lg md:text-2xl italic tracking-wide animate-in slide-in-from-bottom-8 duration-700 delay-200">
-                      {slide.discount_text.replace(/upto/i, "Up to")}
+                    <div className="inline-block py-2.5 px-8 bg-black/20 backdrop-blur-md border border-white/20 rounded-full text-white text-xs md:text-sm font-bold uppercase tracking-[0.25em] shadow-2xl animate-in slide-in-from-bottom-8 duration-700 delay-200">
+                      {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
                     </div>
                   )}
                   <div className="pt-6 animate-in slide-in-from-bottom-10 duration-700 delay-300">
