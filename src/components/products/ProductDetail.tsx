@@ -125,8 +125,8 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
         {/* Related Products Section */}
         {relatedProducts.length > 0 && (
           <section className="mt-20 pt-12 border-t">
-            <h2 className="text-2xl font-heading font-bold text-slate-900 mb-8">
-              You May Also Like
+            <h2 className="text-2xl font-heading font-normal text-slate-900 mb-8">
+              You May <span className="text-italic-accent">Also</span> Like
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {relatedProducts.map((p) => (

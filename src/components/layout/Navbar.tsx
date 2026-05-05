@@ -83,7 +83,7 @@ export function Navbar() {
   return (
     <>
       {mounted && announcementActive && announcements.length > 0 && (
-        <div className="bg-brand-red text-white text-center py-2.5 text-[10px] sm:text-xs font-bold tracking-widest uppercase overflow-hidden whitespace-nowrap">
+        <div className="bg-brand-red text-white text-center py-2.5 text-nav text-[10px] sm:text-[11px] tracking-widest overflow-hidden whitespace-nowrap">
           <div 
             key={currentIdx}
             className="animate-in fade-in slide-in-from-right duration-700"
@@ -189,7 +189,7 @@ export function Navbar() {
                       <Link
                         key={link.name}
                         href={link.href}
-                        className="text-lg font-medium hover:text-brand-red transition-colors"
+                        className="text-lg font-heading font-normal hover:text-brand-red transition-colors"
                       >
                         {link.name}
                       </Link>
@@ -197,13 +197,13 @@ export function Navbar() {
                     <div className="h-px bg-slate-100 my-2" />
                     <Link
                       href="/account"
-                      className="text-lg font-medium hover:text-brand-red transition-colors flex items-center"
+                      className="text-lg font-heading font-normal hover:text-brand-red transition-colors flex items-center"
                     >
                       <User className="mr-3 size-5" /> {t("account")}
                     </Link>
                     <Link
                       href="/account"
-                      className="text-lg font-medium hover:text-brand-red transition-colors flex items-center"
+                      className="text-lg font-heading font-normal hover:text-brand-red transition-colors flex items-center"
                     >
                       <Heart className="mr-3 size-5" /> Wishlist
                     </Link>

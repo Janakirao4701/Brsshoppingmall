@@ -71,7 +71,7 @@ export default function RegisterPage() {
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-heading font-bold text-slate-900">Create Account</h1>
+          <h1 className="text-2xl font-heading font-normal text-slate-900">Create Account</h1>
           <p className="text-slate-500 text-sm mt-2">Join BSR Shopping Mall for a better shopping experience</p>
         </div>
 

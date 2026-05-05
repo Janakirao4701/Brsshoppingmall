@@ -125,15 +125,15 @@ export function HeroBanner() {
 
                 <div className="relative z-10 max-w-3xl space-y-4 md:space-y-6">
                   {slide.subtitle && (
-                    <p className="text-sm md:text-base font-medium text-white/90 tracking-widest uppercase">
+                    <p className="text-nav text-white/80">
                       {slide.subtitle}
                     </p>
                   )}
-                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-white leading-tight drop-shadow-lg">
+                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-heading font-normal text-white leading-tight drop-shadow-lg">
                     {slide.title}
                   </h2>
                   {slide.discount_text && (
-                    <div className="inline-block py-1 px-4 bg-white/20 backdrop-blur-md rounded-full text-white font-semibold text-lg md:text-xl">
+                    <div className="inline-block py-1.5 px-5 bg-white/15 backdrop-blur-md rounded-full text-white font-heading text-lg md:text-xl italic tracking-wide">
                       {slide.discount_text.replace(/upto/i, "Up to")}
                     </div>
                   )}
@@ -141,7 +141,7 @@ export function HeroBanner() {
                     <Button 
                       size="lg" 
                       variant="secondary"
-                      className="bg-white text-brand-red hover:bg-slate-100 px-8 py-6 text-lg font-bold shadow-xl transition-all hover:scale-105"
+                      className="bg-white text-brand-red hover:bg-slate-50 px-10 py-6 text-sm font-medium tracking-wider uppercase shadow-xl transition-all hover:scale-105"
                     >
                       {slide.cta_text}
                     </Button>

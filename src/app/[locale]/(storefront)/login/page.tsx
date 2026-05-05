@@ -42,7 +42,7 @@ export default function LoginPage() {
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-heading font-bold text-slate-900">Welcome Back</h1>
+          <h1 className="text-2xl font-heading font-normal text-slate-900">Welcome Back</h1>
           <p className="text-slate-500 text-sm mt-2">Sign in to your BSR Shopping Mall account</p>
         </div>
 

@@ -29,7 +29,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Quick Links</h4>
+            <h4 className="text-lg font-heading font-medium text-white">Quick Links</h4>
             <nav className="flex flex-col space-y-2">
               <Link href="/men" className="text-sm hover:text-white transition-colors">Men's Wear</Link>
               <Link href="/women" className="text-sm hover:text-white transition-colors">Women's Wear</Link>
@@ -40,7 +40,7 @@ export function Footer() {
 
           {/* Contact Info */}
           <div className="space-y-4 col-span-1 md:col-span-2">
-            <h4 className="text-lg font-semibold text-white">Contact & Stores</h4>
+            <h4 className="text-lg font-heading font-medium text-white">Contact & Stores</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <p className="text-sm font-medium text-slate-100 flex items-center">

@@ -44,7 +44,7 @@ export function BulkOrderForm() {
     return (
       <div className="text-center py-16 space-y-4">
         <CheckCircle className="size-16 text-green-500 mx-auto" />
-        <h2 className="text-2xl font-heading font-bold text-slate-900">
+        <h2 className="text-2xl font-heading font-normal text-slate-900">
           Inquiry Submitted!
         </h2>
         <p className="text-slate-600 max-w-md mx-auto">

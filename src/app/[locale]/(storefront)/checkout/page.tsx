@@ -215,7 +215,7 @@ export default function CheckoutPage() {
         <div className="size-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
           <CheckCircle className="size-10 text-green-600" />
         </div>
-        <h2 className="text-2xl font-heading font-bold text-slate-900 mb-2">
+        <h2 className="text-2xl font-heading font-normal text-slate-900 mb-2">
           {completedPaymentMethod === "razorpay" ? "Payment Successful!" : "Order Sent!"}
         </h2>
         {completedOrderNumber && (

@@ -57,7 +57,7 @@ export function CartDrawer() {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center gap-2 font-heading font-bold text-lg">
+          <div className="flex items-center gap-2 font-heading font-medium text-lg">
             <ShoppingBag className="size-5" />
             Your Cart ({items.length})
           </div>

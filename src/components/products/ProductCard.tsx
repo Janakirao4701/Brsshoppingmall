@@ -79,10 +79,10 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* Info */}
       <div className="p-4 space-y-2">
-        <p className="text-xs text-brand-orange font-semibold uppercase tracking-wider">
+        <p className="text-nav text-brand-orange text-[11px]">
           {product.brand}
         </p>
-        <h3 className="font-medium text-sm text-slate-900 line-clamp-2 group-hover:text-brand-red transition-colors">
+        <h3 className="text-product-name text-slate-900 line-clamp-2 group-hover:text-brand-red transition-colors">
           {product.name}
         </h3>
 
@@ -107,11 +107,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Price */}
         <div className="flex items-baseline gap-2 pt-1">
-          <span className="text-lg font-bold text-slate-900">
+          <span className="text-lg text-price text-slate-900">
             ₹{product.price.toLocaleString("en-IN")}
           </span>
           {product.original_price && (
-            <span className="text-sm text-slate-400 line-through">
+            <span className="text-sm text-price text-slate-400 line-through">
               ₹{product.original_price.toLocaleString("en-IN")}
             </span>
           )}

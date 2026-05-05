@@ -43,8 +43,10 @@ export function StoreLocator() {
     <section className="py-16 px-4 bg-slate-50">
       <div className="container mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">{t("visit")}</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-heading font-normal mb-4 tracking-tight">
+            <span className="text-italic-accent">Visit</span> Our Stores
+          </h2>
+          <p className="text-section-subtitle text-muted-foreground max-w-2xl mx-auto">
             Experience our premium collection in person. Visit our branches in Sompeta and Palasa for the best readymade garments.
           </p>
         </div>

@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-brand-red/10 text-brand-red mb-4 shadow-sm">
             <ShieldCheck className="size-8" />
           </div>
-          <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">Admin Console</h1>
+          <h1 className="text-2xl font-heading font-normal text-slate-900 tracking-tight">Admin Console</h1>
           <p className="text-slate-500 text-sm mt-2">Secure access for authorized personnel only</p>
         </div>
 

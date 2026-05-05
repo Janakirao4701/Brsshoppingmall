@@ -159,7 +159,7 @@ export default function AccountPage() {
   return (
     <div className="py-8 px-4">
       <div className="container mx-auto max-w-4xl">
-        <h1 className="text-2xl font-heading font-bold text-slate-900 mb-8">My Account</h1>
+        <h1 className="text-2xl font-heading font-normal text-slate-900 mb-8">My Account</h1>
 
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">

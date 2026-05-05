@@ -2,7 +2,6 @@ import * as React from "react";
 import { HeroBanner } from "@/components/sections/HeroBanner";
 import { StoreLocator } from "@/components/sections/StoreLocator";
 import { Link } from "@/i18n/routing";
-import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { setRequestLocale } from 'next-intl/server';
 import Image from "next/image";
@@ -36,8 +35,10 @@ export default function Home({
         <div className="container mx-auto">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-heading font-bold text-slate-900">Featured Categories</h2>
-              <p className="text-slate-500">Explore our curated collections for everyone</p>
+              <h2 className="text-3xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">
+                <span className="text-italic-accent">Curated</span> Collections
+              </h2>
+              <p className="text-section-subtitle text-slate-500 mt-2">Explore our handpicked selections for everyone</p>
             </div>
           </div>
 
@@ -63,13 +64,13 @@ export default function Home({
                 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 w-full p-8 z-20 transform group-hover:-translate-y-2 transition-transform duration-500">
-                  <p className="text-brand-orange text-xs font-bold uppercase tracking-widest mb-2 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
+                  <p className="text-nav text-brand-orange text-xs mb-2 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
                     Premium Collection
                   </p>
-                  <h3 className="text-3xl font-heading font-bold text-white mb-2">{t(category.nameKey)}</h3>
-                  <div className="inline-flex items-center text-white/90 text-sm font-medium">
-                    Shop Collection <ChevronRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </div>
+                  <h3 className="text-3xl md:text-4xl font-heading font-normal text-white mb-3">{t(category.nameKey)}</h3>
+                  <span className="text-cta-link text-white/90">
+                    Shop Collection
+                  </span>
                 </div>
               </Link>
             ))}
@@ -80,6 +81,11 @@ export default function Home({
       {/* Why BSR Section */}
       <section className="py-16 px-4 bg-white">
         <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">
+              Why <span className="text-italic-accent">BSR</span>
+            </h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="text-center space-y-4">
               <div className="size-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto text-brand-red">
@@ -87,8 +93,8 @@ export default function Home({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold">Trusted Quality</h3>
-              <p className="text-muted-foreground text-sm">Serving our community for over 20 years with premium readymade garments from top brands.</p>
+              <h3 className="text-xl font-heading font-medium">Trusted <span className="text-italic-accent">Quality</span></h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">Serving our community for over 20 years with premium readymade garments from top brands.</p>
             </div>
             <div className="text-center space-y-4">
               <div className="size-16 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto text-brand-orange">
@@ -96,8 +102,8 @@ export default function Home({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold">Pan-India Delivery</h3>
-              <p className="text-muted-foreground text-sm">We deliver our products to any corner of India, bringing BSR quality to your doorstep.</p>
+              <h3 className="text-xl font-heading font-medium">Pan-India <span className="text-italic-accent">Delivery</span></h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">We deliver our products to any corner of India, bringing BSR quality to your doorstep.</p>
             </div>
             <div className="text-center space-y-4">
               <div className="size-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto text-brand-red">
@@ -105,8 +111,8 @@ export default function Home({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold">Excellent Service</h3>
-              <p className="text-muted-foreground text-sm">Personalized assistance for retail and bulk orders. Contact us on WhatsApp for quick inquiries.</p>
+              <h3 className="text-xl font-heading font-medium">Excellent <span className="text-italic-accent">Service</span></h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">Personalized assistance for retail and bulk orders. Contact us on WhatsApp for quick inquiries.</p>
             </div>
           </div>
         </div>

@@ -18,7 +18,7 @@ export default async function BulkOrdersPage({
           <div className="inline-flex items-center gap-2 text-sm font-semibold text-brand-orange bg-brand-orange/10 px-3 py-1 rounded-full mb-4">
             <Package className="size-4" /> Bulk Orders
           </div>
-          <h1 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-4">
+          <h1 className="text-3xl md:text-4xl font-heading font-normal text-slate-900 mb-4">
             Bulk Order Inquiry
           </h1>
           <p className="text-slate-600 text-lg leading-relaxed">
