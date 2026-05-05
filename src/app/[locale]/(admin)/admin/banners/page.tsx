@@ -44,6 +44,7 @@ export default function BannersPage() {
     cta_text: "Shop Now",
     cta_link: "/",
     text_position: "left" as "left" | "center" | "right",
+    show_text: true,
   });
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -61,14 +62,31 @@ export default function BannersPage() {
     setLoading(false);
   };
 
-  const startEdit = (banner: Banner) => {
+  const startAddNew = () => {
     setForm({
-      title: banner.title,
+      title: "",
+      subtitle: "",
+      discount_text: "",
+      cta_text: "Shop Now",
+      cta_link: "/",
+      text_position: "left",
+      show_text: true,
+    });
+    setImagePreview(null);
+    setImageFile(null);
+    setEditingId(null);
+    setShowForm(true);
+  };
+
+  const startEdit = (banner: any) => {
+    setForm({
+      title: banner.title || "",
       subtitle: banner.subtitle || "",
       discount_text: banner.discount_text || "",
-      cta_text: banner.cta_text,
-      cta_link: banner.cta_link,
+      cta_text: banner.cta_text || "Shop Now",
+      cta_link: banner.cta_link || "/",
       text_position: banner.text_position || "left",
+      show_text: banner.show_text ?? true,
     });
     setImagePreview(banner.image_url);
     setEditingId(banner.id);
@@ -130,6 +148,7 @@ export default function BannersPage() {
         cta_link: form.cta_link,
         image_url: imageUrl,
         text_position: form.text_position,
+        show_text: form.show_text,
         sort_order: editingId ? banners.find(b => b.id === editingId)?.sort_order : banners.length,
         is_active: true,
       };
@@ -149,7 +168,15 @@ export default function BannersPage() {
         setSuccess("Banner added successfully!");
       }
 
-      setForm({ title: "", subtitle: "", discount_text: "", cta_text: "Shop Now", cta_link: "/", text_position: "left" });
+      setForm({ 
+        title: "", 
+        subtitle: "", 
+        discount_text: "", 
+        cta_text: "Shop Now", 
+        cta_link: "/", 
+        text_position: "left",
+        show_text: true 
+      });
       setImageFile(null);
       setImagePreview(null);
       setShowForm(false);
@@ -194,7 +221,7 @@ export default function BannersPage() {
           <p className="text-sm text-[#666666] mt-1">Manage homepage slider images</p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={startAddNew}
           className="flex items-center gap-2 px-4 py-2.5 bg-[#171717] text-sm font-medium text-white rounded-md hover:bg-[#333333] transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.12)]"
         >
           <Plus size={16} /> Add Banner
@@ -209,40 +236,58 @@ export default function BannersPage() {
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] p-8 space-y-6">
           <h2 className="text-lg font-semibold text-[#171717]">{editingId ? "Edit Banner" : "New Banner"}</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#171717]">Title *</label>
-              <input required value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-                className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-                placeholder="Summer Collection 2026" />
+          <div className="p-4 bg-slate-50 rounded-lg flex items-center justify-between border border-slate-200">
+            <div className="space-y-0.5">
+              <label className="text-sm font-bold text-slate-900">Show Text Overlay?</label>
+              <p className="text-xs text-slate-500">Disable if your image already contains text.</p>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#171717]">Subtitle</label>
-              <input value={form.subtitle} onChange={e => setForm(p => ({ ...p, subtitle: e.target.value }))}
-                className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-                placeholder="Premium Readymade Garments" />
-            </div>
+            <button 
+              type="button"
+              onClick={() => setForm(p => ({ ...p, show_text: !p.show_text }))}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.show_text ? 'bg-[#171717]' : 'bg-slate-200'}`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${form.show_text ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#171717]">Discount Text</label>
-              <input value={form.discount_text} onChange={e => setForm(p => ({ ...p, discount_text: e.target.value }))}
-                className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-                placeholder="Up to 50% Off" />
+          {form.show_text && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#171717]">Title *</label>
+                  <input required={form.show_text} value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+                    className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
+                    placeholder="Summer Collection 2026" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#171717]">Subtitle</label>
+                  <input value={form.subtitle} onChange={e => setForm(p => ({ ...p, subtitle: e.target.value }))}
+                    className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
+                    placeholder="Premium Readymade Garments" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#171717]">Discount Text</label>
+                  <input value={form.discount_text} onChange={e => setForm(p => ({ ...p, discount_text: e.target.value }))}
+                    className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
+                    placeholder="Up to 50% Off" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#171717]">Button Text</label>
+                  <input value={form.cta_text} onChange={e => setForm(p => ({ ...p, cta_text: e.target.value }))}
+                    className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#171717]">Button Link</label>
+                  <input value={form.cta_link} onChange={e => setForm(p => ({ ...p, cta_link: e.target.value }))}
+                    className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
+                    placeholder="/men" />
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#171717]">Button Text</label>
-              <input value={form.cta_text} onChange={e => setForm(p => ({ ...p, cta_text: e.target.value }))}
-                className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#171717]">Button Link</label>
-              <input value={form.cta_link} onChange={e => setForm(p => ({ ...p, cta_link: e.target.value }))}
-                className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
-                placeholder="/men" />
-            </div>
-          </div>
+          )}
 
           {/* Text Position Selector */}
           <div className="space-y-2">

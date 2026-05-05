@@ -26,6 +26,7 @@ interface HeroBannerSlide {
   mobile_image_url?: string | null;
   text_position?: "left" | "center" | "right";
   object_position?: string;
+  show_text?: boolean;
 }
 
 // Fallback slides when database is empty
@@ -41,6 +42,7 @@ const FALLBACK_SLIDES = [
     mobile_image_url: "/hero-ethnic.png",
     text_position: "left" as const,
     object_position: "center",
+    show_text: true,
     gradient: "from-[#1a1a1a] to-transparent",
   },
   {
@@ -54,6 +56,7 @@ const FALLBACK_SLIDES = [
     mobile_image_url: "/hero-western.png",
     text_position: "center" as const,
     object_position: "center",
+    show_text: true,
     gradient: "from-[#111827] to-transparent",
   },
   {
@@ -67,6 +70,7 @@ const FALLBACK_SLIDES = [
     mobile_image_url: "/hero-boutique.png",
     text_position: "right" as const,
     object_position: "center",
+    show_text: true,
     gradient: "from-[#0f172a] to-transparent",
   },
 ];
@@ -89,7 +93,7 @@ export function HeroBanner() {
     const supabase = createClient(supabaseUrl, supabaseKey);
     supabase
       .from("hero_banners")
-      .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url, text_position, object_position")
+      .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url, text_position, object_position, show_text")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
       .then(async ({ data }) => {
@@ -142,7 +146,7 @@ export function HeroBanner() {
                     {/* Desktop Image */}
                     <Image
                       src={slide.image_url}
-                      alt={slide.title}
+                      alt={slide.title || "Banner"}
                       fill
                       style={{ objectPosition: slide.object_position || "center" }}
                       className={cn(
@@ -156,7 +160,7 @@ export function HeroBanner() {
                     {slide.mobile_image_url && (
                       <Image
                         src={slide.mobile_image_url}
-                        alt={slide.title}
+                        alt={slide.title || "Banner"}
                         fill
                         style={{ objectPosition: slide.object_position || "center" }}
                         className="object-cover md:hidden"
@@ -171,47 +175,49 @@ export function HeroBanner() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent z-[1]" />
 
                 {/* ─── Glassmorphism Text Card — position controlled by admin ─── */}
-                <div className={cn(
-                  "absolute bottom-12 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
-                  (slide.text_position || "left") === "left" && "md:left-10 md:right-auto",
-                  (slide.text_position || "left") === "center" && "md:left-1/2 md:right-auto md:-translate-x-1/2",
-                  (slide.text_position || "left") === "right" && "md:right-10 md:left-auto"
-                )}>
-                  <div className="bg-white/[0.12] backdrop-blur-xl border border-white/[0.15] rounded-2xl md:rounded-3xl p-5 md:p-8 max-w-lg shadow-2xl shadow-black/20">
-                    {/* Subtitle tag */}
-                    {slide.subtitle && (
-                      <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] text-brand-orange uppercase mb-2 md:mb-3">
-                        {slide.subtitle}
-                      </p>
-                    )}
+                {slide.show_text !== false && (
+                  <div className={cn(
+                    "absolute bottom-12 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
+                    (slide.text_position || "left") === "left" && "md:left-10 md:right-auto",
+                    (slide.text_position || "left") === "center" && "md:left-1/2 md:right-auto md:-translate-x-1/2",
+                    (slide.text_position || "left") === "right" && "md:right-10 md:left-auto"
+                  )}>
+                    <div className="bg-white/[0.12] backdrop-blur-xl border border-white/[0.15] rounded-2xl md:rounded-3xl p-5 md:p-8 max-w-lg shadow-2xl shadow-black/20">
+                      {/* Subtitle tag */}
+                      {slide.subtitle && (
+                        <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] text-brand-orange uppercase mb-2 md:mb-3">
+                          {slide.subtitle}
+                        </p>
+                      )}
 
-                    {/* Title */}
-                    <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-heading font-normal text-white leading-[1.1] mb-3 md:mb-4 drop-shadow-sm">
-                      {slide.title}
-                    </h2>
+                      {/* Title */}
+                      <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-heading font-normal text-white leading-[1.1] mb-3 md:mb-4 drop-shadow-sm">
+                        {slide.title}
+                      </h2>
 
-                    {/* Discount badge */}
-                    {slide.discount_text && (
-                      <div className="inline-flex items-center gap-2 py-1.5 px-4 bg-white/[0.1] border border-white/[0.12] rounded-full mb-4 md:mb-5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-white/90 text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em]">
-                          {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
-                        </span>
+                      {/* Discount badge */}
+                      {slide.discount_text && (
+                        <div className="inline-flex items-center gap-2 py-1.5 px-4 bg-white/[0.1] border border-white/[0.12] rounded-full mb-4 md:mb-5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-white/90 text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em]">
+                            {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* CTA Button */}
+                      <div>
+                        <Button 
+                          size="sm"
+                          className="md:size-default bg-white text-slate-900 hover:bg-white/90 px-6 md:px-10 py-4 md:py-6 rounded-full text-[10px] md:text-sm font-bold tracking-widest uppercase shadow-lg transition-all hover:scale-105 active:scale-95"
+                        >
+                          {slide.cta_text}
+                          <span className="ml-2">&rarr;</span>
+                        </Button>
                       </div>
-                    )}
-
-                    {/* CTA Button */}
-                    <div>
-                      <Button 
-                        size="sm"
-                        className="md:size-default bg-white text-slate-900 hover:bg-white/90 px-6 md:px-10 py-4 md:py-6 rounded-full text-[10px] md:text-sm font-bold tracking-widest uppercase shadow-lg transition-all hover:scale-105 active:scale-95"
-                      >
-                        {slide.cta_text}
-                        <span className="ml-2">&rarr;</span>
-                      </Button>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </CarouselItem>
           ))}
