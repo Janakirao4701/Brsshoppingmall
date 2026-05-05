@@ -25,7 +25,7 @@ export function MobileTabBar() {
 
   const LINK_TABS = [
     { name: t("home") || "Home", href: "/", icon: Home },
-    { name: t("men") || "Men", href: "/men", icon: LayoutGrid },
+    { name: "Shop", href: "/shop", icon: LayoutGrid },
     { name: t("account"), href: "/account", icon: User },
   ];
 
