@@ -22,7 +22,7 @@ export function QuickCategories() {
               href={cat.href as any}
               className="flex flex-col items-center gap-3 group snap-center min-w-[80px]"
             >
-              <div className="relative size-16 md:size-24 rounded-full overflow-hidden border-2 border-transparent group-hover:border-brand-red transition-all duration-500 shadow-sm group-hover:shadow-xl">
+              <div className="relative size-20 md:size-24 rounded-full overflow-hidden border-2 border-transparent group-hover:border-brand-red transition-all duration-500 shadow-sm group-hover:shadow-xl">
                 <Image
                   src={cat.image}
                   alt={cat.name}

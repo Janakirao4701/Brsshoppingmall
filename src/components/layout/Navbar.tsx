@@ -185,7 +185,7 @@ export function Navbar() {
                         Menu
                       </SheetTitle>
                     </SheetHeader>
-                    <div className="flex-1 overflow-y-auto py-6 px-4">
+                    <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col justify-between">
                       <nav className="flex flex-col space-y-2">
                         {NAV_LINKS.map((link) => (
                           <Link
@@ -197,6 +197,23 @@ export function Navbar() {
                           </Link>
                         ))}
                       </nav>
+
+                      <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col space-y-2">
+                        <Link
+                          href="/wishlist"
+                          className="flex items-center gap-3 text-base font-medium text-slate-700 hover:text-brand-red px-4 py-3 rounded-2xl transition-all"
+                        >
+                          <Heart className="size-5" />
+                          {t("wishlist")}
+                        </Link>
+                        <Link
+                          href="/account"
+                          className="flex items-center gap-3 text-base font-medium text-slate-700 hover:text-brand-red px-4 py-3 rounded-2xl transition-all"
+                        >
+                          <User className="size-5" />
+                          {t("account")}
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </SheetContent>

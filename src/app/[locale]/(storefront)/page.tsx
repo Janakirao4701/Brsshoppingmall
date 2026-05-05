@@ -39,7 +39,7 @@ export default function Home({
         <div className="container mx-auto">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <h2 className="text-3xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">
+              <h2 className="text-2xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">
                 <span className="text-italic-accent">Curated</span> Collections
               </h2>
               <p className="text-section-subtitle text-slate-500 mt-2">Explore our handpicked selections for everyone</p>
@@ -83,14 +83,14 @@ export default function Home({
       </section>
 
       {/* Why BSR Section */}
-      <section className="py-24 px-4 bg-white">
+      <section className="py-12 md:py-24 px-4 bg-white">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">
               Why <span className="text-italic-accent">BSR</span>
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
             <div className="text-center space-y-4">
               <div className="size-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto text-brand-red">
                 <svg className="size-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">

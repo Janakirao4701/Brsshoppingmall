@@ -164,7 +164,7 @@ export function HeroBanner() {
 
                 {/* ─── Glassmorphism Text Card — position controlled by admin ─── */}
                 <div className={cn(
-                  "absolute bottom-6 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
+                  "absolute bottom-20 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
                   (slide.text_position || "left") === "left" && "md:left-10 md:right-auto",
                   (slide.text_position || "left") === "center" && "md:left-1/2 md:right-auto md:-translate-x-1/2",
                   (slide.text_position || "left") === "right" && "md:right-10 md:left-auto"
