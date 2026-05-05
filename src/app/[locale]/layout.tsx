@@ -8,6 +8,7 @@ import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SmoothScroll } from "@/components/providers/SmoothScroll";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -102,9 +103,11 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
-          <div className="flex-1 flex flex-col">
-            {children}
-          </div>
+          <SmoothScroll>
+            <div className="flex-1 flex flex-col">
+              {children}
+            </div>
+          </SmoothScroll>
         </NextIntlClientProvider>
         <Analytics />
         <SpeedInsights />
