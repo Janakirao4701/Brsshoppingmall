@@ -145,6 +145,7 @@ export function HeroBanner() {
                         slide.mobile_image_url ? "hidden md:block" : "block"
                       )}
                       priority={index === 0}
+                      sizes="100vw"
                     />
                     {/* Mobile Image (if provided) */}
                     {slide.mobile_image_url && (
@@ -154,6 +155,7 @@ export function HeroBanner() {
                         fill
                         className="object-cover object-top md:hidden"
                         priority={index === 0}
+                        sizes="100vw"
                       />
                     )}
                   </>
