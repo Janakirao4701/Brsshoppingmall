@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Search, X, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 
 export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -26,10 +26,6 @@ export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: (
       }
 
       setLoading(true);
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
 
       const { data } = await supabase
         .from("products")
@@ -80,7 +76,7 @@ export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 >
                   <div className="size-12 rounded-lg bg-slate-100 overflow-hidden relative flex-shrink-0">
                     {product.images?.[0] ? (
-                      <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                      <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="48px" />
                     ) : (
                       <Package className="size-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-slate-300" />
                     )}

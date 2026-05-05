@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
-import { supabase } from "@/lib/supabase";
+import { supabaseServer as supabase } from "@/lib/supabase-server";
 import { sendOrderConfirmation } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
@@ -113,7 +113,7 @@ async function handlePaymentCaptured(payload: Record<string, unknown>) {
 
   if (!supabase || !razorpayOrderId) return;
 
-  // Idempotent update — only update if not already paid
+  // 1. Idempotent update — only update if not already paid
   const { data: updatedOrders, error } = await supabase
     .from("orders")
     .update({
@@ -133,26 +133,53 @@ async function handlePaymentCaptured(payload: Record<string, unknown>) {
     return;
   }
 
-  // Trigger Email Notification if the order was successfully updated
-  if (updatedOrders && updatedOrders.length > 0) {
-    const order = updatedOrders[0];
-    const customerEmail = order.profiles?.email || order.shipping_address?.email;
-    
-    if (customerEmail) {
-      const items = order.order_items.map((item: any) => ({
-        name: item.products?.name || "Item",
-        quantity: item.quantity,
-        price: item.price_at_time
-      }));
+  // If order was already processed (already paid), updatedOrders will be empty
+  if (!updatedOrders || updatedOrders.length === 0) {
+    console.log(`[Webhook] Order ${razorpayOrderId} already processed or not found.`);
+    return;
+  }
 
-      await sendOrderConfirmation({
-        orderId: order.id,
-        customerName: order.profiles?.full_name || order.shipping_address?.first_name || "Customer",
-        customerEmail: customerEmail,
-        amount: order.total_amount,
-        items: items
-      });
+  const order = updatedOrders[0];
+
+  // 2. ATOMIC INVENTORY DECREMENT
+  // We do this AFTER confirming the payment in our DB to ensure we only subtract stock for paid items.
+  if (order.order_items && order.order_items.length > 0) {
+    for (const item of order.order_items) {
+      try {
+        const { data: success, error: stockError } = await supabase.rpc("decrement_stock", {
+          p_product_id: item.product_id,
+          p_size: item.size || "Standard",
+          p_quantity: item.quantity
+        });
+
+        if (stockError) {
+          console.error(`[Webhook] Stock decrement failed for product ${item.product_id}:`, stockError);
+        } else if (!success) {
+          console.warn(`[Webhook] Insufficient stock for product ${item.product_id} during order ${order.id}`);
+        }
+      } catch (err) {
+        console.error(`[Webhook] Inventory update exception:`, err);
+      }
     }
+  }
+
+  // 3. TRIGGER EMAIL NOTIFICATION
+  const customerEmail = order.profiles?.email || order.shipping_address?.email || order.customer_email;
+  
+  if (customerEmail) {
+    const items = order.order_items.map((item: any) => ({
+      name: item.products?.name || "Item",
+      quantity: item.quantity,
+      price: item.price_at_time
+    }));
+
+    await sendOrderConfirmation({
+      orderId: order.id,
+      customerName: order.profiles?.full_name || order.shipping_address?.first_name || order.customer_name || "Customer",
+      customerEmail: customerEmail,
+      amount: order.total,
+      items: items
+    });
   }
 }
 

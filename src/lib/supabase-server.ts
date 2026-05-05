@@ -24,4 +24,24 @@ function createServerSupabase() {
   });
 }
 
-export const supabaseServer = createServerSupabase();
+/**
+ * Lazy-initialized server client to avoid build-time errors when env vars are missing.
+ */
+let supabaseInstance: any = null;
+
+export const getSupabaseServer = () => {
+  if (!supabaseInstance) {
+    supabaseInstance = createServerSupabase();
+  }
+  return supabaseInstance;
+};
+
+// For backward compatibility with existing imports
+export const supabaseServer = {
+  from: (...args: any[]) => getSupabaseServer().from(...args as any),
+  rpc: (...args: any[]) => getSupabaseServer().rpc(...args as any),
+  auth: {
+    getUser: (...args: any[]) => getSupabaseServer().auth.getUser(...args as any),
+  }
+} as any;
+

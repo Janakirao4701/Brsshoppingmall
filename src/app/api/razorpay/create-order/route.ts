@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 import { validateCheckoutPayload } from "@/lib/validation";
-import { supabase } from "@/lib/supabase";
+import { supabaseServer as supabase } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
@@ -111,27 +111,32 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // 7. Save order to database with PENDING status
+    // 7. Save order and items to database with PENDING status
     if (supabase) {
-      const { error: insertError } = await supabase.from("orders").insert({
-        order_number: orderNumber,
-        customer_name: customerName,
-        customer_phone: customerPhone,
-        customer_email: customerEmail,
-        shipping_address: shippingAddress,
-        shipping_city: shippingCity,
-        shipping_state: shippingState,
-        shipping_pincode: shippingPincode,
-        items,
-        subtotal,
-        shipping_cost: shippingCost,
-        total: amount,
-        payment_method: "razorpay",
-        payment_status: "pending",
-        order_status: "pending",
-        razorpay_order_id: razorpayOrder.id,
-        idempotency_key: idempotencyKey || null,
-      });
+      // 7a. Insert Order
+      const { data: orderData, error: insertError } = await supabase
+        .from("orders")
+        .insert({
+          order_number: orderNumber,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          customer_email: customerEmail,
+          shipping_address: shippingAddress,
+          shipping_city: shippingCity,
+          shipping_state: shippingState,
+          shipping_pincode: shippingPincode,
+          items, // JSON column
+          subtotal,
+          shipping_cost: shippingCost,
+          total: amount,
+          payment_method: "razorpay",
+          payment_status: "pending",
+          order_status: "pending",
+          razorpay_order_id: razorpayOrder.id,
+          idempotency_key: idempotencyKey || null,
+        })
+        .select("id")
+        .single();
 
       if (insertError) {
         // If unique constraint violation on razorpay_order_id — race condition, fetch existing
@@ -159,6 +164,27 @@ export async function POST(request: NextRequest) {
           { error: "Failed to save order. Please try again." },
           { status: 500 }
         );
+      }
+
+      // 7b. Insert Order Items (Relational)
+      if (orderData?.id && items && items.length > 0) {
+        const orderItems = items.map((item: any) => ({
+          order_id: orderData.id,
+          product_id: item.productId,
+          quantity: item.quantity,
+          price_at_time: item.price,
+          size: item.size || null,
+          color: item.color || null,
+        }));
+
+        const { error: itemsError } = await supabase
+          .from("order_items")
+          .insert(orderItems);
+
+        if (itemsError) {
+          console.error("Order items insert error:", itemsError);
+          // Don't fail the whole request since the main order is created
+        }
       }
     }
 
