@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { supabase } from "@/lib/supabase";
 import { useParams } from "next/navigation";
 

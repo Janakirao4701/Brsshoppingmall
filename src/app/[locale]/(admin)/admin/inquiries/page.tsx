@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { MessageSquare, RefreshCw, Search, Phone, Mail } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { MessageSquare, RefreshCw, Search, Phone, Mail, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Inquiry {
@@ -19,13 +19,6 @@ interface Inquiry {
 
 const STATUSES = ["pending", "contacted", "completed", "cancelled"];
 
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-
 export default function AdminInquiriesPage() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,21 +27,32 @@ export default function AdminInquiriesPage() {
 
   const loadInquiries = async () => {
     setLoading(true);
-    const supabase = getSupabase();
-    const { data } = await supabase
-      .from("bulk_inquiries")
-      .select("*")
-      .order("created_at", { ascending: false });
-    setInquiries(data || []);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from("bulk_inquiries")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setInquiries(data || []);
+    } catch (err) {
+      console.error("Error loading inquiries:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { loadInquiries(); }, []);
 
   const updateStatus = async (id: string, status: string) => {
-    const supabase = getSupabase();
-    await supabase.from("bulk_inquiries").update({ status }).eq("id", id);
-    setInquiries(prev => prev.map(i => i.id === id ? { ...i, status } : i));
+    try {
+      const { error } = await supabase.from("bulk_inquiries").update({ status }).eq("id", id);
+      if (error) throw error;
+      setInquiries(prev => prev.map(i => i.id === id ? { ...i, status } : i));
+    } catch (err) {
+      console.error("Error updating status:", err);
+      alert("Failed to update status.");
+    }
   };
 
   const statusColor = (status: string) => {
@@ -120,7 +124,10 @@ export default function AdminInquiriesPage() {
 
       {/* Inquiries List */}
       {loading ? (
-        <div className="text-center py-16 text-sm text-[#888]">Loading inquiries...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <Loader2 className="size-8 animate-spin text-[#171717]" />
+          <p className="text-sm text-[#888]">Loading inquiries...</p>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)]">
           <MessageSquare className="size-12 text-[#ddd] mx-auto mb-3" />

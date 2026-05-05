@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { Package, ChevronDown, Search, RefreshCw } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { Package, ChevronDown, Search, RefreshCw, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Order {
@@ -29,13 +29,6 @@ interface Order {
 const ORDER_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
 const PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"];
 
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,21 +38,32 @@ export default function AdminOrdersPage() {
 
   const loadOrders = async () => {
     setLoading(true);
-    const supabase = getSupabase();
-    const { data } = await supabase
-      .from("orders")
-      .select("*")
-      .order("created_at", { ascending: false });
-    setOrders(data || []);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (err) {
+      console.error("Error loading orders:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { loadOrders(); }, []);
 
   const updateOrderStatus = async (orderId: string, field: string, value: string) => {
-    const supabase = getSupabase();
-    await supabase.from("orders").update({ [field]: value }).eq("id", orderId);
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, [field]: value } : o));
+    try {
+      const { error } = await supabase.from("orders").update({ [field]: value }).eq("id", orderId);
+      if (error) throw error;
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, [field]: value } : o));
+    } catch (err) {
+      console.error("Error updating order:", err);
+      alert("Failed to update status.");
+    }
   };
 
   const statusColor = (status: string) => {
@@ -132,7 +136,10 @@ export default function AdminOrdersPage() {
 
       {/* Orders List */}
       {loading ? (
-        <div className="text-center py-16 text-sm text-[#888]">Loading orders...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <Loader2 className="size-8 animate-spin text-[#171717]" />
+          <p className="text-sm text-[#888]">Loading orders...</p>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)]">
           <Package className="size-12 text-[#ddd] mx-auto mb-3" />

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "@/i18n/routing";
 import { ImageCropper } from "./ImageCropper";
 import { BasicInfoFields } from "./product-form/BasicInfoFields";
 import { PricingCategoryFields } from "./product-form/PricingCategoryFields";
@@ -74,10 +74,6 @@ export function ProductForm({ initialData }: { initialData?: any }) {
     setSuccess(false);
 
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
       let imageUrl = imagePreview || "/images/bsr-placeholder.jpg";
 
       if (imageFile) {
@@ -144,7 +140,6 @@ export function ProductForm({ initialData }: { initialData?: any }) {
       
       setTimeout(() => {
         router.push("/admin/products");
-        router.refresh();
       }, 1500);
 
     } catch (err: any) {

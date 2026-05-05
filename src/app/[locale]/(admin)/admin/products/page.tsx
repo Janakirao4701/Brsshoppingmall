@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
-import { Plus, Pencil, Trash2, Package } from "lucide-react";
+import { Link, useRouter } from "@/i18n/routing";
+import { supabase } from "@/lib/supabase";
+import { Plus, Pencil, Trash2, Package, Loader2 } from "lucide-react";
 
 interface ProductRow {
   id: string;
@@ -21,32 +21,39 @@ interface ProductRow {
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    supabase
-      .from("products")
-      .select("id, name, slug, price, original_price, category, brand, in_stock, featured, images")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setProducts(data || []);
-        setLoading(false);
-      });
+    fetchProducts();
   }, []);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, slug, price, original_price, category, brand, in_stock, featured, images")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (!error) {
+    try {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) throw error;
       setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      alert("Failed to delete product. Please try again.");
     }
   };
 
@@ -68,7 +75,7 @@ export default function ProductsPage() {
       <div className="bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden">
         {loading ? (
           <div className="p-16 text-center">
-            <div className="size-8 border-2 border-[#eaeaea] border-t-[#171717] rounded-full animate-spin mx-auto" />
+            <Loader2 className="size-8 animate-spin text-[#171717] mx-auto" />
             <p className="text-sm text-[#888888] mt-4">Loading products…</p>
           </div>
         ) : products.length === 0 ? (
