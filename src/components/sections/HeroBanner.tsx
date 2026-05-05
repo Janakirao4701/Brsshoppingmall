@@ -24,6 +24,7 @@ interface HeroBannerSlide {
   cta_link: string;
   image_url: string;
   mobile_image_url?: string | null;
+  text_position?: "left" | "center" | "right";
 }
 
 // Fallback slides when database is empty
@@ -37,6 +38,7 @@ const FALLBACK_SLIDES = [
     cta_link: "/women",
     image_url: "/hero-ethnic.png",
     mobile_image_url: "/hero-ethnic.png",
+    text_position: "left" as const,
     gradient: "from-[#1a1a1a] to-transparent",
   },
   {
@@ -48,6 +50,7 @@ const FALLBACK_SLIDES = [
     cta_link: "/men",
     image_url: "/hero-western.png",
     mobile_image_url: "/hero-western.png",
+    text_position: "center" as const,
     gradient: "from-[#111827] to-transparent",
   },
   {
@@ -59,6 +62,7 @@ const FALLBACK_SLIDES = [
     cta_link: "/shop",
     image_url: "/hero-boutique.png",
     mobile_image_url: "/hero-boutique.png",
+    text_position: "right" as const,
     gradient: "from-[#0f172a] to-transparent",
   },
 ];
@@ -81,7 +85,7 @@ export function HeroBanner() {
     const supabase = createClient(supabaseUrl, supabaseKey);
     supabase
       .from("hero_banners")
-      .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url")
+      .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url, text_position")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
       .then(async ({ data }) => {
@@ -158,8 +162,13 @@ export function HeroBanner() {
                 {/* Subtle bottom gradient only — keeps the image clean */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent z-[1]" />
 
-                {/* ─── Glassmorphism Text Card — pinned bottom-left ─── */}
-                <div className="absolute bottom-6 left-4 right-4 md:bottom-10 md:left-10 md:right-auto z-10 animate-in slide-in-from-bottom-6 duration-700">
+                {/* ─── Glassmorphism Text Card — position controlled by admin ─── */}
+                <div className={cn(
+                  "absolute bottom-6 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
+                  (slide.text_position || "left") === "left" && "md:left-10 md:right-auto",
+                  (slide.text_position || "left") === "center" && "md:left-1/2 md:right-auto md:-translate-x-1/2",
+                  (slide.text_position || "left") === "right" && "md:right-10 md:left-auto"
+                )}>
                   <div className="bg-white/[0.12] backdrop-blur-xl border border-white/[0.15] rounded-2xl md:rounded-3xl p-5 md:p-8 max-w-lg shadow-2xl shadow-black/20">
                     {/* Subtitle tag */}
                     {slide.subtitle && (

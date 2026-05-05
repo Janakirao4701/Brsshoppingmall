@@ -37,11 +37,11 @@ export function AdminSidebar() {
       {/* Header */}
       <div className="h-20 flex items-center px-8">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex items-center justify-center h-12 w-12 bg-slate-900 rounded-xl transition-transform group-hover:scale-105 duration-300">
+          <div className="flex items-center justify-center h-12 w-12 bg-white border border-slate-100 rounded-xl transition-transform group-hover:scale-105 duration-300 overflow-hidden shadow-sm">
             <img 
               src="/bsr-logo.png" 
               alt="BSR" 
-              className="h-8 w-auto object-contain brightness-0 invert"
+              className="h-10 w-auto object-contain"
             />
           </div>
           <div className="flex flex-col">

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { Upload, X, Loader2, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, Crop, Pencil } from "lucide-react";
-import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { Upload, X, Loader2, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, Crop, Pencil, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { Link } from "@/i18n/routing";
 import { ImageCropper } from "@/components/admin/ImageCropper";
 
 interface Banner {
@@ -16,14 +16,14 @@ interface Banner {
   image_url: string;
   sort_order: number;
   is_active: boolean;
+  text_position: "left" | "center" | "right";
 }
 
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
+const TEXT_POSITIONS = [
+  { value: "left" as const, label: "Left", icon: AlignLeft },
+  { value: "center" as const, label: "Center", icon: AlignCenter },
+  { value: "right" as const, label: "Right", icon: AlignRight },
+];
 
 export default function BannersPage() {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -43,6 +43,7 @@ export default function BannersPage() {
     discount_text: "",
     cta_text: "Shop Now",
     cta_link: "/",
+    text_position: "left" as "left" | "center" | "right",
   });
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -52,7 +53,6 @@ export default function BannersPage() {
   }, []);
 
   const fetchBanners = async () => {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from("hero_banners")
       .select("*")
@@ -68,6 +68,7 @@ export default function BannersPage() {
       discount_text: banner.discount_text || "",
       cta_text: banner.cta_text,
       cta_link: banner.cta_link,
+      text_position: banner.text_position || "left",
     });
     setImagePreview(banner.image_url);
     setEditingId(banner.id);
@@ -102,7 +103,6 @@ export default function BannersPage() {
     setSuccess("");
 
     try {
-      const supabase = getSupabase();
       let imageUrl = imagePreview || "";
 
       if (imageFile) {
@@ -129,6 +129,7 @@ export default function BannersPage() {
         cta_text: form.cta_text,
         cta_link: form.cta_link,
         image_url: imageUrl,
+        text_position: form.text_position,
         sort_order: editingId ? banners.find(b => b.id === editingId)?.sort_order : banners.length,
         is_active: true,
       };
@@ -148,7 +149,7 @@ export default function BannersPage() {
         setSuccess("Banner added successfully!");
       }
 
-      setForm({ title: "", subtitle: "", discount_text: "", cta_text: "Shop Now", cta_link: "/" });
+      setForm({ title: "", subtitle: "", discount_text: "", cta_text: "Shop Now", cta_link: "/", text_position: "left" });
       setImageFile(null);
       setImagePreview(null);
       setShowForm(false);
@@ -162,14 +163,12 @@ export default function BannersPage() {
   };
 
   const toggleActive = async (id: string, currentState: boolean) => {
-    const supabase = getSupabase();
     await supabase.from("hero_banners").update({ is_active: !currentState }).eq("id", id);
     fetchBanners();
   };
 
   const deleteBanner = async (id: string) => {
     if (!confirm("Delete this banner?")) return;
-    const supabase = getSupabase();
     await supabase.from("hero_banners").delete().eq("id", id);
     fetchBanners();
   };
@@ -179,7 +178,6 @@ export default function BannersPage() {
     if ((direction === "up" && idx === 0) || (direction === "down" && idx === banners.length - 1)) return;
 
     const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-    const supabase = getSupabase();
 
     await Promise.all([
       supabase.from("hero_banners").update({ sort_order: swapIdx }).eq("id", banners[idx].id),
@@ -243,6 +241,28 @@ export default function BannersPage() {
               <input value={form.cta_link} onChange={e => setForm(p => ({ ...p, cta_link: e.target.value }))}
                 className="w-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08)] text-sm rounded-md px-3 py-2 focus:outline-none focus:shadow-[0_0_0_2px_#171717] transition-shadow"
                 placeholder="/men" />
+            </div>
+          </div>
+
+          {/* Text Position Selector */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[#171717]">Text Overlay Position</label>
+            <div className="flex gap-3">
+              {TEXT_POSITIONS.map(pos => (
+                <button
+                  key={pos.value}
+                  type="button"
+                  onClick={() => setForm(p => ({ ...p, text_position: pos.value }))}
+                  className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                    form.text_position === pos.value
+                      ? "border-[#171717] bg-[#171717]/5 shadow-sm"
+                      : "border-[#eaeaea] hover:border-[#ccc] bg-white"
+                  }`}
+                >
+                  <pos.icon size={20} className={form.text_position === pos.value ? "text-[#171717]" : "text-[#888]"} />
+                  <span className={`text-xs font-medium ${form.text_position === pos.value ? "text-[#171717]" : "text-[#888]"}`}>{pos.label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
