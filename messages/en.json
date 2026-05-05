@@ -8,7 +8,9 @@
     "bulk": "Bulk Orders",
     "search": "Search",
     "account": "Account",
-    "cart": "Cart"
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "shop": "Shop"
   },
   "Hero": {
     "summer": "Summer Collection 2026",

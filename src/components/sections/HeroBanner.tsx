@@ -129,7 +129,7 @@ export function HeroBanner() {
           {slides.map((slide, index) => (
             <CarouselItem key={slide.id}>
               <div className={cn(
-                "relative w-full h-[75vh] min-h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden bg-gradient-to-br",
+                "relative w-full h-[60vh] min-h-[400px] md:h-[600px] lg:h-[700px] overflow-hidden bg-gradient-to-br",
                 slide.gradient
               )}>
                 {/* Full-bleed Background Image */}
@@ -166,7 +166,7 @@ export function HeroBanner() {
 
                 {/* ─── Glassmorphism Text Card — position controlled by admin ─── */}
                 <div className={cn(
-                  "absolute bottom-20 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
+                  "absolute bottom-8 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
                   (slide.text_position || "left") === "left" && "md:left-10 md:right-auto",
                   (slide.text_position || "left") === "center" && "md:left-1/2 md:right-auto md:-translate-x-1/2",
                   (slide.text_position || "left") === "right" && "md:right-10 md:left-auto"
@@ -180,7 +180,7 @@ export function HeroBanner() {
                     )}
 
                     {/* Title */}
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-normal text-white leading-[1.1] mb-3 md:mb-4 drop-shadow-sm">
+                    <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-heading font-normal text-white leading-[1.1] mb-3 md:mb-4 drop-shadow-sm">
                       {slide.title}
                     </h2>
 
@@ -197,8 +197,8 @@ export function HeroBanner() {
                     {/* CTA Button */}
                     <div>
                       <Button 
-                        size="default"
-                        className="bg-white text-slate-900 hover:bg-white/90 px-8 md:px-10 py-5 md:py-6 rounded-full text-xs md:text-sm font-bold tracking-widest uppercase shadow-lg transition-all hover:scale-105 active:scale-95"
+                        size="sm"
+                        className="md:size-default bg-white text-slate-900 hover:bg-white/90 px-6 md:px-10 py-4 md:py-6 rounded-full text-[10px] md:text-sm font-bold tracking-widest uppercase shadow-lg transition-all hover:scale-105 active:scale-95"
                       >
                         {slide.cta_text}
                         <span className="ml-2">&rarr;</span>
