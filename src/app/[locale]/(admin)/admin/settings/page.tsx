@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 
 const SETTINGS_ID = '00000000-0000-0000-0000-000000000000';
+const EMOJI_OPTIONS = ["🚚", "📞", "🕙", "✨", "🎉", "🛍️", "💎", "🎁", "🔥", "❤️"];
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -67,10 +68,8 @@ export default function AdminSettingsPage() {
       setTimeout(() => setSaveStatus("idle"), 3000);
     } catch (err: any) {
       console.error("Save error details:", err);
-      // Supabase errors often have a more specific message in the response
-      const errorMessage = err.message || "Failed to save settings.";
       setSaveStatus("error");
-      alert(`Save failed: ${errorMessage}`);
+      alert(`Save failed: ${err.message || "Failed to save settings."}`);
     } finally {
       setSaving(false);
     }
@@ -78,7 +77,7 @@ export default function AdminSettingsPage() {
 
   const addAnnouncement = () => {
     if (settings.announcements.length < 5) {
-      setSettings(p => ({ ...p, announcements: [...p.announcements, ""] }));
+      setSettings(p => ({ ...p, announcements: [...p.announcements, "✨|"] }));
     }
   };
 
@@ -89,9 +88,13 @@ export default function AdminSettingsPage() {
     }));
   };
 
-  const updateAnnouncement = (index: number, value: string) => {
+  const updateAnnouncement = (index: number, text?: string, emoji?: string) => {
     const newAnns = [...settings.announcements];
-    newAnns[index] = value;
+    const parts = newAnns[index].includes('|') ? newAnns[index].split('|') : ["✨", newAnns[index]];
+    const currentEmoji = parts[0];
+    const currentText = parts.slice(1).join('|');
+    
+    newAnns[index] = `${emoji !== undefined ? emoji : currentEmoji}|${text !== undefined ? text : currentText}`;
     setSettings(p => ({ ...p, announcements: newAnns }));
   };
 
@@ -200,25 +203,50 @@ export default function AdminSettingsPage() {
           </div>
           
           <div className="space-y-3">
-            {settings.announcements.map((ann, idx) => (
-              <div key={idx} className="flex gap-2">
-                <input 
-                  value={ann} 
-                  onChange={(e) => updateAnnouncement(idx, e.target.value)}
-                  placeholder={`Announcement ${idx + 1}`} 
-                  className="flex-1 px-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10" 
-                />
-                <button 
-                  onClick={() => removeAnnouncement(idx)}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-            ))}
+            {settings.announcements.map((ann, idx) => {
+              const parts = ann.includes('|') ? ann.split('|') : ["✨", ann];
+              const emoji = parts[0];
+              const text = parts.slice(1).join('|');
+              
+              return (
+                <div key={idx} className="flex gap-2 items-center">
+                  <div className="relative group">
+                    <div className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-[#eaeaea] rounded-lg text-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                      {emoji}
+                    </div>
+                    <div className="absolute top-full left-0 mt-1 hidden group-hover:grid grid-cols-5 gap-1 p-2 bg-white border border-[#eaeaea] rounded-xl shadow-xl z-50 w-44">
+                      {EMOJI_OPTIONS.map(e => (
+                        <button 
+                          key={e} 
+                          type="button"
+                          onClick={() => updateAnnouncement(idx, undefined, e)}
+                          className={`w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded transition-colors ${emoji === e ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
+                        >
+                          {e}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <input 
+                    value={text} 
+                    onChange={(e) => updateAnnouncement(idx, e.target.value)}
+                    placeholder={`Announcement ${idx + 1}`} 
+                    className="flex-1 px-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10" 
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => removeAnnouncement(idx)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              );
+            })}
             
             {settings.announcements.length < 5 && (
               <button 
+                type="button"
                 onClick={addAnnouncement}
                 className="w-full py-2 border border-dashed border-[#eaeaea] rounded-lg text-xs font-medium text-[#888] hover:bg-[#fafafa] transition-colors"
               >
