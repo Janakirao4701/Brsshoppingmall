@@ -66,8 +66,7 @@ export async function generateMetadata({
     alternates: {
       canonical: 'https://brsshoppingmall.vercel.app',
       languages: {
-        'en': 'https://brsshoppingmall.vercel.app/en',
-        'te': 'https://brsshoppingmall.vercel.app/te',
+        'en': 'https://brsshoppingmall.vercel.app',
       },
     },
   };

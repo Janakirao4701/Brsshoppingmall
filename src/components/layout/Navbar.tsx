@@ -27,7 +27,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { LanguageToggle } from "./LanguageToggle";
 import { SearchOverlay } from "./SearchOverlay";
 import { useCart, useWishlist } from "@/lib/store";
 import { supabase } from "@/lib/supabase";
@@ -132,10 +131,6 @@ export function Navbar() {
             >
               <Search className="size-5" />
             </Button>
-            
-            <div className="hidden sm:block">
-              <LanguageToggle />
-            </div>
 
             {/* Wishlist Icon */}
             <Link href="/account" className="hidden sm:inline-flex">
@@ -202,13 +197,6 @@ export function Navbar() {
                           </Link>
                         ))}
                       </nav>
-                      
-                      <div className="mt-8">
-                        <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Preferences</p>
-                        <div className="bg-white rounded-2xl p-2 border border-slate-100 shadow-sm">
-                          <LanguageToggle />
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </SheetContent>
