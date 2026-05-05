@@ -4,12 +4,13 @@ import { useCart } from "@/lib/store";
 import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 
 export function CartDrawer() {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, getTotalPrice } = useCart();
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -150,7 +151,7 @@ export function CartDrawer() {
             </div>
             <Button 
               className="w-full bg-brand-red hover:bg-brand-red/90 text-white font-bold h-12 text-base mb-2"
-              onClick={() => { setIsOpen(false); window.location.href = "/en/checkout"; }}
+              onClick={() => { setIsOpen(false); router.push("/checkout"); }}
             >
               Proceed to Checkout
             </Button>
