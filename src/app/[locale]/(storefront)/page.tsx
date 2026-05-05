@@ -120,6 +120,39 @@ export default function Home({
 
       {/* Store Locator Section */}
       <StoreLocator />
+
+      {/* Structured Data for Local Business (SEO) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ClothingStore",
+            "name": "BSR Shopping Mall",
+            "image": "https://brsshoppingmall.vercel.app/bsr-logo.png",
+            "description": "Premium readymade garments for Men, Women, and Kids with All India Delivery.",
+            "address": [
+              {
+                "@type": "PostalAddress",
+                "streetAddress": "Main Road",
+                "addressLocality": "Sompeta",
+                "addressRegion": "Andhra Pradesh",
+                "addressCountry": "IN"
+              },
+              {
+                "@type": "PostalAddress",
+                "streetAddress": "K T Road",
+                "addressLocality": "Palasa",
+                "addressRegion": "Andhra Pradesh",
+                "addressCountry": "IN"
+              }
+            ],
+            "priceRange": "$$",
+            "telephone": "+917829333444",
+            "url": "https://brsshoppingmall.vercel.app"
+          })
+        }}
+      />
     </div>
   );
 }

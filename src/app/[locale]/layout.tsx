@@ -28,30 +28,50 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export const metadata: Metadata = {
-  title: "BSR Shopping Mall - Readymade Garments | Sompeta & Palasa",
-  description:
-    "BSR Shopping Mall offers the best readymade garments for Men, Women & Kids. Shop branded clothing with All India Home Delivery. Visit our stores in Sompeta & Palasa, Andhra Pradesh.",
-  keywords: [
-    "BSR Shopping Mall",
-    "readymade garments",
-    "Sompeta",
-    "Palasa",
-    "clothing store",
-    "Andhra Pradesh",
-    "men's wear",
-    "women's wear",
-    "kids' wear",
-    "bulk orders",
-  ],
-  openGraph: {
-    title: "BSR Shopping Mall - Readymade Garments | Sompeta & Palasa",
-    description:
-      "Shop branded readymade garments with All India Home Delivery. Men, Women & Kids collections available.",
-    type: "website",
-    locale: "en_IN",
-  },
-};
+import { getTranslations } from "next-intl/server";
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ locale: string }> 
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'SEO' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    keywords: t('keywords').split(',').map(k => k.trim()),
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      url: 'https://brsshoppingmall.vercel.app',
+      siteName: 'BSR Shopping Mall',
+      images: [
+        {
+          url: 'https://brsshoppingmall.vercel.app/bsr-logo.png',
+          width: 800,
+          height: 600,
+        },
+      ],
+      locale: locale === 'te' ? 'te_IN' : 'en_IN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('description'),
+      images: ['https://brsshoppingmall.vercel.app/bsr-logo.png'],
+    },
+    alternates: {
+      canonical: 'https://brsshoppingmall.vercel.app',
+      languages: {
+        'en': 'https://brsshoppingmall.vercel.app/en',
+        'te': 'https://brsshoppingmall.vercel.app/te',
+      },
+    },
+  };
+}
 
 
 

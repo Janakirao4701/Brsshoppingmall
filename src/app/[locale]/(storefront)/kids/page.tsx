@@ -3,10 +3,21 @@ import { ProductGrid } from "@/components/products/ProductGrid";
 import { setRequestLocale } from "next-intl/server";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Kids' Collection | BSR Shopping Mall",
-  description: "Shop comfortable and stylish clothing for kids of all ages. From infants to teens, we have the perfect outfit for your little ones.",
-};
+import { getTranslations } from "next-intl/server";
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ locale: string }> 
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'SEO' });
+
+  return {
+    title: t('kids_title'),
+    description: t('kids_desc'),
+  };
+}
 
 export default async function KidsPage({
   params,

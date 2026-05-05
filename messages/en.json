@@ -25,5 +25,16 @@
   "Common": {
     "delivery": "All India Delivery",
     "whatsapp": "Chat on WhatsApp"
+  },
+  "SEO": {
+    "title": "BSR Shopping Mall - Readymade Garments | Sompeta & Palasa",
+    "description": "BSR Shopping Mall offers the best readymade garments for Men, Women & Kids. Shop branded clothing with All India Home Delivery. Visit our stores in Sompeta & Palasa.",
+    "keywords": "BSR Shopping Mall, readymade garments, Sompeta, Palasa, clothing store, Andhra Pradesh, men's wear, women's wear, kids' wear, bulk orders",
+    "men_title": "Men's Collection | BSR Shopping Mall",
+    "men_desc": "Discover premium shirts, trousers, ethnic wear, and more from top brands at BSR Shopping Mall.",
+    "women_title": "Women's Collection | BSR Shopping Mall",
+    "women_desc": "Shop elegant sarees, kurtis, dresses, and ethnic wear for women at BSR Shopping Mall.",
+    "kids_title": "Kids' Collection | BSR Shopping Mall",
+    "kids_desc": "Find comfortable, stylish, and durable clothing for kids of all ages at BSR Shopping Mall."
   }
 }
