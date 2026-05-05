@@ -38,16 +38,13 @@ export function ProductCard({ product }: ProductCardProps) {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-slate-400">
-            <div className="text-center space-y-2 p-4">
-              <div className="size-16 mx-auto rounded-full bg-slate-200 flex items-center justify-center">
-                <span className="text-2xl">
-                  {product.category === "men" ? "👔" : product.category === "women" ? "👗" : "🧒"}
-                </span>
-              </div>
-              <p className="text-xs font-medium">{product.subcategory}</p>
-            </div>
-          </div>
+          <Image
+            src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=600&auto=format&fit=crop"
+            alt="Product placeholder"
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500 grayscale opacity-80"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
         )}
 
         {/* Discount Badge */}

@@ -32,7 +32,7 @@ const mockProducts = [
     brand: "BSR Originals",
     sizes: ["S", "M", "L", "XL"],
     colors: ["White", "Navy", "Black"],
-    images: ["/images/bsr-placeholder.jpg"],
+    images: ["https://images.unsplash.com/photo-1596755094514-f87e32f85e2c?q=80&w=600&auto=format&fit=crop"],
     in_stock: true,
     featured: true
   },
@@ -47,7 +47,7 @@ const mockProducts = [
     brand: "Kanchi Weavers",
     sizes: ["Free Size"],
     colors: ["Red", "Green", "Gold"],
-    images: ["/images/bsr-placeholder.jpg"],
+    images: ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=600&auto=format&fit=crop"],
     in_stock: true,
     featured: true
   },
@@ -62,7 +62,7 @@ const mockProducts = [
     brand: "Little Angels",
     sizes: ["2-3Y", "4-5Y", "6-7Y"],
     colors: ["Pink", "Blue"],
-    images: ["/images/bsr-placeholder.jpg"],
+    images: ["https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=600&auto=format&fit=crop"],
     in_stock: true,
     featured: false
   },
@@ -77,7 +77,7 @@ const mockProducts = [
     brand: "Denim Co.",
     sizes: ["30", "32", "34", "36"],
     colors: ["Blue", "Dark Blue", "Black"],
-    images: ["/images/bsr-placeholder.jpg"],
+    images: ["https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=600&auto=format&fit=crop"],
     in_stock: true,
     featured: false
   },
@@ -92,7 +92,7 @@ const mockProducts = [
     brand: "Aurelia",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Yellow", "Pink", "White"],
-    images: ["/images/bsr-placeholder.jpg"],
+    images: ["https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=600&auto=format&fit=crop"],
     in_stock: true,
     featured: true
   }

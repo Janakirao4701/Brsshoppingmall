@@ -23,6 +23,7 @@ interface HeroBannerSlide {
   cta_text: string;
   cta_link: string;
   image_url: string;
+  mobile_image_url?: string | null;
 }
 
 // Fallback slides when database is empty
@@ -35,6 +36,7 @@ const FALLBACK_SLIDES = [
     cta_text: "Shop Now",
     cta_link: "/men",
     image_url: "",
+    mobile_image_url: "",
     gradient: "from-[#DC2626] to-[#EA580C]",
   },
   {
@@ -45,6 +47,7 @@ const FALLBACK_SLIDES = [
     cta_text: "Explore Collection",
     cta_link: "/men",
     image_url: "",
+    mobile_image_url: "",
     gradient: "from-[#EA580C] to-[#DC2626]",
   },
   {
@@ -55,6 +58,7 @@ const FALLBACK_SLIDES = [
     cta_text: "Start Shopping",
     cta_link: "/women",
     image_url: "",
+    mobile_image_url: "",
     gradient: "from-[#991b1b] to-[#c2410c]",
   },
 ];
@@ -77,12 +81,33 @@ export function HeroBanner() {
     const supabase = createClient(supabaseUrl, supabaseKey);
     supabase
       .from("hero_banners")
+      // Safely try to select mobile_image_url if it exists in the schema. 
+      // Using a fallback approach if the column doesn't exist yet.
       .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
-      .then(({ data }) => {
+      .then(async ({ data, error }) => {
         if (data && data.length > 0) {
-          setSlides(data.map((s, i) => ({ ...s, gradient: GRADIENTS[i % GRADIENTS.length] })));
+          let mobileData: any[] | null = null;
+          try {
+            const res = await supabase
+              .from("hero_banners")
+              .select("id, mobile_image_url")
+              .eq("is_active", true);
+            mobileData = res.data;
+          } catch (e) {
+            // Safe to ignore, column might not exist yet
+          }
+
+          const enrichedData = data.map((s, i) => {
+            const mobileImg = mobileData?.find(m => m.id === s.id)?.mobile_image_url;
+            return {
+              ...s,
+              mobile_image_url: mobileImg,
+              gradient: GRADIENTS[i % GRADIENTS.length]
+            };
+          });
+          setSlides(enrichedData);
         }
       });
   }, []);
@@ -102,18 +127,34 @@ export function HeroBanner() {
           {slides.map((slide, index) => (
             <CarouselItem key={slide.id}>
               <div className={cn(
-                "relative w-full h-[80vh] min-h-[500px] md:h-[600px] lg:h-[700px] flex items-end md:items-center justify-center md:justify-start text-center md:text-left px-6 pb-24 md:pb-0 md:px-16 lg:px-24 overflow-hidden bg-gradient-to-br",
+                "relative w-full h-[70vh] min-h-[450px] md:h-[600px] lg:h-[700px] flex items-end md:items-center justify-center md:justify-start text-center md:text-left px-6 pb-20 md:pb-0 md:px-16 lg:px-24 overflow-hidden bg-gradient-to-br",
                 slide.gradient
               )}>
                 {/* Background Image */}
                 {slide.image_url && (
-                  <Image
-                    src={slide.image_url}
-                    alt={slide.title}
-                    fill
-                    className="object-cover"
-                    priority={index === 0}
-                  />
+                  <>
+                    {/* Desktop Image */}
+                    <Image
+                      src={slide.image_url}
+                      alt={slide.title}
+                      fill
+                      className={cn(
+                        "object-cover object-[80%_center] md:object-center",
+                        slide.mobile_image_url ? "hidden md:block" : "block"
+                      )}
+                      priority={index === 0}
+                    />
+                    {/* Mobile Image (If Provided) */}
+                    {slide.mobile_image_url && (
+                      <Image
+                        src={slide.mobile_image_url}
+                        alt={slide.title}
+                        fill
+                        className="object-cover object-center md:hidden"
+                        priority={index === 0}
+                      />
+                    )}
+                  </>
                 )}
 
                 {/* Dark overlay for text readability - heavier at bottom on mobile */}

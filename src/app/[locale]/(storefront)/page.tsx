@@ -42,7 +42,7 @@ export default function Home({
             </div>
           </div>
 
-          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory hide-scrollbar">
+          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory md:hide-scrollbar">
             {CATEGORIES.map((category, idx) => (
               <Link 
                 key={category.nameKey} 
@@ -64,7 +64,7 @@ export default function Home({
                 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 z-20 transform group-hover:-translate-y-2 transition-transform duration-500">
-                  <p className="text-[10px] font-bold tracking-[0.2em] text-brand-orange uppercase mb-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity delay-100">
+                  <p className="text-[11px] font-bold tracking-[0.25em] text-brand-orange uppercase mb-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity delay-100">
                     Premium Collection
                   </p>
                   <h3 className="text-3xl md:text-4xl font-heading font-normal text-white mb-2 md:mb-3">{t(category.nameKey)}</h3>

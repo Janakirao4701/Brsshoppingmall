@@ -21,6 +21,16 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", 
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", 
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", 
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
+  "Delhi", "Lakshadweep", "Puducherry"
+];
+
 declare global {
   interface Window {
     Razorpay: any;
@@ -310,10 +320,18 @@ export default function CheckoutPage() {
                         placeholder="Sompeta" />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1.5">State</label>
-                      <input value={address.state}
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">State *</label>
+                      <select 
+                        required
+                        value={address.state}
                         onChange={(e) => setAddress(p => ({ ...p, state: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" />
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red appearance-none bg-white"
+                      >
+                        <option value="" disabled>Select State</option>
+                        {INDIAN_STATES.map(state => (
+                          <option key={state} value={state}>{state}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1.5">Pincode *</label>
@@ -360,7 +378,7 @@ export default function CheckoutPage() {
                           {item.product.images?.[0] ? (
                             <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-2xl">👕</div>
+                            <Image src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=200&auto=format&fit=crop" alt="Placeholder" fill className="object-cover grayscale opacity-80" />
                           )}
                         </div>
                         <div className="flex-1">

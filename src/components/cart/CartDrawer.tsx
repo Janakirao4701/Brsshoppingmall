@@ -86,7 +86,7 @@ export function CartDrawer() {
               >
                 <div className="relative w-20 h-24 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
                   <Image 
-                    src={item.product.images[0] || "/images/bsr-placeholder.jpg"} 
+                    src={item.product.images?.[0] ? item.product.images[0] : "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=200&auto=format&fit=crop"} 
                     alt={item.product.name}
                     fill
                     className="object-cover"
