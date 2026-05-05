@@ -1,5 +1,3 @@
-"use client";
-
 import { Truck, RotateCcw, Shield } from "lucide-react";
 
 export function TrustBadges() {
