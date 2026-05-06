@@ -240,19 +240,22 @@ export default function AdminSettingsPage() {
                     </button>
                     {activeEmojiPicker === idx && (
                       <div 
-                        className="absolute top-full left-0 mt-2 grid grid-cols-5 gap-1 p-2 bg-white border border-[#eaeaea] rounded-xl shadow-2xl z-50 w-44 animate-in fade-in zoom-in-95 duration-200"
+                        className="absolute bottom-full left-0 mb-3 p-3 bg-white border border-slate-200 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-50 w-56 animate-in fade-in zoom-in-95 duration-200"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {EMOJI_OPTIONS.map(e => (
-                          <button 
-                            key={e} 
-                            type="button"
-                            onClick={() => updateAnnouncement(idx, undefined, e)}
-                            className={`w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-lg transition-all ${emoji === e ? 'bg-slate-900 text-white shadow-md' : 'text-lg'}`}
-                          >
-                            {e}
-                          </button>
-                        ))}
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Select Icon</p>
+                        <div className="grid grid-cols-4 gap-2">
+                          {EMOJI_OPTIONS.map(e => (
+                            <button 
+                              key={e} 
+                              type="button"
+                              onClick={() => updateAnnouncement(idx, undefined, e)}
+                              className={`size-10 flex items-center justify-center hover:bg-slate-50 rounded-xl transition-all ${emoji === e ? 'bg-slate-900 text-white shadow-lg scale-110' : 'text-xl hover:scale-110'}`}
+                            >
+                              {e}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

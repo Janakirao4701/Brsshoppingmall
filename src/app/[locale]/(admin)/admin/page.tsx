@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { StatCard } from "@/components/admin/StatCard";
 import Link from "next/link";
+import { 
+  Package, 
+  ShoppingCart, 
+  AlertTriangle, 
+  Layers, 
+  ArrowRight,
+  TrendingUp,
+  Clock
+} from "lucide-react";
 
 interface Inquiry {
   id: string;
@@ -15,10 +24,21 @@ interface Inquiry {
   created_at: string;
 }
 
+interface DashboardStats {
+  totalProducts: number;
+  totalInquiries: number;
+  lowStockCount: number;
+  activeCategories: number;
+}
+
 export default function AdminDashboard() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
-  const [productCount, setProductCount] = useState(0);
-  const [inquiryCount, setInquiryCount] = useState(0);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProducts: 0,
+    totalInquiries: 0,
+    lowStockCount: 0,
+    activeCategories: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,16 +50,37 @@ export default function AdminDashboard() {
     }
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    Promise.all([
-      supabase.from("bulk_inquiries").select("*").order("created_at", { ascending: false }).limit(5),
-      supabase.from("products").select("id", { count: "exact", head: true }),
-      supabase.from("bulk_inquiries").select("id", { count: "exact", head: true }),
-    ]).then(([inquiryRes, productRes, countRes]) => {
-      setInquiries(inquiryRes.data || []);
-      setProductCount(productRes.count || 0);
-      setInquiryCount(countRes.count || 0);
-      setLoading(false);
-    });
+    async function fetchDashboardData() {
+      try {
+        const [inquiryRes, productRes, categoryRes, variantRes] = await Promise.all([
+          supabase.from("bulk_inquiries").select("*").order("created_at", { ascending: false }).limit(5),
+          supabase.from("products").select("id", { count: "exact", head: true }),
+          supabase.from("categories").select("id", { count: "exact", head: true }),
+          supabase.from("product_variants").select("stock")
+        ]);
+
+        const lowStockCount = variantRes.data?.filter(v => v.stock > 0 && v.stock < 10).length || 0;
+
+        setInquiries(inquiryRes.data || []);
+        setStats({
+          totalProducts: productRes.count || 0,
+          totalInquiries: inquiryRes.count || 0, // Note: This should probably be a separate count query for total, but for now we use the data length or inquiryRes.count if available
+          lowStockCount,
+          activeCategories: categoryRes.count || 0
+        });
+
+        // Get total inquiry count separately if needed
+        const { count: totalInquiries } = await supabase.from("bulk_inquiries").select("id", { count: "exact", head: true });
+        setStats(prev => ({ ...prev, totalInquiries: totalInquiries || 0 }));
+
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
   }, []);
 
   const formatDate = (dateStr: string) => {
@@ -54,123 +95,194 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#171717] tracking-tight">Dashboard</h1>
+    <div className="max-w-[1200px] mx-auto space-y-10 pb-12">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Store Overview</h1>
+          <p className="text-slate-500 text-sm mt-1">Welcome back. Here&apos;s what&apos;s happening with your store today.</p>
+        </div>
         <div className="flex gap-3">
           <Link
             href="/admin/products"
-            className="px-4 py-2 bg-white text-sm font-medium text-[#171717] rounded-md shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] hover:bg-[#fafafa] transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white text-sm font-bold text-slate-700 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-all"
           >
-            View Products
+            <Package size={16} />
+            Manage Inventory
           </Link>
           <Link 
             href="/admin/products/new" 
-            className="px-4 py-2 bg-[#171717] text-sm font-medium text-white rounded-md hover:bg-[#333333] transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.12)]"
+            className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-sm font-bold text-white rounded-xl hover:bg-slate-800 transition-all shadow-md shadow-slate-200"
           >
-            Add Product
+            Add New Product
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Products" value={loading ? "..." : String(productCount)} trend="up" trendValue="from catalog" />
-        <StatCard title="Bulk Inquiries" value={loading ? "..." : String(inquiryCount)} trend="up" trendValue="total received" />
-        <StatCard title="Active Stores" value="2" trend="up" trendValue="Sompeta & Palasa" />
-        <StatCard title="Languages" value="2" trend="up" trendValue="English & Telugu" />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard 
+          title="Total Products" 
+          value={loading ? "..." : String(stats.totalProducts)} 
+          trend="up" 
+          trendValue="Live in catalog"
+          icon={<Package className="text-blue-500" size={20} />}
+        />
+        <StatCard 
+          title="Bulk Inquiries" 
+          value={loading ? "..." : String(stats.totalInquiries)} 
+          trend="up" 
+          trendValue="New leads" 
+          icon={<ShoppingCart className="text-emerald-500" size={20} />}
+        />
+        <StatCard 
+          title="Low Stock Alerts" 
+          value={loading ? "..." : String(stats.lowStockCount)} 
+          trend={stats.lowStockCount > 0 ? "down" : "up"} 
+          trendValue="Needs attention" 
+          icon={<AlertTriangle className={stats.lowStockCount > 0 ? "text-amber-500" : "text-slate-400"} size={20} />}
+        />
+        <StatCard 
+          title="Product Categories" 
+          value={loading ? "..." : String(stats.activeCategories)} 
+          trend="up" 
+          trendValue="Organized departments" 
+          icon={<Layers className="text-purple-500" size={20} />}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Analytics Chart Section */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] p-6">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-sm font-semibold text-[#171717]">Revenue Overview</h2>
-            <div className="flex bg-[#fafafa] shadow-[0_0_0_1px_rgba(0,0,0,0.08)] rounded-md p-1">
-              <button className="px-3 py-1 text-xs font-medium text-[#171717] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_0_0_1px_rgba(0,0,0,0.04)] rounded-sm">7D</button>
-              <button className="px-3 py-1 text-xs font-medium text-[#666666] hover:text-[#171717] rounded-sm transition-colors">30D</button>
-              <button className="px-3 py-1 text-xs font-medium text-[#666666] hover:text-[#171717] rounded-sm transition-colors">3M</button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Analytics Section */}
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <TrendingUp size={18} className="text-brand-orange" />
+                Store Performance
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">Growth overview over the last 7 days</p>
+            </div>
+            <div className="flex bg-slate-50 rounded-xl p-1.5 border border-slate-100">
+              <button className="px-4 py-1.5 text-[11px] font-bold text-slate-900 bg-white shadow-sm rounded-lg">7D</button>
+              <button className="px-4 py-1.5 text-[11px] font-bold text-slate-400 hover:text-slate-600 rounded-lg transition-colors">30D</button>
+              <button className="px-4 py-1.5 text-[11px] font-bold text-slate-400 hover:text-slate-600 rounded-lg transition-colors">ALL</button>
             </div>
           </div>
           
-          <div className="h-[240px] flex items-end justify-between gap-2 px-2">
-            {[40, 70, 45, 90, 65, 85, 100].map((height, i) => (
-              <div key={i} className="w-full bg-[#fafafa] rounded-t-sm relative group">
+          <div className="h-[280px] flex items-end justify-between gap-3 px-2">
+            {[45, 65, 50, 85, 70, 95, 100].map((height, i) => (
+              <div key={i} className="w-full bg-slate-50 rounded-2xl relative group h-full flex items-end overflow-hidden">
                 <div 
-                  className="absolute bottom-0 w-full bg-[#171717] rounded-t-sm transition-all duration-500 group-hover:opacity-80" 
+                  className="w-full bg-slate-900 rounded-2xl transition-all duration-700 ease-out group-hover:bg-brand-red cursor-pointer" 
                   style={{ height: `${height}%` }}
                 />
+                {/* Tooltip on hover */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 transition-all bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-md pointer-events-none">
+                  {height}%
+                </div>
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-4 text-[11px] font-medium text-[#888888] px-2">
+          <div className="flex justify-between mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4">
             <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
           </div>
         </div>
 
-        {/* Quick Links */}
-        <div className="bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] p-6 flex flex-col">
-          <h2 className="text-sm font-semibold text-[#171717] mb-6">Quick Actions</h2>
-          <div className="flex-1 space-y-3">
-            {[
-              { label: "Add New Product", href: "/admin/products/new", emoji: "📦" },
-              { label: "Manage Hero Banners", href: "/admin/banners", emoji: "🖼️" },
-              { label: "View All Products", href: "/admin/products", emoji: "📋" },
-              { label: "Visit Storefront", href: "/", emoji: "🌐" },
-            ].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[#171717] hover:bg-[#fafafa] shadow-[0_0_0_1px_rgba(0,0,0,0.05)] transition-colors"
-              >
-                <span className="text-lg">{item.emoji}</span>
-                {item.label}
-              </Link>
-            ))}
+        {/* Quick Insights */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+            <h2 className="text-sm font-bold text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-wider">
+              <Clock size={14} className="text-slate-400" />
+              Quick Tasks
+            </h2>
+            <div className="space-y-4">
+              {[
+                { label: "Add New Product", href: "/admin/products/new", color: "bg-blue-50 text-blue-600" },
+                { label: "Update Hero Banners", href: "/admin/banners", color: "bg-purple-50 text-purple-600" },
+                { label: "Check Bulk Orders", href: "/admin/inquiries", color: "bg-emerald-50 text-emerald-600" },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center justify-between p-4 rounded-2xl border border-slate-50 hover:border-slate-100 hover:bg-slate-50 transition-all group"
+                >
+                  <span className="text-sm font-semibold text-slate-700">{item.label}</span>
+                  <div className={`size-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1 ${item.color}`}>
+                    <ArrowRight size={14} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-brand-red/5 border border-brand-red/10 rounded-3xl p-8 relative overflow-hidden">
+            <div className="relative z-10">
+              <h3 className="text-brand-red font-bold text-sm">Pro Tip</h3>
+              <p className="text-slate-600 text-xs mt-2 leading-relaxed">
+                Check the <strong>Low Stock Alerts</strong> daily to ensure your best-selling sizes don&apos;t run out during peak hours.
+              </p>
+            </div>
+            <div className="absolute -bottom-4 -right-4 size-24 bg-brand-red/5 rounded-full blur-2xl" />
           </div>
         </div>
       </div>
 
-      {/* Data Table — Real Inquiries */}
-      <div className="bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden">
-        <div className="p-6 border-b border-[#eaeaea] flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-[#171717]">Recent Bulk Inquiries</h2>
-          <span className="text-xs font-medium text-[#888888]">{inquiryCount} total</span>
+      {/* Real Inquiries Table */}
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Recent Inquiries</h2>
+            <p className="text-xs text-slate-400 mt-1">Latest bulk order requests from the website</p>
+          </div>
+          <Link 
+            href="/admin/inquiries" 
+            className="text-xs font-bold text-brand-red hover:underline"
+          >
+            View All
+          </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#fafafa] text-[#888888] font-medium border-b border-[#eaeaea]">
-              <tr>
-                <th className="px-6 py-3 font-medium">Customer</th>
-                <th className="px-6 py-3 font-medium">Phone</th>
-                <th className="px-6 py-3 font-medium">Category</th>
-                <th className="px-6 py-3 font-medium">Qty</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium text-right">Date</th>
+            <thead>
+              <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="px-8 py-4">Customer</th>
+                <th className="px-8 py-4">Category</th>
+                <th className="px-8 py-4">Qty</th>
+                <th className="px-8 py-4">Status</th>
+                <th className="px-8 py-4 text-right">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#eaeaea]">
+            <tbody className="divide-y divide-slate-50">
               {loading ? (
-                <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-[#888888]">Loading...</td></tr>
+                <tr><td colSpan={5} className="px-8 py-12 text-center text-slate-400 font-medium">Loading...</td></tr>
               ) : inquiries.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-[#888888]">No inquiries yet. They&apos;ll appear here when customers submit the bulk order form.</td></tr>
+                <tr><td colSpan={5} className="px-8 py-12 text-center text-slate-400 font-medium">No inquiries yet.</td></tr>
               ) : (
                 inquiries.map((row) => (
-                  <tr key={row.id} className="hover:bg-[#fafafa] transition-colors">
-                    <td className="px-6 py-4 font-medium text-[#171717]">{row.name}</td>
-                    <td className="px-6 py-4 text-[#666666]">{row.phone}</td>
-                    <td className="px-6 py-4 text-[#666666]">{row.product_category}</td>
-                    <td className="px-6 py-4 text-[#666666]">{row.quantity}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-[11px] font-medium ${
-                        row.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                        row.status === 'contacted' ? 'bg-blue-100 text-blue-800' :
-                        row.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+                  <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-8 py-5">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-900 group-hover:text-brand-red transition-colors">{row.name}</span>
+                        <span className="text-xs text-slate-400">{row.phone}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
+                        {row.product_category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-[#888888] text-right">{formatDate(row.created_at)}</td>
+                    <td className="px-8 py-5 font-bold text-slate-700">{row.quantity}</td>
+                    <td className="px-8 py-5">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${
+                        row.status === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                        row.status === 'contacted' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                        row.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                        'bg-rose-50 text-rose-600 border border-rose-100'
+                      }`}>
+                        {row.status}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-slate-400 text-right font-medium">{formatDate(row.created_at)}</td>
                   </tr>
                 ))
               )}

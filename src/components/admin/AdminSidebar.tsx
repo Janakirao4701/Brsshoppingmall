@@ -35,12 +35,10 @@ export function AdminSidebar() {
 
   return (
     <aside className="w-[280px] flex-shrink-0 flex flex-col h-screen sticky top-0 bg-white border-r border-slate-100 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-30">
-      {/* Header */}
       <div className="h-20 flex-shrink-0 flex items-center px-8 border-b border-slate-50">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex flex-col">
             <span className="font-bold text-slate-900 text-lg leading-none tracking-tight">Admin Console</span>
-            <span className="text-[10px] font-bold text-brand-red uppercase tracking-[0.2em] mt-1.5">BSR Shopping Mall</span>
           </div>
         </Link>
       </div>
