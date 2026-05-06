@@ -99,9 +99,9 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${cormorant.variable} ${jost.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${jost.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex flex-col">
         <NextIntlClientProvider messages={messages}>
           <SmoothScroll>
             <div className="flex-1 flex flex-col">

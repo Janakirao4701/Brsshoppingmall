@@ -93,30 +93,15 @@ export function HeroBanner() {
     const supabase = createClient(supabaseUrl, supabaseKey);
     supabase
       .from("hero_banners")
-      .select("id, title, subtitle, discount_text, cta_text, cta_link, image_url, text_position, object_position, show_text")
+      .select("*")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
-      .then(async ({ data }) => {
+      .then(({ data }) => {
         if (data && data.length > 0) {
-          let mobileData: any[] | null = null;
-          try {
-            const res = await supabase
-              .from("hero_banners")
-              .select("id, mobile_image_url")
-              .eq("is_active", true);
-            mobileData = res.data;
-          } catch {
-            // Column might not exist yet
-          }
-
-          const enrichedData = data.map((s, i) => {
-            const mobileImg = mobileData?.find(m => m.id === s.id)?.mobile_image_url;
-            return {
-              ...s,
-              mobile_image_url: mobileImg,
-              gradient: GRADIENTS[i % GRADIENTS.length],
-            };
-          });
+          const enrichedData = data.map((s, i) => ({
+            ...s,
+            gradient: GRADIENTS[i % GRADIENTS.length],
+          }));
           setSlides(enrichedData);
         }
       });
