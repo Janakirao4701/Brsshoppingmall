@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
 import { useTranslations } from "next-intl";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { 
   Carousel, 
   CarouselContent, 
@@ -86,11 +86,6 @@ export function HeroBanner() {
   const [slides, setSlides] = React.useState<(HeroBannerSlide & { gradient: string })[]>(FALLBACK_SLIDES);
 
   React.useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseKey) return;
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
     supabase
       .from("hero_banners")
       .select("*")
@@ -167,7 +162,7 @@ export function HeroBanner() {
                     (slide.text_position || "left") === "center" && "md:left-1/2 md:right-auto md:-translate-x-1/2",
                     (slide.text_position || "left") === "right" && "md:right-10 md:left-auto"
                   )}>
-                    <div className="bg-white/[0.12] backdrop-blur-xl border border-white/[0.15] rounded-2xl md:rounded-3xl p-5 md:p-8 max-w-lg shadow-2xl shadow-black/20">
+                    <div className="bg-white/[0.12] backdrop-blur-xl border border-white/[0.15] rounded-2xl md:rounded-3xl p-5 md:p-8 max-w-lg shadow-2xl shadow-black/20 will-change-transform will-change-opacity">
                       {/* Subtitle tag */}
                       {slide.subtitle && (
                         <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] text-brand-orange uppercase mb-2 md:mb-3">

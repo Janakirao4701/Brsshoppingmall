@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { StatCard } from "@/components/admin/StatCard";
 import Link from "next/link";
 import { 
@@ -42,14 +42,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseKey) {
-      setLoading(false);
-      return;
-    }
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     async function fetchDashboardData() {
       try {
         const [inquiryRes, productRes, categoryRes, variantRes] = await Promise.all([
@@ -64,12 +56,12 @@ export default function AdminDashboard() {
         setInquiries(inquiryRes.data || []);
         setStats({
           totalProducts: productRes.count || 0,
-          totalInquiries: inquiryRes.count || 0, // Note: This should probably be a separate count query for total, but for now we use the data length or inquiryRes.count if available
+          totalInquiries: inquiryRes.count || 0,
           lowStockCount,
           activeCategories: categoryRes.count || 0
         });
 
-        // Get total inquiry count separately if needed
+        // Get total inquiry count separately
         const { count: totalInquiries } = await supabase.from("bulk_inquiries").select("id", { count: "exact", head: true });
         setStats(prev => ({ ...prev, totalInquiries: totalInquiries || 0 }));
 

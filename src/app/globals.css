@@ -212,14 +212,27 @@ body {
   display: none; /* Chrome, Safari and Opera */
 }
 
-@media (min-width: 768px) {
-  .md\:hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .md\:hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+/* ─── Visual Scroll Indicator for Horizontal Lists ─── */
+.scroll-indicator-container {
+  @apply relative;
+}
+
+.scroll-indicator-container::after {
+  content: '';
+  @apply absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white/50 to-transparent pointer-events-none md:hidden opacity-0 transition-opacity duration-300;
+}
+
+.scroll-indicator-container.can-scroll::after {
+  @apply opacity-100;
+}
+
+/* ─── Hardware Acceleration for Smoothness ─── */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
 }
 
 .dark {

@@ -25,34 +25,29 @@ export async function getProducts(filters?: {
 }): Promise<Product[]> {
   if (isSupabaseConfigured()) {
     try {
+      // Use simple selection since the database is flat
       let query = supabase
         .from("products")
-        .select(`
-          *,
-          categories(slug),
-          brands(name),
-          product_variants(*)
-        `);
+        .select("*");
 
-      // We remove the server-side filters that were failing and filter in memory
-      // for 100% reliability while the database relationships stabilize.
       const { data, error } = await query.order("created_at", { ascending: false });
 
       if (error) {
         console.error("Supabase error fetching products:", error);
+        // If query fails (e.g. table not ready), fallback to mock in dev
         return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
       }
 
       let products = (data as any[]) || [];
 
-      // Map relational data first
+      // Map data to match the Frontend interface
+      // The schema has category and brand as TEXT, but the UI expects brand: { name: string }
       products = products.map(p => ({
         ...p,
-        category: p.categories?.slug || p.category,
-        brand: p.brands || { name: p.brand || "" }
+        brand: { name: p.brand || "BSR" }
       }));
 
-      // Apply filters in memory
+      // Apply filters in memory for robustness
       if (filters?.category) {
         products = products.filter(p => p.category === filters.category);
       }
@@ -60,7 +55,7 @@ export async function getProducts(filters?: {
         products = products.filter(p => p.subcategory === filters.subcategory);
       }
       if (filters?.brand) {
-        products = products.filter(p => p.brand_id === filters.brand);
+        products = products.filter(p => p.brand === filters.brand || p.brand?.name === filters.brand);
       }
       if (filters?.minPrice) {
         products = products.filter(p => p.price >= filters.minPrice!);
@@ -83,7 +78,8 @@ export async function getProducts(filters?: {
     }
   }
 
-  // Fallback to mock data
+  // Fallback to mock data if Supabase is not configured
+  console.warn("Supabase not configured. Falling back to mock data.");
   if (process.env.NODE_ENV === "development") {
     let products = [...MOCK_PRODUCTS];
     return products as any[];
@@ -100,17 +96,17 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     try {
       const { data, error } = await supabase
         .from("products")
-        .select("*, categories(slug), brands(name), product_variants(*)")
+        .select("*")
         .eq("slug", slug)
         .maybeSingle();
 
       if (error) throw error;
       if (!data) return null;
 
-      // Map relational data
+      // Map data to match Frontend interface
       return {
         ...data,
-        category: (data as any).categories?.slug || (data as any).category
+        brand: { name: (data as any).brand || "BSR" }
       } as any;
     } catch (err) {
       console.error("Error fetching product by slug:", err);

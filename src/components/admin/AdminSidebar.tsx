@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function AdminSidebar() {
+export function AdminSidebar({ className, onMobileClose }: { className?: string; onMobileClose?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const isLoginPage = pathname?.includes("/admin/login");
@@ -33,8 +33,15 @@ export function AdminSidebar() {
     }
   };
 
+  const navClick = () => {
+    if (onMobileClose) onMobileClose();
+  };
+
   return (
-    <aside className="w-[280px] flex-shrink-0 flex flex-col h-screen sticky top-0 bg-white border-r border-slate-100 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-30">
+    <aside className={cn(
+      "w-[280px] flex-shrink-0 flex flex-col h-full bg-white border-r border-slate-100 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-30",
+      className
+    )}>
       <div className="h-20 flex-shrink-0 flex items-center px-8 border-b border-slate-50">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex flex-col">
@@ -49,35 +56,35 @@ export function AdminSidebar() {
           <div>
             <p className="px-4 text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">General</p>
             <div className="space-y-1">
-              <NavItem href="/admin" icon={<LayoutDashboard size={18} />} label="Dashboard" pathname={pathname} />
-              <NavItem href="/admin/analytics" icon={<ExternalLink size={18} />} label="Advanced Analytics" pathname={pathname} />
+              <NavItem href="/admin" icon={<LayoutDashboard size={18} />} label="Dashboard" pathname={pathname} onClick={navClick} />
+              <NavItem href="/admin/analytics" icon={<ExternalLink size={18} />} label="Advanced Analytics" pathname={pathname} onClick={navClick} />
             </div>
           </div>
 
           <div>
             <p className="px-4 text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">Inventory</p>
             <div className="space-y-1">
-              <NavItem href="/admin/products" icon={<Package size={18} />} label="Products" pathname={pathname} />
-              <NavItem href="/admin/categories" icon={<LayoutDashboard size={18} />} label="Categories" pathname={pathname} />
-              <NavItem href="/admin/brands" icon={<Shield size={18} />} label="Brands & Vendors" pathname={pathname} />
-              <NavItem href="/admin/banners" icon={<ImageIcon size={18} />} label="Hero Banners" pathname={pathname} />
+              <NavItem href="/admin/products" icon={<Package size={18} />} label="Products" pathname={pathname} onClick={navClick} />
+              <NavItem href="/admin/categories" icon={<LayoutDashboard size={18} />} label="Categories" pathname={pathname} onClick={navClick} />
+              <NavItem href="/admin/brands" icon={<Shield size={18} />} label="Brands & Vendors" pathname={pathname} onClick={navClick} />
+              <NavItem href="/admin/banners" icon={<ImageIcon size={18} />} label="Hero Banners" pathname={pathname} onClick={navClick} />
             </div>
           </div>
 
           <div>
             <p className="px-4 text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">Sales & Marketing</p>
             <div className="space-y-1">
-              <NavItem href="/admin/orders" icon={<ShoppingCart size={18} />} label="Orders" pathname={pathname} />
-              <NavItem href="/admin/customers" icon={<Users size={18} />} label="Customers" pathname={pathname} />
-              <NavItem href="/admin/coupons" icon={<Shield size={18} />} label="Coupons & Offers" pathname={pathname} />
-              <NavItem href="/admin/inquiries" icon={<Inbox size={18} />} label="Bulk Inquiries" pathname={pathname} />
+              <NavItem href="/admin/orders" icon={<ShoppingCart size={18} />} label="Orders" pathname={pathname} onClick={navClick} />
+              <NavItem href="/admin/customers" icon={<Users size={18} />} label="Customers" pathname={pathname} onClick={navClick} />
+              <NavItem href="/admin/coupons" icon={<Shield size={18} />} label="Coupons & Offers" pathname={pathname} onClick={navClick} />
+              <NavItem href="/admin/inquiries" icon={<Inbox size={18} />} label="Bulk Inquiries" pathname={pathname} onClick={navClick} />
             </div>
           </div>
 
           <div>
             <p className="px-4 text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">Config</p>
             <div className="space-y-1">
-              <NavItem href="/admin/settings" icon={<Settings size={18} />} label="System Settings" pathname={pathname} />
+              <NavItem href="/admin/settings" icon={<Settings size={18} />} label="System Settings" pathname={pathname} onClick={navClick} />
             </div>
           </div>
         </div>
@@ -113,19 +120,22 @@ function NavItem({
   icon, 
   label, 
   pathname, 
-  badge 
+  badge,
+  onClick
 }: { 
   href: string; 
   icon: React.ReactNode; 
   label: string; 
   pathname: string; 
-  badge?: string 
+  badge?: string;
+  onClick?: () => void;
 }) {
   const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href));
 
   return (
     <Link 
       href={href}
+      onClick={onClick}
       className={cn(
         "flex items-center justify-between px-4 py-3 text-sm rounded-xl transition-all duration-200 group",
         isActive 
