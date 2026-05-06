@@ -215,10 +215,19 @@ export default function AdminOrdersPage() {
                         <tbody>
                           {(order.items || []).map((item: any, i: number) => (
                             <tr key={i} className="border-b border-[#eaeaea] last:border-0">
-                              <td className="px-4 py-2 text-[#171717]">{item.name}</td>
-                              <td className="px-4 py-2 text-center text-[#666]">{item.size || "—"}</td>
-                              <td className="px-4 py-2 text-center text-[#666]">{item.quantity}</td>
-                              <td className="px-4 py-2 text-right font-medium">₹{(item.price * item.quantity).toLocaleString("en-IN")}</td>
+                              <td className="px-4 py-3 text-[#171717]">
+                                <div className="flex items-center gap-3">
+                                  {item.image && (
+                                    <div className="size-10 rounded bg-slate-100 overflow-hidden flex-shrink-0">
+                                      <img src={item.image} alt="" className="w-full h-full object-cover" />
+                                    </div>
+                                  )}
+                                  <span className="font-medium">{item.name}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-center text-[#666]">{item.size || "—"}</td>
+                              <td className="px-4 py-3 text-center text-[#666]">{item.quantity}</td>
+                              <td className="px-4 py-3 text-right font-medium">₹{(item.price * item.quantity).toLocaleString("en-IN")}</td>
                             </tr>
                           ))}
                         </tbody>

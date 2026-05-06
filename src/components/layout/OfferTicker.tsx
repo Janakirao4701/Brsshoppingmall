@@ -27,9 +27,9 @@ export function OfferTicker() {
         : (data.announcement_text ? [data.announcement_text] : []);
       
       const parsedAnns = annsRaw.map(ann => {
-        if (ann.includes('|')) {
-          const [emoji, ...textParts] = ann.split('|');
-          return { emoji, text: textParts.join('|') };
+        if (ann.includes('@@@')) {
+          const [emoji, ...textParts] = ann.split('@@@');
+          return { emoji, text: textParts.join('@@@') };
         }
         return { emoji: "✨", text: ann };
       });

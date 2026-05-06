@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, Shield, Phone, MapPin, Globe, CreditCard, Loader2, Megaphone, Mail, X } from "lucide-react";
+import { Save, Shield, Phone, MapPin, Globe, CreditCard, Loader2, Megaphone, Mail, X, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 
 const SETTINGS_ID = '00000000-0000-0000-0000-000000000000';
 const EMOJI_OPTIONS = ["🚚", "📞", "🕙", "✨", "🎉", "🛍️", "💎", "🎁", "🔥", "❤️"];
+const DELIMITER = "@@@";
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+  const [showKey, setShowKey] = useState(false);
   
   const [settings, setSettings] = useState({
     store_name: "BSR Shopping Mall",
@@ -77,7 +79,7 @@ export default function AdminSettingsPage() {
 
   const addAnnouncement = () => {
     if (settings.announcements.length < 5) {
-      setSettings(p => ({ ...p, announcements: [...p.announcements, "✨|"] }));
+      setSettings(p => ({ ...p, announcements: [...p.announcements, `✨${DELIMITER}`] }));
     }
   };
 
@@ -90,11 +92,11 @@ export default function AdminSettingsPage() {
 
   const updateAnnouncement = (index: number, text?: string, emoji?: string) => {
     const newAnns = [...settings.announcements];
-    const parts = newAnns[index].includes('|') ? newAnns[index].split('|') : ["✨", newAnns[index]];
+    const parts = newAnns[index].includes(DELIMITER) ? newAnns[index].split(DELIMITER) : ["✨", newAnns[index]];
     const currentEmoji = parts[0];
-    const currentText = parts.slice(1).join('|');
+    const currentText = parts.slice(1).join(DELIMITER);
     
-    newAnns[index] = `${emoji !== undefined ? emoji : currentEmoji}|${text !== undefined ? text : currentText}`;
+    newAnns[index] = `${emoji !== undefined ? emoji : currentEmoji}${DELIMITER}${text !== undefined ? text : currentText}`;
     setSettings(p => ({ ...p, announcements: newAnns }));
   };
 
@@ -171,8 +173,21 @@ export default function AdminSettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-[#888] mb-1.5 uppercase tracking-wider">Razorpay Key ID</label>
-              <input value={settings.razorpay_key} onChange={(e) => setSettings(p => ({ ...p, razorpay_key: e.target.value }))}
-                className="w-full px-3 py-2 rounded-lg border border-[#eaeaea] text-sm font-mono" />
+              <div className="relative flex items-center">
+                <input 
+                  type={showKey ? "text" : "password"} 
+                  value={settings.razorpay_key} 
+                  onChange={(e) => setSettings(p => ({ ...p, razorpay_key: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-[#eaeaea] text-sm font-mono pr-10 focus:outline-none focus:ring-2 focus:ring-[#171717]/10" 
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowKey(!showKey)}
+                  className="absolute right-3 text-[#888] hover:text-[#171717] transition-colors"
+                >
+                  {showKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-[#888] mb-1.5 uppercase tracking-wider">Free Shipping Threshold</label>
@@ -204,9 +219,9 @@ export default function AdminSettingsPage() {
           
           <div className="space-y-3">
             {settings.announcements.map((ann, idx) => {
-              const parts = ann.includes('|') ? ann.split('|') : ["✨", ann];
+              const parts = ann.includes(DELIMITER) ? ann.split(DELIMITER) : ["✨", ann];
               const emoji = parts[0];
-              const text = parts.slice(1).join('|');
+              const text = parts.slice(1).join(DELIMITER);
               
               return (
                 <div key={idx} className="flex gap-2 items-center">
