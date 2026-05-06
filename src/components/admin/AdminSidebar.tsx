@@ -12,7 +12,8 @@ import {
   LogOut,
   Image as ImageIcon,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Shield
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
