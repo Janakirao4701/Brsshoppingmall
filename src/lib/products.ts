@@ -25,15 +25,19 @@ export async function getProducts(filters?: {
 }): Promise<Product[]> {
   if (isSupabaseConfigured()) {
     try {
-      let query = supabase.from("products").select("*, brands(name)");
+      let query = supabase
+        .from("products")
+        .select("*, categories!inner(slug), brands(name), product_variants(*)");
 
       if (filters?.category) {
-        query = query.eq("category", filters.category);
+        // Filter by the slug in the joined categories table
+        query = query.eq("categories.slug", filters.category);
       }
       if (filters?.subcategory) {
         query = query.eq("subcategory", filters.subcategory);
       }
       if (filters?.brand) {
+        // Filter by the brand ID (UUID)
         query = query.eq("brand_id", filters.brand);
       }
       if (filters?.minPrice) {
@@ -53,7 +57,11 @@ export async function getProducts(filters?: {
         return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
       }
 
-      return (data as any[]) ?? [];
+      // Map relational data to match the Product interface
+      return (data as any[]).map(p => ({
+        ...p,
+        category: p.categories?.slug || p.category // fallback if column exists
+      })) ?? [];
     } catch (err) {
       console.error("Unexpected error fetching products:", err);
       return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
@@ -63,7 +71,6 @@ export async function getProducts(filters?: {
   // Fallback to mock data
   if (process.env.NODE_ENV === "development") {
     let products = [...MOCK_PRODUCTS];
-    // ... filtering mock products ...
     return products as any[];
   }
 
@@ -78,12 +85,18 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     try {
       const { data, error } = await supabase
         .from("products")
-        .select("*, brands(name), product_variants(*)")
+        .select("*, categories(slug), brands(name), product_variants(*)")
         .eq("slug", slug)
         .maybeSingle();
 
       if (error) throw error;
-      return data as any;
+      if (!data) return null;
+
+      // Map relational data
+      return {
+        ...data,
+        category: (data as any).categories?.slug || (data as any).category
+      } as any;
     } catch (err) {
       console.error("Error fetching product by slug:", err);
       return null;
