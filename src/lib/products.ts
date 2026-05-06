@@ -29,8 +29,8 @@ export async function getProducts(filters?: {
         .from("products")
         .select(`
           *,
-          categories:category_id(slug),
-          brands:brand_id(name),
+          categories(slug),
+          brands(name),
           product_variants(*)
         `);
 
