@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/routing";
 import { supabase } from "@/lib/supabase";
 import { 
   Package, Save, ArrowLeft, Loader2, Image as ImageIcon, 
-  Tag, Info, Settings, Search, Megaphone, Shield, Eye, Globe
+  Tag, Info, Settings, Search, Megaphone, Shield, Eye, Globe, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VariantGenerator } from "@/components/admin/VariantGenerator";
