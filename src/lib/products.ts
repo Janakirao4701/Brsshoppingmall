@@ -34,26 +34,8 @@ export async function getProducts(filters?: {
           product_variants(*)
         `);
 
-      if (filters?.category) {
-        // Support both old string category and new relational category_id slug
-        query = query.or(`category.eq.${filters.category},categories.slug.eq.${filters.category}`);
-      }
-      if (filters?.subcategory) {
-        query = query.eq("subcategory", filters.subcategory);
-      }
-      if (filters?.brand) {
-        query = query.eq("brand_id", filters.brand);
-      }
-      if (filters?.minPrice) {
-        query = query.gte("price", filters.minPrice);
-      }
-      if (filters?.maxPrice) {
-        query = query.lte("price", filters.maxPrice);
-      }
-      if (filters?.search) {
-        query = query.ilike("name", `%${filters.search}%`);
-      }
-
+      // We remove the server-side filters that were failing and filter in memory
+      // for 100% reliability while the database relationships stabilize.
       const { data, error } = await query.order("created_at", { ascending: false });
 
       if (error) {
@@ -61,11 +43,40 @@ export async function getProducts(filters?: {
         return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
       }
 
-      // Map relational data to match the Product interface
-      return (data as any[]).map(p => ({
+      let products = (data as any[]) || [];
+
+      // Map relational data first
+      products = products.map(p => ({
         ...p,
-        category: p.categories?.slug || p.category // fallback if column exists
-      })) ?? [];
+        category: p.categories?.slug || p.category,
+        brand: p.brands || { name: p.brand || "" }
+      }));
+
+      // Apply filters in memory
+      if (filters?.category) {
+        products = products.filter(p => p.category === filters.category);
+      }
+      if (filters?.subcategory) {
+        products = products.filter(p => p.subcategory === filters.subcategory);
+      }
+      if (filters?.brand) {
+        products = products.filter(p => p.brand_id === filters.brand);
+      }
+      if (filters?.minPrice) {
+        products = products.filter(p => p.price >= filters.minPrice!);
+      }
+      if (filters?.maxPrice) {
+        products = products.filter(p => p.price <= filters.maxPrice!);
+      }
+      if (filters?.search) {
+        const s = filters.search.toLowerCase();
+        products = products.filter(p => 
+          p.name.toLowerCase().includes(s) || 
+          p.description?.toLowerCase().includes(s)
+        );
+      }
+
+      return products;
     } catch (err) {
       console.error("Unexpected error fetching products:", err);
       return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
