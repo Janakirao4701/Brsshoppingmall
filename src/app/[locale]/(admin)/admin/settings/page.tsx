@@ -14,6 +14,7 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const [showKey, setShowKey] = useState(false);
+  const [activeEmojiPicker, setActiveEmojiPicker] = useState<number | null>(null);
   
   const [settings, setSettings] = useState({
     store_name: "BSR Shopping Mall",
@@ -98,6 +99,7 @@ export default function AdminSettingsPage() {
     
     newAnns[index] = `${emoji !== undefined ? emoji : currentEmoji}${DELIMITER}${text !== undefined ? text : currentText}`;
     setSettings(p => ({ ...p, announcements: newAnns }));
+    if (emoji) setActiveEmojiPicker(null);
   };
 
   if (loading) {
@@ -109,8 +111,8 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="max-w-[800px] mx-auto space-y-8 pb-12">
-      <div className="flex items-center justify-between">
+    <div className="max-w-[800px] mx-auto space-y-8 pb-12" onClick={() => setActiveEmojiPicker(null)}>
+      <div className="flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
         <h1 className="text-2xl font-bold text-[#171717] tracking-tight">Store Settings</h1>
         <div className="flex items-center gap-3">
           {saveStatus === "success" && <span className="text-sm text-green-600 font-medium animate-in fade-in slide-in-from-right-2">✓ Saved successfully</span>}
@@ -121,7 +123,7 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-6" onClick={(e) => e.stopPropagation()}>
         {/* Contact info */}
         <div className="bg-white rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] p-6 space-y-6">
           <h2 className="text-sm font-bold text-[#171717] flex items-center gap-2">
@@ -225,28 +227,40 @@ export default function AdminSettingsPage() {
               
               return (
                 <div key={idx} className="flex gap-2 items-center">
-                  <div className="relative group">
-                    <div className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-[#eaeaea] rounded-lg text-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                  <div className="relative">
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveEmojiPicker(activeEmojiPicker === idx ? null : idx);
+                      }}
+                      className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-[#eaeaea] rounded-lg text-lg hover:bg-slate-100 transition-colors shadow-sm"
+                    >
                       {emoji}
-                    </div>
-                    <div className="absolute top-full left-0 mt-1 hidden group-hover:grid grid-cols-5 gap-1 p-2 bg-white border border-[#eaeaea] rounded-xl shadow-xl z-50 w-44">
-                      {EMOJI_OPTIONS.map(e => (
-                        <button 
-                          key={e} 
-                          type="button"
-                          onClick={() => updateAnnouncement(idx, undefined, e)}
-                          className={`w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded transition-colors ${emoji === e ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
-                        >
-                          {e}
-                        </button>
-                      ))}
-                    </div>
+                    </button>
+                    {activeEmojiPicker === idx && (
+                      <div 
+                        className="absolute top-full left-0 mt-2 grid grid-cols-5 gap-1 p-2 bg-white border border-[#eaeaea] rounded-xl shadow-2xl z-50 w-44 animate-in fade-in zoom-in-95 duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {EMOJI_OPTIONS.map(e => (
+                          <button 
+                            key={e} 
+                            type="button"
+                            onClick={() => updateAnnouncement(idx, undefined, e)}
+                            className={`w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-lg transition-all ${emoji === e ? 'bg-slate-900 text-white shadow-md' : 'text-lg'}`}
+                          >
+                            {e}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <input 
                     value={text} 
                     onChange={(e) => updateAnnouncement(idx, e.target.value)}
                     placeholder={`Announcement ${idx + 1}`} 
-                    className="flex-1 px-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10" 
+                    className="flex-1 px-3 py-2 rounded-lg border border-[#eaeaea] text-sm focus:outline-none focus:ring-2 focus:ring-[#171717]/10 bg-[#fafafa]/50" 
                   />
                   <button 
                     type="button"

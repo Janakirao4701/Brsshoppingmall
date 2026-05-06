@@ -35,23 +35,16 @@ export function AdminSidebar() {
   return (
     <aside className="w-[280px] flex-shrink-0 flex flex-col h-screen sticky top-0 bg-white border-r border-slate-100 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-30">
       {/* Header */}
-      <div className="h-20 flex items-center px-8">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex items-center justify-center h-12 w-12 bg-white border border-slate-100 rounded-xl transition-transform group-hover:scale-105 duration-300 overflow-hidden shadow-sm">
-            <img 
-              src="/bsr-logo.png" 
-              alt="BSR" 
-              className="h-10 w-auto object-contain"
-            />
-          </div>
+      <div className="h-20 flex-shrink-0 flex items-center px-8 border-b border-slate-50">
+        <Link href="/" className="flex items-center gap-3">
           <div className="flex flex-col">
-            <span className="font-bold text-slate-900 text-base leading-none tracking-tight">BSR Console</span>
-            <span className="text-[10px] font-bold text-brand-red uppercase tracking-[0.2em] mt-1">Admin Panel</span>
+            <span className="font-bold text-slate-900 text-lg leading-none tracking-tight">Admin Console</span>
+            <span className="text-[10px] font-bold text-brand-red uppercase tracking-[0.2em] mt-1.5">BSR Shopping Mall</span>
           </div>
         </Link>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation - Scrollable area */}
       <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-hide">
         <div className="space-y-8">
           <div>
@@ -87,8 +80,8 @@ export function AdminSidebar() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="p-4 space-y-2 border-t border-slate-50">
+      {/* Footer - Fixed at bottom */}
+      <div className="p-4 space-y-2 border-t border-slate-50 bg-white mt-auto">
         <Link 
           href="/" 
           className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-slate-600 hover:text-brand-red hover:bg-brand-red/5 rounded-xl transition-all group"
