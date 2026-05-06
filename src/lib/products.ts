@@ -27,17 +27,21 @@ export async function getProducts(filters?: {
     try {
       let query = supabase
         .from("products")
-        .select("*, categories!inner(slug), brands(name), product_variants(*)");
+        .select(`
+          *,
+          categories:category_id(slug),
+          brands:brand_id(name),
+          product_variants(*)
+        `);
 
       if (filters?.category) {
-        // Filter by the slug in the joined categories table
-        query = query.eq("categories.slug", filters.category);
+        // Support both old string category and new relational category_id slug
+        query = query.or(`category.eq.${filters.category},categories.slug.eq.${filters.category}`);
       }
       if (filters?.subcategory) {
         query = query.eq("subcategory", filters.subcategory);
       }
       if (filters?.brand) {
-        // Filter by the brand ID (UUID)
         query = query.eq("brand_id", filters.brand);
       }
       if (filters?.minPrice) {
