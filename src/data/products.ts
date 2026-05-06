@@ -10,13 +10,15 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 1999,
     category: "men",
     subcategory: "Shirts",
-    brand: "Raymond",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["White", "Sky Blue", "Light Pink"],
+    brand: { id: "b1", name: "Raymond" },
     images: ["/products/men-shirt-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: true,
     created_at: "2026-01-15",
+    variants: [
+      { id: "v1", product_id: "1", sku: "SH-WHT-S", size: "S", color: "White", stock: 10 },
+      { id: "v2", product_id: "1", sku: "SH-WHT-M", size: "M", color: "White", stock: 15 },
+    ]
   },
   {
     id: "2",
@@ -27,13 +29,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 2199,
     category: "men",
     subcategory: "Trousers",
-    brand: "Peter England",
-    sizes: ["30", "32", "34", "36", "38"],
-    colors: ["Khaki", "Navy", "Olive"],
+    brand: { id: "b2", name: "Peter England" },
     images: ["/products/men-trouser-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: true,
     created_at: "2026-02-10",
+    variants: [
+      { id: "v3", product_id: "2", sku: "TR-KH-32", size: "32", color: "Khaki", stock: 8 },
+    ]
   },
   {
     id: "3",
@@ -44,13 +47,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 3499,
     category: "men",
     subcategory: "Ethnic",
-    brand: "Manyavar",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Maroon", "Royal Blue", "Cream"],
+    brand: { id: "b3", name: "Manyavar" },
     images: ["/products/men-kurta-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: false,
     created_at: "2026-03-01",
+    variants: [
+      { id: "v4", product_id: "3", sku: "KU-MAR-M", size: "M", color: "Maroon", stock: 5 },
+    ]
   },
   {
     id: "4",
@@ -61,13 +65,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 7999,
     category: "women",
     subcategory: "Sarees",
-    brand: "BSR Exclusive",
-    sizes: ["Free Size"],
-    colors: ["Red & Gold", "Green & Gold", "Purple & Silver"],
+    brand: { id: "b4", name: "BSR Exclusive" },
     images: ["/products/women-saree-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: true,
     created_at: "2026-01-20",
+    variants: [
+      { id: "v5", product_id: "4", sku: "SA-RED-FS", size: "Free Size", color: "Red & Gold", stock: 12 },
+    ]
   },
   {
     id: "5",
@@ -78,13 +83,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 2799,
     category: "women",
     subcategory: "Kurtas",
-    brand: "W",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Teal", "Mustard", "Coral"],
+    brand: { id: "b5", name: "W" },
     images: ["/products/women-kurta-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: true,
     created_at: "2026-02-15",
+    variants: [
+      { id: "v6", product_id: "5", sku: "AN-TEL-M", size: "M", color: "Teal", stock: 7 },
+    ]
   },
   {
     id: "6",
@@ -95,13 +101,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 2199,
     category: "women",
     subcategory: "Western",
-    brand: "Allen Solly",
-    sizes: ["XS", "S", "M", "L"],
-    colors: ["Floral Blue", "Floral Pink"],
+    brand: { id: "b6", name: "Allen Solly" },
     images: ["/products/women-dress-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: false,
     created_at: "2026-03-05",
+    variants: [
+      { id: "v7", product_id: "6", sku: "DR-FLO-S", size: "S", color: "Floral Blue", stock: 4 },
+    ]
   },
   {
     id: "7",
@@ -112,13 +119,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 799,
     category: "kids",
     subcategory: "T-Shirts",
-    brand: "Disney",
-    sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y"],
-    colors: ["Red", "Blue", "Yellow"],
+    brand: { id: "b7", name: "Disney" },
     images: ["/products/kids-tshirt-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: true,
     created_at: "2026-01-25",
+    variants: [
+      { id: "v8", product_id: "7", sku: "KT-RED-23Y", size: "2-3Y", color: "Red", stock: 20 },
+    ]
   },
   {
     id: "8",
@@ -129,13 +137,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 1999,
     category: "kids",
     subcategory: "Party Wear",
-    brand: "Hopscotch",
-    sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-11Y"],
-    colors: ["Pink", "Lavender", "Peach"],
+    brand: { id: "b8", name: "Hopscotch" },
     images: ["/products/kids-frock-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: true,
     created_at: "2026-02-20",
+    variants: [
+      { id: "v9", product_id: "8", sku: "KF-PNK-45Y", size: "4-5Y", color: "Pink", stock: 6 },
+    ]
   },
   {
     id: "9",
@@ -146,13 +155,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 1299,
     category: "men",
     subcategory: "T-Shirts",
-    brand: "US Polo",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Navy", "White", "Red", "Green"],
+    brand: { id: "b9", name: "US Polo" },
     images: ["/products/men-polo-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: false,
     created_at: "2026-03-10",
+    variants: [
+      { id: "v10", product_id: "9", sku: "PT-NVY-L", size: "L", color: "Navy", stock: 11 },
+    ]
   },
   {
     id: "10",
@@ -163,13 +173,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 4999,
     category: "women",
     subcategory: "Ethnic",
-    brand: "BSR Exclusive",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Maroon", "Navy", "Bottle Green"],
+    brand: { id: "b10", name: "BSR Exclusive" },
     images: ["/products/women-lehenga-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: false,
     created_at: "2026-03-15",
+    variants: [
+      { id: "v11", product_id: "10", sku: "LC-MAR-L", size: "L", color: "Maroon", stock: 3 },
+    ]
   },
   {
     id: "11",
@@ -180,13 +191,14 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 3999,
     category: "kids",
     subcategory: "Formal",
-    brand: "BSR Exclusive",
-    sizes: ["4-5Y", "6-7Y", "8-9Y", "10-11Y", "12-13Y"],
-    colors: ["Navy", "Grey", "Black"],
+    brand: { id: "b11", name: "BSR Exclusive" },
     images: ["/products/kids-suit-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: false,
     created_at: "2026-03-20",
+    variants: [
+      { id: "v12", product_id: "11", sku: "BS-NVY-89Y", size: "8-9Y", color: "Navy", stock: 4 },
+    ]
   },
   {
     id: "12",
@@ -197,12 +209,13 @@ export const MOCK_PRODUCTS: Product[] = [
     original_price: 2999,
     category: "men",
     subcategory: "Jackets",
-    brand: "Levi's",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Light Blue", "Dark Blue"],
+    brand: { id: "b12", name: "Levi's" },
     images: ["/products/men-jacket-1.jpg"],
-    in_stock: true,
+    status: "active",
     featured: true,
     created_at: "2026-04-01",
+    variants: [
+      { id: "v13", product_id: "12", sku: "DJ-LBL-M", size: "M", color: "Light Blue", stock: 9 },
+    ]
   },
 ];
