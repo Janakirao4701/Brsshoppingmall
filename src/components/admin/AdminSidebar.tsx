@@ -51,7 +51,7 @@ export function AdminSidebar() {
             <p className="px-4 text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">General</p>
             <div className="space-y-1">
               <NavItem href="/admin" icon={<LayoutDashboard size={18} />} label="Dashboard" pathname={pathname} />
-              <NavItem href="/admin/inquiries" icon={<Inbox size={18} />} label="Bulk Inquiries" pathname={pathname} />
+              <NavItem href="/admin/analytics" icon={<ExternalLink size={18} />} label="Advanced Analytics" pathname={pathname} />
             </div>
           </div>
 
@@ -59,15 +59,19 @@ export function AdminSidebar() {
             <p className="px-4 text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">Inventory</p>
             <div className="space-y-1">
               <NavItem href="/admin/products" icon={<Package size={18} />} label="Products" pathname={pathname} />
+              <NavItem href="/admin/categories" icon={<LayoutDashboard size={18} />} label="Categories" pathname={pathname} />
+              <NavItem href="/admin/brands" icon={<Shield size={18} />} label="Brands & Vendors" pathname={pathname} />
               <NavItem href="/admin/banners" icon={<ImageIcon size={18} />} label="Hero Banners" pathname={pathname} />
             </div>
           </div>
 
           <div>
-            <p className="px-4 text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">Sales</p>
+            <p className="px-4 text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">Sales & Marketing</p>
             <div className="space-y-1">
               <NavItem href="/admin/orders" icon={<ShoppingCart size={18} />} label="Orders" pathname={pathname} />
               <NavItem href="/admin/customers" icon={<Users size={18} />} label="Customers" pathname={pathname} />
+              <NavItem href="/admin/coupons" icon={<Shield size={18} />} label="Coupons & Offers" pathname={pathname} />
+              <NavItem href="/admin/inquiries" icon={<Inbox size={18} />} label="Bulk Inquiries" pathname={pathname} />
             </div>
           </div>
 
