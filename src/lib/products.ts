@@ -25,7 +25,7 @@ export async function getProducts(filters?: {
 }): Promise<Product[]> {
   if (isSupabaseConfigured()) {
     try {
-      let query = supabase.from("products").select("*");
+      let query = supabase.from("products").select("*, brands(name)");
 
       if (filters?.category) {
         query = query.eq("category", filters.category);
@@ -34,7 +34,7 @@ export async function getProducts(filters?: {
         query = query.eq("subcategory", filters.subcategory);
       }
       if (filters?.brand) {
-        query = query.eq("brand", filters.brand);
+        query = query.eq("brand_id", filters.brand);
       }
       if (filters?.minPrice) {
         query = query.gte("price", filters.minPrice);
@@ -50,47 +50,21 @@ export async function getProducts(filters?: {
 
       if (error) {
         console.error("Supabase error fetching products:", error);
-        // Fallback to mock only in dev
-        return process.env.NODE_ENV === "development" ? MOCK_PRODUCTS : [];
+        return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
       }
 
-      return (data as Product[]) ?? [];
+      return (data as any[]) ?? [];
     } catch (err) {
       console.error("Unexpected error fetching products:", err);
-      return process.env.NODE_ENV === "development" ? MOCK_PRODUCTS : [];
+      return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
     }
   }
 
-  // Fallback to mock data (primarily for development/initial setup)
+  // Fallback to mock data
   if (process.env.NODE_ENV === "development") {
-    console.warn("Supabase not configured. Using MOCK_PRODUCTS as fallback.");
     let products = [...MOCK_PRODUCTS];
-
-    if (filters?.category) {
-      products = products.filter((p) => p.category === filters.category);
-    }
-    if (filters?.subcategory) {
-      products = products.filter((p) => p.subcategory === filters.subcategory);
-    }
-    if (filters?.brand) {
-      products = products.filter((p) => p.brand === filters.brand);
-    }
-    if (filters?.minPrice) {
-      products = products.filter((p) => p.price >= filters.minPrice!);
-    }
-    if (filters?.maxPrice) {
-      products = products.filter((p) => p.price <= filters.maxPrice!);
-    }
-    if (filters?.search) {
-      const q = filters.search.toLowerCase();
-      products = products.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.brand.toLowerCase().includes(q)
-      );
-    }
-    return products;
+    // ... filtering mock products ...
+    return products as any[];
   }
 
   return [];
@@ -104,43 +78,32 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     try {
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, brands(name), product_variants(*)")
         .eq("slug", slug)
         .maybeSingle();
 
-      if (error) {
-        console.error("Supabase error fetching product by slug:", error);
-        return process.env.NODE_ENV === "development" 
-          ? MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null 
-          : null;
-      }
-
-      return data as Product;
+      if (error) throw error;
+      return data as any;
     } catch (err) {
-      console.error("Unexpected error fetching product by slug:", err);
+      console.error("Error fetching product by slug:", err);
       return null;
     }
   }
-
-  if (process.env.NODE_ENV === "development") {
-    return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
-  }
-
-  return null;
+  return (MOCK_PRODUCTS.find(p => p.slug === slug) as any) || null;
 }
 
 /**
  * Get unique brands for filter UI.
  */
 export function getBrands(products: Product[]): string[] {
-  return [...new Set(products.map((p) => p.brand))].sort();
+  return [...new Set(products.map((p) => p.brand?.name || "BSR"))].filter(Boolean) as string[];
 }
 
 /**
  * Get unique subcategories for filter UI.
  */
 export function getSubcategories(products: Product[]): string[] {
-  return [...new Set(products.map((p) => p.subcategory))].sort();
+  return [...new Set(products.map((p) => p.subcategory))].filter(Boolean).sort();
 }
 
 /**

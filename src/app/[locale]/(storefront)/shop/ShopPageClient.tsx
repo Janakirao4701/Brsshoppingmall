@@ -79,13 +79,13 @@ export function ShopPageClient({ menProducts, womenProducts, kidsProducts }: Sho
       result = result.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
-          p.brand.toLowerCase().includes(q) ||
+          (p.brand?.name || "").toLowerCase().includes(q) ||
           p.subcategory.toLowerCase().includes(q)
       );
     }
 
     if (selectedBrand) {
-      result = result.filter((p) => p.brand === selectedBrand);
+      result = result.filter((p) => p.brand?.name === selectedBrand);
     }
 
     if (selectedSubcategory) {
