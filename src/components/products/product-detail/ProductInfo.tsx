@@ -1,7 +1,7 @@
 "use client";
 
 interface ProductInfoProps {
-  brand: string;
+  brand?: { name: string };
   name: string;
   price: number;
   originalPrice?: number | null;
@@ -12,8 +12,8 @@ export function ProductInfo({ brand, name, price, originalPrice, description }: 
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-nav text-brand-orange mb-1">
-          {brand}
+        <p className="text-nav text-brand-orange mb-1 font-bold uppercase tracking-wider">
+          {brand?.name || "BSR Collection"}
         </p>
         <h1 className="text-2xl md:text-3xl font-heading font-normal text-slate-900">
           {name}

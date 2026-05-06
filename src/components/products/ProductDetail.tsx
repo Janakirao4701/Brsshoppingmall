@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "@/i18n/routing";
 import { ChevronRight } from "lucide-react";
 import { Product } from "@/lib/types";
@@ -20,8 +20,17 @@ interface ProductDetailProps {
 }
 
 export function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
+  // Extract unique colors and sizes from variants
+  const availableColors = useMemo(() => {
+    return [...new Set(product.variants?.map(v => v.color))].filter(Boolean) as string[];
+  }, [product.variants]);
+
+  const availableSizes = useMemo(() => {
+    return [...new Set(product.variants?.map(v => v.size))].filter(Boolean) as string[];
+  }, [product.variants]);
+
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string>(product.colors[0] || "Default");
+  const [selectedColor, setSelectedColor] = useState<string>(availableColors[0] || "Default");
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
@@ -48,8 +57,11 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
   };
 
   const handleAddToCart = () => {
-    if (!selectedSize) return;
-    addItem(product, quantity, selectedSize, selectedColor);
+    if (!selectedSize && availableSizes.length > 0) {
+      alert("Please select a size");
+      return;
+    }
+    addItem(product, quantity, selectedSize || undefined, selectedColor);
   };
 
   const discount = product.original_price
@@ -68,7 +80,7 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
         <nav className="flex items-center text-sm text-slate-500 mb-8 space-x-2">
           <Link href="/" className="hover:text-brand-red transition-colors">Home</Link>
           <ChevronRight className="size-3" />
-          <Link href={`/${product.category}`} className="hover:text-brand-red transition-colors capitalize">
+          <Link href={`/shop?category=${product.category}`} className="hover:text-brand-red transition-colors capitalize">
             {product.category}
           </Link>
           <ChevronRight className="size-3" />
@@ -99,8 +111,8 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
             />
 
             <ProductVariants 
-              colors={product.colors}
-              sizes={product.sizes}
+              colors={availableColors}
+              sizes={availableSizes}
               selectedColor={selectedColor}
               setSelectedColor={setSelectedColor}
               selectedSize={selectedSize}
@@ -114,7 +126,7 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
               onWishlistToggle={() => toggleItem(product)}
               onShare={handleShare}
               isWishlisted={isWishlisted}
-              isSizeSelected={!!selectedSize || !(product.sizes && product.sizes.length > 0)}
+              isSizeSelected={!!selectedSize || availableSizes.length === 0}
               whatsappUrl={whatsappUrl}
             />
 
