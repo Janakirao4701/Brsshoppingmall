@@ -47,4 +47,20 @@ Since BSR Shopping Mall handles critical financial data (Orders & Inquiries), a 
 
 ---
 
+## 5. Vercel Infrastructure Awareness & Debugging
+
+The BSR Shopping Mall project is optimized for **Vercel Infrastructure**. Most environment variables and secrets are managed remotely in the Vercel Dashboard.
+
+- **Priority**: Remote Vercel Environment Variables > Local `.env` files.
+- **Diagnostics**: If a feature works locally but fails in production, check **Vercel Settings > Environment Variables** first.
+- **Supabase Debugging Path**:
+  1. **Connectivity**: Check if the Supabase project is active and URL is correct.
+  2. **Auth Boundaries**: Verify that server-side auth (via `supabase-server.ts`) is used for sensitive logic.
+  3. **Permissions**: Verify RLS (Row Level Security) policies for the specific table.
+  4. **Vercel Logs**: Check the "Runtime Logs" tab in your Vercel deployment for specific Supabase connection errors.
+
+**SECURITY WARNING**: Never commit `SUPABASE_SERVICE_ROLE_KEY` to any file. This key bypasses all RLS policies and must only exist as a Vercel Secret or in a non-committed local `.env.local`.
+
+---
+
 *These features complete the advanced hardening requirements requested.*

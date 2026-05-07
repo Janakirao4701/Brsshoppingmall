@@ -52,7 +52,7 @@ export const getHeroBanners = unstable_cache(
     }
   },
   ["hero-banners"],
-  { revalidate: 300, tags: ["hero-banners"] }
+  { revalidate: 30, tags: ["hero-banners"] }
 );
 
 /**
@@ -82,5 +82,5 @@ export const getStorefrontSettings = unstable_cache(
     }
   },
   ["storefront-settings"],
-  { revalidate: 300, tags: ["settings"] }
+  { revalidate: 30, tags: ["settings"] }
 );

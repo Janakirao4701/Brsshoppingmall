@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Upload, X, Loader2, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, Crop, Pencil, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { ImageCropper } from "@/components/admin/ImageCropper";
+import { triggerRevalidation } from "@/app/actions/revalidate";
 
 interface Banner {
   id: string;
@@ -190,6 +191,8 @@ export default function BannersPage() {
         setSuccess("Banner added successfully!");
       }
 
+      await triggerRevalidation("hero-banners");
+
       setForm({ 
         title: "", 
         subtitle: "", 
@@ -215,12 +218,14 @@ export default function BannersPage() {
 
   const toggleActive = async (id: string, currentState: boolean) => {
     await supabase.from("hero_banners").update({ is_active: !currentState }).eq("id", id);
+    await triggerRevalidation("hero-banners");
     fetchBanners();
   };
 
   const deleteBanner = async (id: string) => {
     if (!confirm("Delete this banner?")) return;
     await supabase.from("hero_banners").delete().eq("id", id);
+    await triggerRevalidation("hero-banners");
     fetchBanners();
   };
 
@@ -234,6 +239,7 @@ export default function BannersPage() {
       supabase.from("hero_banners").update({ sort_order: swapIdx }).eq("id", banners[idx].id),
       supabase.from("hero_banners").update({ sort_order: idx }).eq("id", banners[swapIdx].id),
     ]);
+    await triggerRevalidation("hero-banners");
     fetchBanners();
   };
 

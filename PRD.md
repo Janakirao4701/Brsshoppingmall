@@ -20,3 +20,10 @@ Implement security best practices to protect the application.
 - [x] Hardened RLS policies for Orders and Inquiries
 - [x] Fixed Bot-Protection Honeypot logic
 - [x] Recommendation: Set up a Cloud-based WAF (Cloudflare/Vercel)
+
+## Task 4: Operational Standards (Complete ?)
+Establish robust infrastructure awareness and debugging workflows.
+- [x] Integrated Vercel-first environment awareness into Agent rules
+- [x] Documented structured Supabase debugging hierarchy
+- [x] Enforced strict service-role key security standards
+- [x] Synchronized local/remote deployment operational logic
