@@ -249,27 +249,39 @@ export default function CheckoutPage() {
     <div className="py-8 px-4">
       <div className="container mx-auto max-w-5xl">
         {/* Back button */}
-        <button onClick={() => { setIsOpen(true); router.back(); }} className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 mb-6 transition-colors">
-          <ArrowLeft className="size-4" /> Back to cart
+        <button 
+          onClick={() => { setIsOpen(true); router.back(); }} 
+          className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-6 transition-colors min-h-[44px]"
+          aria-label="Return to cart"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" /> Back to cart
         </button>
 
         {/* Step Indicator */}
-        <div className="flex items-center gap-3 mb-10">
-          {steps.map((s, i) => (
-            <div key={s.id} className="flex items-center gap-3">
-              <div className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors",
-                step === s.id || (step === "review" && s.id === "address")
-                  ? "bg-brand-red text-white"
-                  : "bg-slate-100 text-slate-400"
-              )}>
-                <s.icon className="size-4" />
-                {s.label}
-              </div>
-              {i < steps.length - 1 && <ChevronRight className="size-4 text-slate-300" />}
-            </div>
-          ))}
-        </div>
+        <nav aria-label="Checkout Progress" className="mb-10">
+          <ol className="flex flex-wrap items-center gap-3">
+            {steps.map((s, i) => {
+              const isCurrent = step === s.id;
+              const isCompleted = step === "review" && s.id === "address";
+              return (
+                <li key={s.id} className="flex items-center gap-3">
+                  <div className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors",
+                    isCurrent || isCompleted
+                      ? "bg-brand-red text-white"
+                      : "bg-slate-100 text-slate-400"
+                  )}
+                  aria-current={isCurrent ? "step" : undefined}
+                  >
+                    <s.icon className="size-4" aria-hidden="true" />
+                    {s.label}
+                  </div>
+                  {i < steps.length - 1 && <ChevronRight className="size-4 text-slate-300" aria-hidden="true" />}
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Main Content */}
@@ -280,15 +292,15 @@ export default function CheckoutPage() {
                 <div className="space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Full Name *</label>
-                      <input required value={address.fullName}
+                      <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 mb-1.5">Full Name *</label>
+                      <input id="fullName" required aria-required="true" value={address.fullName}
                         onChange={(e) => setAddress(p => ({ ...p, fullName: e.target.value }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
                         placeholder="Your full name" />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Phone Number *</label>
-                      <input required type="tel" value={address.phone}
+                      <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1.5">Phone Number *</label>
+                      <input id="phone" required aria-required="true" type="tel" value={address.phone}
                         onChange={(e) => setAddress(p => ({ ...p, phone: e.target.value }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
                         placeholder="+91 XXXXX XXXXX" />
@@ -296,16 +308,16 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Email (Optional)</label>
-                    <input type="email" value={address.email}
+                    <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">Email (Optional)</label>
+                    <input id="email" type="email" value={address.email}
                       onChange={(e) => setAddress(p => ({ ...p, email: e.target.value }))}
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
                       placeholder="For order updates" />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Address *</label>
-                    <textarea rows={3} required value={address.address}
+                    <label htmlFor="address" className="block text-sm font-medium text-slate-700 mb-1.5">Address *</label>
+                    <textarea id="address" rows={3} required aria-required="true" value={address.address}
                       onChange={(e) => setAddress(p => ({ ...p, address: e.target.value }))}
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red resize-none"
                       placeholder="House no., Street, Landmark" />
@@ -313,16 +325,18 @@ export default function CheckoutPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1.5">City *</label>
-                      <input required value={address.city}
+                      <label htmlFor="city" className="block text-sm font-medium text-slate-700 mb-1.5">City *</label>
+                      <input id="city" required aria-required="true" value={address.city}
                         onChange={(e) => setAddress(p => ({ ...p, city: e.target.value }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
                         placeholder="Sompeta" />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1.5">State *</label>
+                      <label htmlFor="state" className="block text-sm font-medium text-slate-700 mb-1.5">State *</label>
                       <select 
+                        id="state"
                         required
+                        aria-required="true"
                         value={address.state}
                         onChange={(e) => setAddress(p => ({ ...p, state: e.target.value }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red appearance-none bg-white"
@@ -334,8 +348,8 @@ export default function CheckoutPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Pincode *</label>
-                      <input required maxLength={6} value={address.pincode}
+                      <label htmlFor="pincode" className="block text-sm font-medium text-slate-700 mb-1.5">Pincode *</label>
+                      <input id="pincode" required aria-required="true" maxLength={6} value={address.pincode}
                         onChange={(e) => setAddress(p => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
                         placeholder="532284" />
@@ -403,8 +417,10 @@ export default function CheckoutPage() {
                   <h3 className="text-sm font-bold text-slate-900 mb-4">Choose Payment Method</h3>
 
                   {/* Payment method selector */}
-                  <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="grid grid-cols-2 gap-3 mb-5" role="radiogroup" aria-label="Payment method">
                     <button
+                      role="radio"
+                      aria-checked={paymentMethod === "razorpay"}
                       onClick={() => setPaymentMethod("razorpay")}
                       className={cn(
                         "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-sm font-medium",
@@ -413,11 +429,13 @@ export default function CheckoutPage() {
                           : "border-slate-200 text-slate-500 hover:border-slate-300"
                       )}
                     >
-                      <CreditCard className="size-5" />
+                      <CreditCard className="size-5" aria-hidden="true" />
                       Pay Online
-                      <span className="text-[10px] font-normal text-slate-400">UPI, Cards, NetBanking</span>
+                      <span className="text-[10px] font-normal text-slate-500">UPI, Cards, NetBanking</span>
                     </button>
                     <button
+                      role="radio"
+                      aria-checked={paymentMethod === "whatsapp"}
                       onClick={() => setPaymentMethod("whatsapp")}
                       className={cn(
                         "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-sm font-medium",
@@ -426,9 +444,9 @@ export default function CheckoutPage() {
                           : "border-slate-200 text-slate-500 hover:border-slate-300"
                       )}
                     >
-                      <MessageCircle className="size-5" />
+                      <MessageCircle className="size-5" aria-hidden="true" />
                       WhatsApp
-                      <span className="text-[10px] font-normal text-slate-400">Confirm & pay later</span>
+                      <span className="text-[10px] font-normal text-slate-500">Confirm & pay later</span>
                     </button>
                   </div>
 

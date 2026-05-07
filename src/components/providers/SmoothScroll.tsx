@@ -10,20 +10,19 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     // Register GSAP plugins
     gsap.registerPlugin(ScrollTrigger);
 
-    // Subtle entrance animations for all sections
+    // Subtle entrance animations for all sections - Opacity only to prevent CLS
     const sections = document.querySelectorAll("section");
     sections.forEach((section) => {
       gsap.fromTo(
         section,
-        { opacity: 0, y: 30 },
+        { opacity: 0 },
         {
           opacity: 1,
-          y: 0,
-          duration: 1,
+          duration: 0.8,
           ease: "power2.out",
           scrollTrigger: {
             trigger: section,
-            start: "top 85%",
+            start: "top 90%",
             toggleActions: "play none none none",
           },
         }

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Link } from "@/i18n/routing";
 import { useWishlist } from "@/lib/store";
 import { Product } from "@/lib/types";
@@ -9,6 +10,7 @@ import { Heart, Eye } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
+  showWishlist?: boolean;
 }
 
 function isNewArrival(createdAt?: string): boolean {
@@ -19,10 +21,35 @@ function isNewArrival(createdAt?: string): boolean {
   return created > fourteenDaysAgo;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+function WishlistButton({ product }: { product: Product }) {
   const { toggleItem, isInWishlist } = useWishlist();
-  const isWishlisted = isInWishlist(product.id);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  const isWishlisted = mounted ? isInWishlist(product.id) : false;
+
+  return (
+    <button
+      className={cn(
+        "absolute top-3 right-3 z-20 size-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm transition-all hover:bg-white active:scale-90",
+        isWishlisted ? "opacity-100 bg-white" : "opacity-0 group-hover:opacity-100"
+      )}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleItem(product);
+      }}
+      aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+    >
+      <Heart className={cn("size-4 transition-colors", isWishlisted ? "fill-brand-red text-brand-red" : "text-slate-600")} />
+    </button>
+  );
+}
+
+export function ProductCard({ product, showWishlist = true }: ProductCardProps) {
   const discount = product.original_price
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
@@ -97,20 +124,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Wishlist */}
-        <button
-          className={cn(
-            "absolute top-3 right-3 z-10 size-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm transition-all hover:bg-white",
-            isWishlisted ? "opacity-100 bg-white" : "opacity-0 group-hover:opacity-100"
-          )}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleItem(product);
-          }}
-          aria-label="Add to wishlist"
-        >
-          <Heart className={cn("size-4 transition-colors", isWishlisted ? "fill-brand-red text-brand-red" : "text-slate-600")} />
-        </button>
+        {showWishlist && <WishlistButton product={product} />}
 
         {/* Quick View Overlay */}
         <div className="absolute inset-x-0 bottom-0 z-10 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">

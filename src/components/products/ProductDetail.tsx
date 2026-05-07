@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "@/i18n/routing";
 import { ChevronRight } from "lucide-react";
 import { Product } from "@/lib/types";
@@ -13,6 +13,9 @@ import { ProductInfo } from "./product-detail/ProductInfo";
 import { ProductVariants } from "./product-detail/ProductVariants";
 import { ProductActions } from "./product-detail/ProductActions";
 import { TrustBadges } from "./product-detail/TrustBadges";
+import { ShoppingCart, MessageCircle, Truck, RefreshCcw, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ProductDetailProps {
   product: Product;
@@ -38,6 +41,16 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
   const { toggleItem, isInWishlist } = useWishlist();
 
   const isWishlisted = isInWishlist(product.id);
+  const [isStickyVisible, setIsStickyVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollThreshold = 600;
+      setIsStickyVisible(window.scrollY > scrollThreshold);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -130,7 +143,48 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
               whatsappUrl={whatsappUrl}
             />
 
+            {/* Delivery & Returns - New Section */}
+            <div className="pt-6 border-t border-slate-100 space-y-4">
+              <div className="flex gap-4">
+                <div className="size-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                  <Truck className="size-5 text-slate-600" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">Free Delivery</h4>
+                  <p className="text-xs text-slate-500">Free shipping on all orders above ₹999. Delivered in 3-5 business days.</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="size-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                  <RefreshCcw className="size-5 text-slate-600" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">7-Day Returns</h4>
+                  <p className="text-xs text-slate-500">Easy returns and exchanges within 7 days of delivery. No questions asked.</p>
+                </div>
+              </div>
+            </div>
+
             <TrustBadges />
+          </div>
+        </div>
+
+        {/* Mobile Sticky CTA */}
+        <div className={cn(
+          "fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 p-4 transition-transform duration-300 lg:hidden",
+          isStickyVisible ? "translate-y-0" : "translate-y-full"
+        )}>
+          <div className="container mx-auto flex gap-3">
+            <div className="flex-1 flex flex-col justify-center">
+              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{product.brand?.name}</p>
+              <p className="text-sm font-bold text-slate-900 truncate">₹{product.price.toLocaleString("en-IN")}</p>
+            </div>
+            <Button
+              className="flex-[2] bg-brand-red text-white font-bold h-12"
+              onClick={handleAddToCart}
+            >
+              <ShoppingCart className="size-4 mr-2" /> Add to Cart
+            </Button>
           </div>
         </div>
 

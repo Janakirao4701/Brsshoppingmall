@@ -1,7 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
+export const dynamic = "force-dynamic";
 import { StatCard } from "@/components/admin/StatCard";
 import Link from "next/link";
 import { 
@@ -31,49 +29,27 @@ interface DashboardStats {
   activeCategories: number;
 }
 
-export default function AdminDashboard() {
-  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
-  const [stats, setStats] = useState<DashboardStats>({
-    totalProducts: 0,
-    totalInquiries: 0,
-    lowStockCount: 0,
-    activeCategories: 0
-  });
-  const [loading, setLoading] = useState(true);
+export default async function AdminDashboard() {
+  // Fetch data on the server in parallel
+  const [inquiryRes, productRes, categoryRes, variantRes] = await Promise.all([
+    supabaseServer.from("bulk_inquiries").select("*").order("created_at", { ascending: false }).limit(5),
+    supabaseServer.from("products").select("id", { count: "exact", head: true }),
+    supabaseServer.from("categories").select("id", { count: "exact", head: true }),
+    supabaseServer.from("product_variants").select("stock")
+  ]);
 
-  useEffect(() => {
-    async function fetchDashboardData() {
-      try {
-        const [inquiryRes, productRes, categoryRes, variantRes] = await Promise.all([
-          supabase.from("bulk_inquiries").select("*").order("created_at", { ascending: false }).limit(5),
-          supabase.from("products").select("id", { count: "exact", head: true }),
-          supabase.from("categories").select("id", { count: "exact", head: true }),
-          supabase.from("product_variants").select("stock")
-        ]);
+  // Fetch total count for stats separately if needed (already got count in productRes/categoryRes)
+  const { count: totalInquiries } = await supabaseServer.from("bulk_inquiries").select("id", { count: "exact", head: true });
 
-        const lowStockCount = variantRes.data?.filter(v => v.stock > 0 && v.stock < 10).length || 0;
+  const inquiries: Inquiry[] = inquiryRes.data || [];
+  const lowStockCount = variantRes.data?.filter((v: any) => v.stock > 0 && v.stock < 10).length || 0;
 
-        setInquiries(inquiryRes.data || []);
-        setStats({
-          totalProducts: productRes.count || 0,
-          totalInquiries: inquiryRes.count || 0,
-          lowStockCount,
-          activeCategories: categoryRes.count || 0
-        });
-
-        // Get total inquiry count separately
-        const { count: totalInquiries } = await supabase.from("bulk_inquiries").select("id", { count: "exact", head: true });
-        setStats(prev => ({ ...prev, totalInquiries: totalInquiries || 0 }));
-
-      } catch (error) {
-        console.error("Dashboard fetch error:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchDashboardData();
-  }, []);
+  const stats: DashboardStats = {
+    totalProducts: productRes.count || 0,
+    totalInquiries: totalInquiries || 0,
+    lowStockCount,
+    activeCategories: categoryRes.count || 0
+  };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -106,6 +82,7 @@ export default function AdminDashboard() {
             href="/admin/products/new" 
             className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-sm font-bold text-white rounded-xl hover:bg-slate-800 transition-all shadow-md shadow-slate-200"
           >
+            <Package size={16} className="text-slate-400" />
             Add New Product
           </Link>
         </div>
@@ -115,28 +92,28 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Total Products" 
-          value={loading ? "..." : String(stats.totalProducts)} 
+          value={String(stats.totalProducts)} 
           trend="up" 
           trendValue="Live in catalog"
           icon={<Package className="text-blue-500" size={20} />}
         />
         <StatCard 
           title="Bulk Inquiries" 
-          value={loading ? "..." : String(stats.totalInquiries)} 
+          value={String(stats.totalInquiries)} 
           trend="up" 
           trendValue="New leads" 
           icon={<ShoppingCart className="text-emerald-500" size={20} />}
         />
         <StatCard 
           title="Low Stock Alerts" 
-          value={loading ? "..." : String(stats.lowStockCount)} 
+          value={String(stats.lowStockCount)} 
           trend={stats.lowStockCount > 0 ? "down" : "up"} 
           trendValue="Needs attention" 
           icon={<AlertTriangle className={stats.lowStockCount > 0 ? "text-amber-500" : "text-slate-400"} size={20} />}
         />
         <StatCard 
           title="Product Categories" 
-          value={loading ? "..." : String(stats.activeCategories)} 
+          value={String(stats.activeCategories)} 
           trend="up" 
           trendValue="Organized departments" 
           icon={<Layers className="text-purple-500" size={20} />}
@@ -168,7 +145,6 @@ export default function AdminDashboard() {
                   className="w-full bg-slate-900 rounded-2xl transition-all duration-700 ease-out group-hover:bg-brand-red cursor-pointer" 
                   style={{ height: `${height}%` }}
                 />
-                {/* Tooltip on hover */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 transition-all bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-md pointer-events-none">
                   {height}%
                 </div>
@@ -247,9 +223,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {loading ? (
-                <tr><td colSpan={5} className="px-8 py-12 text-center text-slate-400 font-medium">Loading...</td></tr>
-              ) : inquiries.length === 0 ? (
+              {inquiries.length === 0 ? (
                 <tr><td colSpan={5} className="px-8 py-12 text-center text-slate-400 font-medium">No inquiries yet.</td></tr>
               ) : (
                 inquiries.map((row) => (
@@ -277,11 +251,9 @@ export default function AdminDashboard() {
           </table>
         </div>
 
-        {/* Mobile Card View (UI/UX Pro Max: No horizontal scroll) */}
+        {/* Mobile Card View */}
         <div className="md:hidden divide-y divide-slate-50">
-          {loading ? (
-            <div className="p-8 text-center text-slate-400">Loading...</div>
-          ) : inquiries.length === 0 ? (
+          {inquiries.length === 0 ? (
             <div className="p-8 text-center text-slate-400">No inquiries yet.</div>
           ) : (
             inquiries.map((row) => (
@@ -312,7 +284,6 @@ export default function AdminDashboard() {
   );
 }
 
-// Sub-component for clean status badges
 function StatusBadge({ status }: { status: string }) {
   return (
     <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${

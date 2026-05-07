@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { WhatsAppWidget } from "@/components/ui/WhatsAppWidget";
+import { SmoothScroll } from "@/components/providers/SmoothScroll";
 
 export default function StorefrontLayout({
   children,
@@ -10,7 +11,7 @@ export default function StorefrontLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <SmoothScroll>
       <Navbar />
       <main className="flex-1 pb-16 md:pb-0">
         {children}
@@ -19,6 +20,6 @@ export default function StorefrontLayout({
       <MobileTabBar />
       <CartDrawer />
       <WhatsAppWidget />
-    </>
+    </SmoothScroll>
   );
 }

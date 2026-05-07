@@ -33,7 +33,8 @@ export function ProductActions({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="size-10 rounded-lg border border-slate-200 flex items-center justify-center text-lg font-medium hover:bg-slate-50"
+            className="size-10 rounded-lg border border-slate-200 flex items-center justify-center text-lg font-medium hover:bg-slate-50 transition-colors"
+            aria-label="Decrease quantity"
           >
             −
           </button>
@@ -42,7 +43,8 @@ export function ProductActions({
           </span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="size-10 rounded-lg border border-slate-200 flex items-center justify-center text-lg font-medium hover:bg-slate-50"
+            className="size-10 rounded-lg border border-slate-200 flex items-center justify-center text-lg font-medium hover:bg-slate-50 transition-colors"
+            aria-label="Increase quantity"
           >
             +
           </button>
