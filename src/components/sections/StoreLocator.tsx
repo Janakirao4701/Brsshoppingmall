@@ -62,8 +62,8 @@ export function StoreLocator() {
   return (
     <section ref={sectionRef} className="py-16 px-4 bg-slate-50">
       <div className="container mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-heading font-normal mb-4 tracking-tight">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-serif font-medium mb-4 tracking-tight text-slate-900">
             <span className="text-italic-accent">Visit</span> Our Stores
           </h2>
           <p className="text-section-subtitle text-muted-foreground max-w-2xl mx-auto">
@@ -71,10 +71,10 @@ export function StoreLocator() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
           {STORES.map((store, index) => (
-            <Card key={index} className="overflow-hidden shadow-lg border-none">
-              <div className="aspect-video w-full bg-slate-200 animate-pulse flex items-center justify-center">
+            <Card key={index} className="overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-none bg-white">
+              <div className="aspect-video w-full bg-slate-100 animate-pulse flex items-center justify-center border-b border-slate-100">
                 {isIntersecting ? (
                   <iframe
                     src={store.mapEmbed}
@@ -91,34 +91,34 @@ export function StoreLocator() {
                   <span className="text-slate-400 font-medium tracking-widest text-xs uppercase">Loading Map...</span>
                 )}
               </div>
-              <CardHeader>
-                <CardTitle className="text-brand-red">{store.name}</CardTitle>
-                <CardDescription className="flex items-start mt-2">
-                  <MapPin className="size-4 mr-2 text-brand-orange shrink-0" />
+              <CardHeader className="p-6 md:p-8 pb-4">
+                <CardTitle className="text-xl md:text-2xl font-serif font-medium text-slate-900">{store.name}</CardTitle>
+                <CardDescription className="flex items-start mt-3 text-[13px] leading-relaxed text-slate-500">
+                  <MapPin className="size-4 mr-3 mt-0.5 text-slate-400 shrink-0" strokeWidth={1.5} />
                   {store.address}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm">
-                      <Phone className="size-4 mr-2 text-slate-500" />
-                      <a href={`tel:${store.phone}`} className="hover:text-brand-red transition-colors font-medium">
+              <CardContent className="p-6 md:p-8 pt-0 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between space-y-6 sm:space-y-0">
+                  <div className="space-y-3">
+                    <div className="flex items-center text-sm text-slate-600">
+                      <Phone className="size-4 mr-3 text-slate-400" strokeWidth={1.5} />
+                      <a href={`tel:${store.phone}`} className="hover:text-slate-900 transition-colors font-medium tracking-wide">
                         {store.phone}
                       </a>
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Clock className="size-4 mr-2 text-slate-500" />
+                    <div className="flex items-center text-sm text-slate-500">
+                      <Clock className="size-4 mr-3 text-slate-400" strokeWidth={1.5} />
                       {store.hours}
                     </div>
                   </div>
                   <Button 
                     variant="outline" 
                     asChild 
-                    className="border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white"
+                    className="border-slate-300 text-[11px] uppercase tracking-[0.15em] font-medium text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 rounded-none px-6"
                   >
                     <a href={store.mapLink} target="_blank" rel="noopener noreferrer">
-                      {t("directions")} <ExternalLink className="size-4 ml-2" />
+                      {t("directions")} <ExternalLink className="size-3.5 ml-2" strokeWidth={1.5} />
                     </a>
                   </Button>
                 </div>
