@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createClient, User } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { 
@@ -44,22 +45,15 @@ interface Order {
   created_at: string;
 }
 
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-
 export default function AccountPage() {
   const router = useRouter();
+  const wishlist = useWishlist();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>("profile");
   const [orders, setOrders] = useState<Order[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [tab, setTab] = useState<Tab>("profile");
   const [showAddressForm, setShowAddressForm] = useState(false);
-  
   const [addressForm, setAddressForm] = useState({
     label: "Home",
     fullName: "",
@@ -67,13 +61,10 @@ export default function AccountPage() {
     address: "",
     city: "",
     state: "Andhra Pradesh",
-    pincode: "",
+    pincode: ""
   });
 
-  const wishlist = useWishlist();
-
   useEffect(() => {
-    const supabase = getSupabase();
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
         window.location.href = "/en/login";
@@ -87,7 +78,6 @@ export default function AccountPage() {
   }, []);
 
   const loadOrders = async (email: string) => {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from("orders")
       .select("*")
@@ -120,7 +110,6 @@ export default function AccountPage() {
   };
 
   const handleLogout = async () => {
-    const supabase = getSupabase();
     await supabase.auth.signOut();
     window.location.href = "/en";
   };

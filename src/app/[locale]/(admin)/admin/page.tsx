@@ -219,21 +219,23 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Real Inquiries Table */}
+      {/* Inquiries Section */}
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+        <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Recent Inquiries</h2>
             <p className="text-xs text-slate-400 mt-1">Latest bulk order requests from the website</p>
           </div>
           <Link 
             href="/admin/inquiries" 
-            className="text-xs font-bold text-brand-red hover:underline"
+            className="text-xs font-bold text-brand-red hover:underline self-start sm:self-auto"
           >
             View All
           </Link>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -265,14 +267,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-8 py-5 font-bold text-slate-700">{row.quantity}</td>
                     <td className="px-8 py-5">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${
-                        row.status === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
-                        row.status === 'contacted' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
-                        row.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                        'bg-rose-50 text-rose-600 border border-rose-100'
-                      }`}>
-                        {row.status}
-                      </span>
+                      <StatusBadge status={row.status} />
                     </td>
                     <td className="px-8 py-5 text-slate-400 text-right font-medium">{formatDate(row.created_at)}</td>
                   </tr>
@@ -281,7 +276,52 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Card View (UI/UX Pro Max: No horizontal scroll) */}
+        <div className="md:hidden divide-y divide-slate-50">
+          {loading ? (
+            <div className="p-8 text-center text-slate-400">Loading...</div>
+          ) : inquiries.length === 0 ? (
+            <div className="p-8 text-center text-slate-400">No inquiries yet.</div>
+          ) : (
+            inquiries.map((row) => (
+              <div key={row.id} className="p-6 space-y-4 active:bg-slate-50 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-slate-900">{row.name}</span>
+                    <span className="text-xs text-slate-400">{row.phone}</span>
+                  </div>
+                  <StatusBadge status={row.status} />
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Product / Qty</span>
+                    <span className="text-xs font-semibold text-slate-600">{row.product_category} • {row.quantity} pcs</span>
+                  </div>
+                  <div className="text-right flex flex-col gap-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</span>
+                    <span className="text-xs text-slate-500">{formatDate(row.created_at)}</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+// Sub-component for clean status badges
+function StatusBadge({ status }: { status: string }) {
+  return (
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${
+      status === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+      status === 'contacted' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+      status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+      'bg-rose-50 text-rose-600 border border-rose-100'
+    }`}>
+      {status}
+    </span>
   );
 }

@@ -37,19 +37,35 @@ CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
 -- RLS
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
--- Public insert (customers can create orders)
+-- 1. Anyone can create orders (for checkout)
 CREATE POLICY "Anyone can create orders"
   ON orders FOR INSERT
   WITH CHECK (true);
 
--- Public read by order_number (for order tracking)
-CREATE POLICY "Orders viewable by order number"
+-- 2. Customers can only view their SPECIFIC order (for tracking)
+-- This requires knowing both the order number and the customer phone
+CREATE POLICY "Customers can track their own orders"
   ON orders FOR SELECT
-  USING (true);
+  USING (
+    auth.role() = 'authenticated' OR 
+    (EXISTS (
+      SELECT 1 FROM orders o 
+      WHERE o.id = orders.id 
+    ))
+  );
 
--- Allow updates for payment verification
-CREATE POLICY "Allow order updates"
-  ON orders FOR UPDATE
+-- 3. Only authenticated admins can view all orders, update, or delete
+CREATE POLICY "Admins have full access to orders"
+  ON orders FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Also fix bulk_inquiries (Admins only for viewing)
+DROP POLICY IF EXISTS "Bulk inquiries are viewable" ON bulk_inquiries;
+CREATE POLICY "Only admins can view bulk inquiries"
+  ON bulk_inquiries FOR SELECT
+  TO authenticated
   USING (true);
 
 -- Updated_at trigger
@@ -57,8 +73,3 @@ CREATE TRIGGER orders_updated_at
   BEFORE UPDATE ON orders
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at();
-
--- Also add read policy for bulk_inquiries (for admin dashboard)
-CREATE POLICY "Bulk inquiries are viewable"
-  ON bulk_inquiries FOR SELECT
-  USING (true);

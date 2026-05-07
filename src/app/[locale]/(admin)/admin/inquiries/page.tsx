@@ -135,7 +135,8 @@ export default function AdminInquiriesPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-[#fafafa] border-b border-[#eaeaea]">
                 <tr>
@@ -178,7 +179,7 @@ export default function AdminInquiriesPage() {
                     <td className="px-5 py-4 text-center">
                       <select value={inquiry.status}
                         onChange={(e) => updateStatus(inquiry.id, e.target.value)}
-                        className="px-2 py-1.5 rounded-lg border border-[#eaeaea] text-xs bg-white cursor-pointer">
+                        className="px-2 py-1.5 rounded-lg border border-[#eaeaea] text-xs bg-white cursor-pointer min-h-[36px]">
                         {STATUSES.map(s => (
                           <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                         ))}
@@ -188,6 +189,53 @@ export default function AdminInquiriesPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View (UI/UX Pro Max) */}
+          <div className="md:hidden divide-y divide-[#eaeaea]">
+            {filtered.map(inquiry => (
+              <div key={inquiry.id} className="p-5 space-y-4 active:bg-[#fafafa] transition-colors">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-bold text-[#171717]">{inquiry.name}</p>
+                    <div className="flex flex-col gap-1 mt-1">
+                      <a href={`tel:${inquiry.phone}`} className="flex items-center gap-2 text-xs text-blue-600 font-medium">
+                        <Phone className="size-3" /> {inquiry.phone}
+                      </a>
+                      {inquiry.email && (
+                        <span className="flex items-center gap-2 text-xs text-[#888]">
+                          <Mail className="size-3" /> {inquiry.email}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className={cn("text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest", statusColor(inquiry.status))}>
+                    {inquiry.status}
+                  </span>
+                </div>
+
+                <div className="bg-[#fafafa] rounded-lg p-3 text-xs text-[#666] italic leading-relaxed">
+                  &quot;{inquiry.message || "No message provided"}&quot;
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-bold text-[#888] uppercase tracking-widest">Details</span>
+                    <span className="text-xs font-semibold text-[#171717]">{inquiry.product_category} • {inquiry.quantity} pcs</span>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <select value={inquiry.status}
+                      onChange={(e) => updateStatus(inquiry.id, e.target.value)}
+                      className="px-3 py-2 rounded-lg border border-[#eaeaea] text-xs bg-white font-bold min-h-[44px]">
+                      {STATUSES.map(s => (
+                        <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <p className="text-[10px] text-[#888] text-right">{formatDate(inquiry.created_at)}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}

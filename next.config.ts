@@ -50,6 +50,10 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(self), payment=(self)",
           },
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://*.supabase.co https://*.googleusercontent.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://*.supabase.co; connect-src 'self' https://*.supabase.co https://*.googleapis.com; base-uri 'self'; object-src 'none';",
+          },
         ],
       },
       {
@@ -65,6 +69,17 @@ const nextConfig: NextConfig = {
             value: "no-cache",
           },
         ],
+      },
+    ];
+  },
+
+  // Block access to sensitive files
+  async redirects() {
+    return [
+      {
+        source: "/:path*((?:\\.env|\\.git|\\.config|\\.php|\\.exe|\\.sh|\\.py).*)",
+        destination: "/404",
+        permanent: false,
       },
     ];
   },

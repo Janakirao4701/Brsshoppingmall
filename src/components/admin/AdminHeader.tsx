@@ -28,13 +28,13 @@ export function AdminHeader() {
         </div>
       </div>
 
-      <div className="flex-1 sm:flex-none flex items-center justify-end gap-4">
-        <button className="relative p-2 text-[#4d4d4d] hover:text-[#171717] transition-colors rounded-md hover:bg-[#fafafa]">
+      <div className="flex-1 sm:flex-none flex items-center justify-end gap-2">
+        <button className="relative p-3 text-[#4d4d4d] hover:text-[#171717] transition-colors rounded-xl hover:bg-[#fafafa] min-w-[44px] min-h-[44px] flex items-center justify-center">
           <Bell className="size-5" />
-          <span className="absolute top-1.5 right-1.5 size-2 bg-blue-500 rounded-full shadow-[0_0_0_2px_#ffffff]" />
+          <span className="absolute top-3 right-3 size-2 bg-blue-500 rounded-full shadow-[0_0_0_2px_#ffffff]" />
         </button>
-        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 shadow-[0_0_0_1px_rgba(0,0,0,0.08)] p-[2px] cursor-pointer hover:opacity-90 transition-opacity">
-          <div className="w-full h-full bg-white rounded-full flex items-center justify-center text-xs font-bold text-[#171717]">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-purple-500 shadow-[0_0_0_1px_rgba(0,0,0,0.08)] p-[2px] cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center">
+          <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center text-xs font-bold text-[#171717]">
             V
           </div>
         </div>

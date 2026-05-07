@@ -94,7 +94,7 @@ export function AdminSidebar({ className, onMobileClose }: { className?: string;
       <div className="p-4 space-y-2 border-t border-slate-50 bg-white mt-auto">
         <Link 
           href="/" 
-          className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-slate-600 hover:text-brand-red hover:bg-brand-red/5 rounded-xl transition-all group"
+          className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-slate-600 hover:text-brand-red hover:bg-brand-red/5 rounded-xl transition-all group"
         >
           <div className="flex items-center gap-3">
             <ExternalLink size={18} />
@@ -105,7 +105,7 @@ export function AdminSidebar({ className, onMobileClose }: { className?: string;
         
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-4 py-3 text-sm font-bold text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
+          className="flex items-center gap-3 w-full px-4 py-3.5 text-sm font-bold text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
         >
           <LogOut size={18} />
           Sign Out
@@ -137,7 +137,7 @@ function NavItem({
       href={href}
       onClick={onClick}
       className={cn(
-        "flex items-center justify-between px-4 py-3 text-sm rounded-xl transition-all duration-200 group",
+        "flex items-center justify-between px-4 py-3.5 text-sm rounded-xl transition-all duration-200 group",
         isActive 
           ? "bg-slate-900 text-white font-semibold shadow-lg shadow-slate-200" 
           : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"

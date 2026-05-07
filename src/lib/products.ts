@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { MOCK_PRODUCTS } from "@/data/products";
 import { Product } from "@/lib/types";
+import { unstable_cache } from "next/cache";
 
 // Helper to check if Supabase is properly configured
 const isSupabaseConfigured = () => {
@@ -14,107 +15,113 @@ const isSupabaseConfigured = () => {
 
 /**
  * Fetch all products — from Supabase if configured, otherwise fallback to mock data in development.
+ * Cached for 1 hour to ensure high performance.
  */
-export async function getProducts(filters?: {
-  category?: string;
-  subcategory?: string;
-  brand?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  search?: string;
-}): Promise<Product[]> {
-  if (isSupabaseConfigured()) {
-    try {
-      // Use simple selection since the database is flat
-      let query = supabase
-        .from("products")
-        .select("*");
+export const getProducts = unstable_cache(
+  async function(filters?: {
+    category?: string;
+    subcategory?: string;
+    brand?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    search?: string;
+  }): Promise<Product[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        // Use simple selection since the database is flat
+        let query = supabase
+          .from("products")
+          .select("*");
 
-      const { data, error } = await query.order("created_at", { ascending: false });
+        const { data, error } = await query.order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Supabase error fetching products:", error);
-        // If query fails (e.g. table not ready), fallback to mock in dev
+        if (error) {
+          console.error("Supabase error fetching products:", error);
+          // If query fails (e.g. table not ready), fallback to mock in dev
+          return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
+        }
+
+        let products = (data as any[]) || [];
+
+        // Map data to match the Frontend interface
+        products = products.map(p => ({
+          ...p,
+          brand: { name: p.brand || "BSR" }
+        }));
+
+        // Apply filters in memory for robustness
+        if (filters?.category) {
+          products = products.filter(p => p.category === filters.category);
+        }
+        if (filters?.subcategory) {
+          products = products.filter(p => p.subcategory === filters.subcategory);
+        }
+        if (filters?.brand) {
+          products = products.filter(p => p.brand === filters.brand || p.brand?.name === filters.brand);
+        }
+        if (filters?.minPrice) {
+          products = products.filter(p => p.price >= filters.minPrice!);
+        }
+        if (filters?.maxPrice) {
+          products = products.filter(p => p.price <= filters.maxPrice!);
+        }
+        if (filters?.search) {
+          const s = filters.search.toLowerCase();
+          products = products.filter(p => 
+            p.name.toLowerCase().includes(s) || 
+            p.description?.toLowerCase().includes(s)
+          );
+        }
+
+        return products;
+      } catch (err) {
+        console.error("Unexpected error fetching products:", err);
         return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
       }
-
-      let products = (data as any[]) || [];
-
-      // Map data to match the Frontend interface
-      // The schema has category and brand as TEXT, but the UI expects brand: { name: string }
-      products = products.map(p => ({
-        ...p,
-        brand: { name: p.brand || "BSR" }
-      }));
-
-      // Apply filters in memory for robustness
-      if (filters?.category) {
-        products = products.filter(p => p.category === filters.category);
-      }
-      if (filters?.subcategory) {
-        products = products.filter(p => p.subcategory === filters.subcategory);
-      }
-      if (filters?.brand) {
-        products = products.filter(p => p.brand === filters.brand || p.brand?.name === filters.brand);
-      }
-      if (filters?.minPrice) {
-        products = products.filter(p => p.price >= filters.minPrice!);
-      }
-      if (filters?.maxPrice) {
-        products = products.filter(p => p.price <= filters.maxPrice!);
-      }
-      if (filters?.search) {
-        const s = filters.search.toLowerCase();
-        products = products.filter(p => 
-          p.name.toLowerCase().includes(s) || 
-          p.description?.toLowerCase().includes(s)
-        );
-      }
-
-      return products;
-    } catch (err) {
-      console.error("Unexpected error fetching products:", err);
-      return process.env.NODE_ENV === "development" ? (MOCK_PRODUCTS as any[]) : [];
     }
-  }
 
-  // Fallback to mock data if Supabase is not configured
-  console.warn("Supabase not configured. Falling back to mock data.");
-  if (process.env.NODE_ENV === "development") {
-    let products = [...MOCK_PRODUCTS];
-    return products as any[];
-  }
+    // Fallback to mock data if Supabase is not configured
+    if (process.env.NODE_ENV === "development") {
+      return [...MOCK_PRODUCTS] as any[];
+    }
 
-  return [];
-}
+    return [];
+  },
+  ["products-list"],
+  { revalidate: 3600, tags: ["products"] }
+);
 
 /**
  * Fetch a single product by slug.
  */
-export async function getProductBySlug(slug: string): Promise<Product | null> {
-  if (isSupabaseConfigured()) {
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
+export const getProductBySlug = unstable_cache(
+  async function(slug: string): Promise<Product | null> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("slug", slug)
+          .maybeSingle();
 
-      if (error) throw error;
-      if (!data) return null;
+        if (error) throw error;
+        if (!data) return null;
 
-      // Map data to match Frontend interface
-      return {
-        ...data,
-        brand: { name: (data as any).brand || "BSR" }
-      } as any;
-    } catch (err) {
-      console.error("Error fetching product by slug:", err);
-      return null;
+        // Map data to match Frontend interface
+        return {
+          ...data,
+          brand: { name: (data as any).brand || "BSR" }
+        } as any;
+      } catch (err) {
+        console.error("Error fetching product by slug:", err);
+        return null;
+      }
     }
-  }
-  return (MOCK_PRODUCTS.find(p => p.slug === slug) as any) || null;
-}
+    return (MOCK_PRODUCTS.find(p => p.slug === slug) as any) || null;
+  },
+  ["product-detail"],
+  { revalidate: 3600, tags: ["products"] }
+);
 
 /**
  * Get unique brands for filter UI.

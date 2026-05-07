@@ -12,12 +12,21 @@ export function BulkOrderForm() {
     product_category: "",
     quantity: "",
     message: "",
+    website: "", // Honeypot field
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot check: If the hidden 'website' field is filled, it's a bot.
+    if (formData.website) {
+      console.warn("Honeypot triggered - bot detected.");
+      setSubmitted(true); // Pretend success to fool the bot
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -62,6 +71,7 @@ export function BulkOrderForm() {
               product_category: "",
               quantity: "",
               message: "",
+              website: "",
             });
           }}
         >
@@ -163,6 +173,18 @@ export function BulkOrderForm() {
           rows={4}
           className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red resize-none"
           placeholder="Describe the products, sizes, colors, or any specific requirements..."
+        />
+      </div>
+
+      {/* Honeypot field - hidden from users but visible to bots */}
+      <div className="hidden" aria-hidden="true">
+        <input
+          type="text"
+          name="website"
+          value={formData.website}
+          onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+          tabIndex={-1}
+          autoComplete="off"
         />
       </div>
 

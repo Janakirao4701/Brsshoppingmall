@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /login/
+Disallow: /api/
+Disallow: /.env
+Disallow: /config/
+Disallow: /account/
+Disallow: /wishlist/
+
+Sitemap: https://brsshoppingmall.vercel.app/sitemap.xml

@@ -26,10 +26,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, phone, email, product_category, quantity, message, website_url } = body;
+    const { name, phone, email, product_category, quantity, message, website } = body;
 
     // 1.5. Honeypot check (Bot prevention)
-    if (website_url) {
+    if (website) {
       console.warn("🍯 Honeypot triggered by IP:", clientIp);
       // Return 200 OK so bots think it worked
       return NextResponse.json(
