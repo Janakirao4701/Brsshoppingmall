@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { Link } from "@/i18n/routing";
 import Autoplay from "embla-carousel-autoplay";
 import { 
   Carousel, 
@@ -144,48 +145,50 @@ export function HeroBanner({ initialSlides }: HeroBannerProps) {
                   </>
                 )}
 
-                {/* Subtle bottom gradient only — keeps the image clean */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent z-[1]" />
+                {/* Subtle gradient to ensure text readability without muddying the image */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-[1] md:bg-gradient-to-r md:from-black/60 md:via-transparent md:to-transparent" />
 
-                {/* ─── Glassmorphism Text Card — position controlled by admin ─── */}
+                {/* ─── Minimalist Text Overlay ─── */}
                 {slide.show_text !== false && (
                   <div className={cn(
-                    "absolute bottom-12 right-4 left-4 md:bottom-10 z-10 animate-in slide-in-from-bottom-6 duration-700",
-                    (slide.text_position || "left") === "left" && "md:left-10 md:right-auto",
-                    (slide.text_position || "left") === "center" && "md:left-1/2 md:right-auto md:-translate-x-1/2",
-                    (slide.text_position || "left") === "right" && "md:right-10 md:left-auto"
+                    "absolute bottom-0 right-0 left-0 md:top-0 md:bottom-0 z-10 animate-in fade-in duration-1000 flex flex-col justify-end md:justify-center p-6 pb-20 md:p-12 lg:p-24",
+                    (slide.text_position || "left") === "left" && "md:items-start text-center md:text-left",
+                    (slide.text_position || "left") === "center" && "md:items-center text-center",
+                    (slide.text_position || "left") === "right" && "md:items-end text-center md:text-right"
                   )}>
-                    <div className="bg-white/[0.12] backdrop-blur-xl border border-white/[0.15] rounded-2xl md:rounded-3xl p-5 md:p-8 max-w-lg shadow-2xl shadow-black/20 will-change-transform will-change-opacity">
-                      {/* Subtitle tag */}
-                      {slide.subtitle && (
-                        <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] text-brand-orange uppercase mb-2 md:mb-3">
-                          {slide.subtitle}
-                        </p>
-                      )}
-
-                      {/* Title */}
-                      <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-heading font-normal text-white leading-[1.1] mb-3 md:mb-4 drop-shadow-sm">
-                        {slide.title}
-                      </h2>
-
-                      {/* Discount badge */}
-                      {slide.discount_text && (
-                        <div className="inline-flex items-center gap-2 py-1.5 px-4 bg-white/[0.1] border border-white/[0.12] rounded-full mb-4 md:mb-5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          <span className="text-white/90 text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em]">
-                            {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
-                          </span>
+                    <div className="max-w-xl md:max-w-2xl will-change-transform will-change-opacity space-y-4 md:space-y-6">
+                      
+                      {/* Subtitle / Discount tag */}
+                      {(slide.subtitle || slide.discount_text) && (
+                        <div className="flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 justify-center md:justify-start">
+                          {slide.discount_text && (
+                            <span className="inline-block border border-white/30 text-white text-[10px] uppercase tracking-[0.2em] font-medium px-3 py-1">
+                              {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
+                            </span>
+                          )}
+                          {slide.subtitle && (
+                            <span className="text-[11px] md:text-[12px] font-medium tracking-[0.25em] text-white/90 uppercase">
+                              {slide.subtitle}
+                            </span>
+                          )}
                         </div>
                       )}
 
+                      {/* Title */}
+                      <h2 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-medium text-white leading-[1.05] tracking-tight drop-shadow-sm">
+                        {slide.title}
+                      </h2>
+
                       {/* CTA Button */}
-                      <div>
+                      <div className="pt-2 md:pt-4">
                         <Button 
-                          size="sm"
-                          className="md:size-default bg-white text-slate-900 hover:bg-white/90 px-6 md:px-10 py-4 md:py-6 rounded-full text-[10px] md:text-sm font-bold tracking-widest uppercase shadow-lg transition-all hover:scale-105 active:scale-95"
+                          asChild
+                          variant="outline"
+                          className="bg-white/10 hover:bg-white text-white hover:text-black border-white px-8 md:px-12 py-6 rounded-none text-[11px] font-medium tracking-[0.2em] uppercase transition-all duration-500 ease-out"
                         >
-                          {slide.cta_text}
-                          <span className="ml-2">&rarr;</span>
+                          <Link href={slide.cta_link as any}>
+                            {slide.cta_text}
+                          </Link>
                         </Button>
                       </div>
                     </div>

@@ -42,46 +42,43 @@ function HomeContent({ locale, heroBanners }: { locale: string; heroBanners: any
       <QuickCategories />
 
       {/* Featured Categories */}
-      <section className="py-16 px-4">
+      <section className="py-20 md:py-32 px-4 bg-white">
         <div className="container mx-auto">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="text-2xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">
-                <span className="text-italic-accent">Curated</span> Collections
-              </h2>
-              <p className="text-section-subtitle text-slate-500 mt-2">Explore our handpicked selections for everyone</p>
-            </div>
+          <div className="text-center mb-16 md:mb-24">
+            <h2 className="text-3xl md:text-5xl font-serif font-medium text-slate-900 tracking-tight mb-4">
+              <span className="text-italic-accent">Curated</span> Collections
+            </h2>
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Explore our handpicked selections</p>
           </div>
 
-          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory md:hide-scrollbar">
+          <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-12 overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory md:hide-scrollbar">
             {CATEGORIES.map((category, idx) => (
               <Link 
                 key={category.nameKey} 
                 href={category.href as "/men" | "/women" | "/kids"}
-                className="group relative flex-none w-[75vw] sm:w-[300px] md:w-auto overflow-hidden rounded-2xl aspect-[4/5] bg-slate-100 border border-slate-200 shadow-sm snap-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
+                className="group relative flex-none w-[80vw] sm:w-[320px] md:w-auto overflow-hidden bg-slate-100 aspect-[3/4] snap-center transition-all duration-700"
               >
                 {/* Image */}
                 <Image
                   src={category.image}
                   alt={t(category.nameKey)}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
                   priority={idx === 0}
-                  sizes="(max-width: 768px) 75vw, 33vw"
+                  sizes="(max-width: 768px) 80vw, 33vw"
                 />
 
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 opacity-80 group-hover:opacity-100 transition-opacity" />
+                {/* Subtle Overlay */}
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-700" />
                 
                 {/* Content */}
-                <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 z-20 transform group-hover:-translate-y-2 transition-transform duration-500">
-                  <p className="text-[11px] font-bold tracking-[0.25em] text-brand-orange uppercase mb-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity delay-100">
-                    Premium Collection
-                  </p>
-                  <h3 className="text-3xl md:text-4xl font-heading font-normal text-white mb-2 md:mb-3">{t(category.nameKey)}</h3>
-                  <span className="text-xs font-bold text-white/90 uppercase tracking-widest flex items-center gap-2">
-                    Shop Collection <span className="text-brand-orange">&rarr;</span>
-                  </span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 z-20">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 text-center">
+                    <h3 className="text-4xl md:text-5xl font-serif font-medium text-white mb-4 drop-shadow-sm">{t(category.nameKey)}</h3>
+                    <span className="inline-block border border-white/50 text-white text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-2 hover:bg-white hover:text-black transition-colors duration-300">
+                      Discover
+                    </span>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -90,40 +87,50 @@ function HomeContent({ locale, heroBanners }: { locale: string; heroBanners: any
       </section>
 
       {/* Why BSR Section */}
-      <section className="py-12 md:py-24 px-4 bg-white">
-        <div className="container mx-auto">
-          <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-2xl md:text-4xl font-heading font-normal text-slate-900 tracking-tight">
+      <section className="py-20 md:py-32 px-4 bg-slate-50 border-t border-slate-100">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-16 md:mb-24">
+            <h2 className="text-3xl md:text-5xl font-serif font-medium text-slate-900 tracking-tight mb-4">
               Why <span className="text-italic-accent">BSR</span>
             </h2>
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-500">The BSR Boutique Experience</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
-            <div className="text-center space-y-4">
-              <div className="size-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto text-brand-red">
-                <svg className="size-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="size-16 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
+                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-heading font-medium">Trusted <span className="text-italic-accent">Quality</span></h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">Serving our community for over 20 years with premium readymade garments from top brands.</p>
+              <div>
+                <h3 className="text-lg font-serif font-medium text-slate-900 mb-3">Trusted <span className="text-italic-accent">Quality</span></h3>
+                <p className="text-slate-500 text-[13px] leading-relaxed max-w-xs mx-auto">Serving our community for over 20 years with premium readymade garments from top brands.</p>
+              </div>
             </div>
-            <div className="text-center space-y-4">
-              <div className="size-16 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto text-brand-orange">
-                <svg className="size-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="size-16 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
+                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-heading font-medium">Pan-India <span className="text-italic-accent">Delivery</span></h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">We deliver our products to any corner of India, bringing BSR quality to your doorstep.</p>
+              <div>
+                <h3 className="text-lg font-serif font-medium text-slate-900 mb-3">Pan-India <span className="text-italic-accent">Delivery</span></h3>
+                <p className="text-slate-500 text-[13px] leading-relaxed max-w-xs mx-auto">We deliver our products to any corner of India, bringing BSR quality to your doorstep.</p>
+              </div>
             </div>
-            <div className="text-center space-y-4">
-              <div className="size-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto text-brand-red">
-                <svg className="size-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+            
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="size-16 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
+                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-heading font-medium">Excellent <span className="text-italic-accent">Service</span></h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">Personalized assistance for retail and bulk orders. Contact us on WhatsApp for quick inquiries.</p>
+              <div>
+                <h3 className="text-lg font-serif font-medium text-slate-900 mb-3">Excellent <span className="text-italic-accent">Service</span></h3>
+                <p className="text-slate-500 text-[13px] leading-relaxed max-w-xs mx-auto">Personalized assistance for retail and bulk orders. Contact us on WhatsApp for inquiries.</p>
+              </div>
             </div>
           </div>
         </div>
