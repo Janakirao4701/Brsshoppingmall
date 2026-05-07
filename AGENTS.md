@@ -35,6 +35,24 @@ Avoid:
 - unnecessary "use client"
 - legacy Pages Router assumptions
 
+# Git & Operational Safety
+
+Strict adherence to version control hygiene is required:
+- **Inspect `git status`** before every commit/push.
+- **Review staged files** to ensure only relevant changes are included.
+- **Verify `.gitignore`** coverage to prevent accidental leaks of build files or logs.
+- **Selective Staging**: Prefer `git add [file]` over `git add .` to avoid accidental commits of scratch files or secrets.
+- **No `git commit -a`**: Never commit all changes automatically; review the diff first.
+- **Secret Prevention**: Double-check for hardcoded keys or `.env` exposure before staging.
+
+# Completion & Verification
+
+Before marking a task as complete:
+1. **Run `npm run build`**: Ensure the production build succeeds without errors.
+2. **Verify TypeScript**: Fix all type errors in changed files.
+3. **No Hydration Mismatches**: Check for potential "use client" vs server component conflicts.
+4. **Console Audit**: Ensure no runtime errors or console warnings are introduced.
+
 For trivial styling or isolated UI adjustments, avoid unnecessary documentation loading.
 
 <!-- END:nextjs-agent-rules -->
