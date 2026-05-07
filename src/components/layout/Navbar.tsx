@@ -59,7 +59,7 @@ export function Navbar({ announcementData }: NavbarProps) {
       <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/95 backdrop-blur-md transition-all duration-300">
         <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4 md:px-8 lg:px-12">
           {/* Mobile Menu Trigger & Search (Left side on mobile) */}
-          <div className="flex items-center gap-2 md:hidden flex-1">
+          <div className="flex items-center gap-2 md:hidden flex-1 order-1 md:order-none">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Menu" className="size-10 rounded-full hover:bg-slate-50 text-slate-900">
@@ -118,8 +118,20 @@ export function Navbar({ announcementData }: NavbarProps) {
             </Button>
           </div>
 
-          {/* Desktop Navigation (Left side on desktop) */}
-          <nav className="hidden md:flex flex-1 items-center gap-8">
+          {/* Logo (Left on desktop, Center on mobile) */}
+          <Link href="/" className="flex flex-1 md:flex-none items-center justify-center md:justify-start order-2 md:order-1">
+            <Image
+              src="/bsr-logo.png"
+              alt="BSR Shopping Mall"
+              width={240}
+              height={96}
+              className="h-10 md:h-12 w-auto object-contain"
+              priority
+            />
+          </Link>
+
+          {/* Desktop Navigation (Center on desktop) */}
+          <nav className="hidden md:flex flex-1 items-center justify-center gap-8 order-none md:order-2">
             {NAV_LINKS.map((link) => (
               <Link 
                 key={link.name}
@@ -132,20 +144,8 @@ export function Navbar({ announcementData }: NavbarProps) {
             ))}
           </nav>
 
-          {/* Logo (Center) */}
-          <Link href="/" className="flex flex-1 md:flex-none items-center justify-center">
-            <Image
-              src="/bsr-logo.png"
-              alt="BSR Shopping Mall"
-              width={240}
-              height={96}
-              className="h-10 md:h-12 w-auto object-contain"
-              priority
-            />
-          </Link>
-
           {/* Right Icons (Desktop & Mobile) */}
-          <div className="flex flex-1 items-center justify-end gap-1 md:gap-3">
+          <div className="flex flex-1 items-center justify-end gap-1 md:gap-3 order-3">
             <Button 
               variant="ghost" 
               size="icon" 

@@ -97,11 +97,11 @@ export function HeroBanner({ initialSlides }: HeroBannerProps) {
   }, [initialSlides]);
 
   const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
+    Autoplay({ delay: 6000, stopOnInteraction: false, stopOnMouseEnter: true })
   );
 
   return (
-    <section className="w-full">
+    <section className="w-full bg-slate-50">
       <Carousel
         plugins={[plugin.current]}
         className="w-full"
@@ -111,37 +111,42 @@ export function HeroBanner({ initialSlides }: HeroBannerProps) {
           {slides.map((slide, index) => (
             <CarouselItem key={slide.id}>
               <div className={cn(
-                "relative w-full h-[85vh] md:h-[600px] lg:h-[700px] overflow-hidden bg-gradient-to-br",
+                // Mobile: 65svh prevents address-bar jump CLS. 
+                // Desktop: 85vh to 100vh cinematic scale.
+                "relative w-full h-[65svh] md:h-[85vh] md:min-h-[600px] lg:min-h-[700px] overflow-hidden bg-gradient-to-br",
                 slide.gradient
               )}>
-                {/* Full-bleed Background Image */}
+                {/* Background Imagery */}
                 {slide.image_url && (
                   <>
-                    {/* Desktop Image */}
+                    {/* Desktop Image (Hidden on mobile) */}
                     <Image
                       src={slide.image_url}
                       alt={slide.title || "Banner"}
                       fill
                       style={{ objectPosition: slide.object_position || "center" }}
-                      className={cn(
-                        "object-cover",
-                        slide.mobile_image_url ? "hidden md:block" : "block"
-                      )}
+                      className="object-cover hidden md:block"
                       priority={index === 0}
                       sizes="100vw"
+                      quality={90}
                     />
-                    {/* Mobile Image (if provided) */}
-                    {slide.mobile_image_url && (
-                      <Image
-                        src={slide.mobile_image_url}
-                        alt={slide.title || "Banner"}
-                        fill
-                        style={{ objectPosition: slide.object_position || "center" }}
-                        className="object-cover md:hidden"
-                        priority={index === 0}
-                        sizes="100vw"
-                      />
-                    )}
+                    
+                    {/* Mobile Image (Hidden on desktop) */}
+                    {/* If no mobile image exists, we reuse desktop image but force 'center top' to avoid chopping off heads */}
+                    <Image
+                      src={slide.mobile_image_url || slide.image_url}
+                      alt={slide.title || "Banner"}
+                      fill
+                      style={{ 
+                        objectPosition: slide.mobile_image_url 
+                          ? (slide.object_position || "center") 
+                          : "center top" 
+                      }}
+                      className="object-cover block md:hidden"
+                      priority={index === 0}
+                      sizes="100vw"
+                      quality={85}
+                    />
                   </>
                 )}
 
@@ -151,23 +156,23 @@ export function HeroBanner({ initialSlides }: HeroBannerProps) {
                 {/* ─── Minimalist Text Overlay ─── */}
                 {slide.show_text !== false && (
                   <div className={cn(
-                    "absolute bottom-0 right-0 left-0 md:top-0 md:bottom-0 z-10 animate-in fade-in duration-1000 flex flex-col justify-end md:justify-center p-6 pb-20 md:p-12 lg:p-24",
+                    "absolute bottom-0 right-0 left-0 md:top-0 md:bottom-0 z-10 animate-in fade-in duration-1000 flex flex-col justify-end md:justify-center p-5 pb-12 sm:p-8 md:p-12 lg:p-24",
                     (slide.text_position || "left") === "left" && "md:items-start text-center md:text-left",
                     (slide.text_position || "left") === "center" && "md:items-center text-center",
                     (slide.text_position || "left") === "right" && "md:items-end text-center md:text-right"
                   )}>
-                    <div className="max-w-xl md:max-w-2xl will-change-transform will-change-opacity space-y-4 md:space-y-6">
+                    <div className="max-w-full md:max-w-2xl will-change-transform will-change-opacity space-y-4 md:space-y-6">
                       
                       {/* Subtitle / Discount tag */}
                       {(slide.subtitle || slide.discount_text) && (
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 justify-center md:justify-start">
                           {slide.discount_text && (
-                            <span className="inline-block border border-white/30 text-white text-[10px] uppercase tracking-[0.2em] font-medium px-3 py-1">
+                            <span className="inline-block border border-white/30 text-white text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-medium px-3 py-1">
                               {slide.discount_text.replace(/upto\s*to/i, "Up to").replace(/upto/i, "Up to")}
                             </span>
                           )}
                           {slide.subtitle && (
-                            <span className="text-[11px] md:text-[12px] font-medium tracking-[0.25em] text-white/90 uppercase">
+                            <span className="text-[10px] md:text-[11px] font-medium tracking-[0.25em] text-white/90 uppercase">
                               {slide.subtitle}
                             </span>
                           )}
@@ -175,16 +180,16 @@ export function HeroBanner({ initialSlides }: HeroBannerProps) {
                       )}
 
                       {/* Title */}
-                      <h2 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-medium text-white leading-[1.05] tracking-tight drop-shadow-sm">
+                      <h2 className="text-[2rem] leading-[1.1] sm:text-4xl md:text-5xl lg:text-7xl font-serif font-medium text-white tracking-tight drop-shadow-sm px-2 md:px-0">
                         {slide.title}
                       </h2>
 
                       {/* CTA Button */}
-                      <div className="pt-2 md:pt-4">
+                      <div className="pt-2 md:pt-4 pb-2">
                         <Button 
                           asChild
                           variant="outline"
-                          className="bg-white/10 hover:bg-white text-white hover:text-black border-white px-8 md:px-12 py-6 rounded-none text-[11px] font-medium tracking-[0.2em] uppercase transition-all duration-500 ease-out"
+                          className="bg-white/10 hover:bg-white text-white hover:text-black border-white px-8 py-5 md:px-12 md:py-6 rounded-none text-[10px] md:text-[11px] font-medium tracking-[0.2em] uppercase transition-all duration-500 ease-out"
                         >
                           <Link href={slide.cta_link as any}>
                             {slide.cta_text}
@@ -199,8 +204,8 @@ export function HeroBanner({ initialSlides }: HeroBannerProps) {
           ))}
         </CarouselContent>
         <div className="hidden md:block">
-          <CarouselPrevious className="left-8 size-12 bg-white/15 hover:bg-white/30 border-none text-white backdrop-blur-sm" />
-          <CarouselNext className="right-8 size-12 bg-white/15 hover:bg-white/30 border-none text-white backdrop-blur-sm" />
+          <CarouselPrevious className="left-8 size-12 bg-white/15 hover:bg-white/30 border-none text-white backdrop-blur-sm transition-colors" />
+          <CarouselNext className="right-8 size-12 bg-white/15 hover:bg-white/30 border-none text-white backdrop-blur-sm transition-colors" />
         </div>
       </Carousel>
     </section>

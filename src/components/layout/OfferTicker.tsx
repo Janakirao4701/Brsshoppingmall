@@ -1,10 +1,6 @@
-"use client";
-
 import * as React from "react";
-import gsap from "gsap";
 
 interface Announcement {
-  emoji: string;
   text: string;
 }
 
@@ -17,40 +13,38 @@ interface OfferTickerProps {
   } | null;
 }
 
-// Default announcements shown when no server data is available
+// Default announcements (clean, title case, premium tone)
 const DEFAULT_ANNOUNCEMENTS: Announcement[] = [
-  { emoji: "🚚", text: "FREE DELIVERY ON ORDERS ABOVE ₹999" },
-  { emoji: "📞", text: "ORDER ON WHATSAPP: +91 78293 33444" },
-  { emoji: "🕙", text: "OPEN DAILY: 9:00 AM – 9:00 PM" },
+  { text: "Complimentary delivery on orders above ₹999" },
+  { text: "Personalized styling via WhatsApp: +91 78293 33444" },
+  { text: "Boutique hours: 9:00 AM – 9:00 PM" },
 ];
 
 /**
- * Parse raw announcement strings into emoji + text pairs.
- * Format: "emoji@@@text" or plain text (gets ✨ emoji).
+ * Parse raw announcement strings. Strips any old emoji formatting.
  */
 function parseAnnouncements(raw: string[]): Announcement[] {
   return raw.map((ann) => {
+    // If the database still has the old "emoji@@@text" format, strip the emoji.
     if (ann.includes("@@@")) {
-      const [emoji, ...textParts] = ann.split("@@@");
-      return { emoji, text: textParts.join("@@@") };
+      const [, ...textParts] = ann.split("@@@");
+      return { text: textParts.join("@@@").trim() };
     }
-    return { emoji: "✨", text: ann };
+    return { text: ann.trim() };
   });
 }
 
 export function OfferTicker({ initialData }: OfferTickerProps) {
-  const scrollerRef = React.useRef<HTMLDivElement>(null);
-
   // Derive announcements from server data
   const { active, announcements } = React.useMemo(() => {
-    if (!initialData || !initialData.announcement_active) {
+    if (initialData && initialData.announcement_active === false) {
       return { active: false, announcements: [] as Announcement[] };
     }
 
     const annsRaw =
-      Array.isArray(initialData.announcements) && initialData.announcements.length > 0
+      Array.isArray(initialData?.announcements) && (initialData?.announcements?.length ?? 0) > 0
         ? initialData.announcements
-        : initialData.announcement_text
+        : initialData?.announcement_text
           ? [initialData.announcement_text]
           : [];
 
@@ -60,49 +54,34 @@ export function OfferTicker({ initialData }: OfferTickerProps) {
     return { active: true, announcements: final };
   }, [initialData]);
 
-  React.useEffect(() => {
-    if (!scrollerRef.current || announcements.length === 0) return;
-
-    // Clone children for seamless infinite loop
-    const scroller = scrollerRef.current;
-    const originalChildren = Array.from(scroller.children);
-
-    if (scroller.children.length === announcements.length) {
-      originalChildren.forEach((item) => {
-        const duplicatedItem = item.cloneNode(true);
-        scroller.appendChild(duplicatedItem);
-      });
-    }
-
-    const anim = gsap.to(scroller, {
-      x: `-50%`,
-      duration: Math.max(20, announcements.length * 10),
-      ease: "none",
-      repeat: -1,
-    });
-
-    return () => {
-      anim.kill();
-    };
-  }, [announcements]);
-
   if (!active || announcements.length === 0) return null;
 
   return (
-    <div className="bg-slate-900 text-white overflow-hidden whitespace-nowrap py-2.5 border-b border-white/5">
-      <div
-        ref={scrollerRef}
-        className="flex items-center space-x-12 w-max"
-      >
-        {announcements.map((ann, idx) => (
-          <div
-            key={idx}
-            className="flex items-center space-x-3 text-[10px] md:text-[11px] font-medium tracking-[0.15em] uppercase px-4"
-          >
-            <span className="text-sm">{ann.emoji}</span>
-            <span>{ann.text}</span>
-          </div>
-        ))}
+    <div className="w-full bg-[#111111] text-white/80 py-2.5 px-4 z-40 relative">
+      <div className="container mx-auto flex items-center justify-center">
+        <div className="flex items-center gap-4 md:gap-8 overflow-hidden">
+          {announcements.map((ann, idx) => (
+            <React.Fragment key={idx}>
+              <div 
+                className={`text-[10px] md:text-[11px] font-medium tracking-[0.08em] ${
+                  idx > 0 ? "hidden md:block" : "block"
+                }`}
+              >
+                {/* 
+                  Use subtle title casing if possible, but trust the database content. 
+                  We remove 'uppercase' class to maintain typographic restraint. 
+                */}
+                {ann.text}
+              </div>
+              {/* Minimalist separator, hidden after the last item and hidden on mobile for secondary items */}
+              {idx < announcements.length - 1 && (
+                <span className="hidden md:block text-white/30 text-[10px] mx-2">
+                  &bull;
+                </span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
     </div>
   );
