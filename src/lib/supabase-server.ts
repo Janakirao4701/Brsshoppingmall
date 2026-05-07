@@ -14,10 +14,21 @@ function createServerSupabase() {
       "CRITICAL: Missing SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL. " +
       "Server-side administrative operations will fail."
     );
-    // Return a dummy client that throws on actual use rather than on init
+    // Return a robust dummy client that handles common query chains
+    const mockResult = Promise.resolve({ data: null, error: { message: "Missing Service Key" }, count: 0 });
+    const mockQuery: any = {
+      select: () => mockQuery,
+      order: () => mockQuery,
+      limit: () => mockQuery,
+      eq: () => mockQuery,
+      single: () => mockQuery,
+      then: (onfulfilled: any) => mockResult.then(onfulfilled),
+      catch: (onrejected: any) => mockResult.catch(onrejected),
+    };
+
     return {
-      from: () => ({ select: () => ({ order: () => ({ limit: () => Promise.resolve({ data: null, error: { message: "Missing Service Key" } }) }), count: 0, head: true }) }),
-      rpc: () => Promise.resolve({ data: null, error: { message: "Missing Service Key" } }),
+      from: () => mockQuery,
+      rpc: () => mockResult,
       auth: { getUser: () => Promise.resolve({ data: { user: null }, error: { message: "Missing Service Key" } }) }
     } as any;
   }

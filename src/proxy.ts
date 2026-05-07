@@ -47,10 +47,24 @@ export async function proxy(request: NextRequest) {
   
   if (isAdminPath) {
     const { data: { user } } = await supabase.auth.getUser();
+    
     if (!user) {
-      // Redirect to login if no user
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
+      return NextResponse.redirect(url);
+    }
+
+    // Strict role check at the edge
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role !== 'admin') {
+      // Redirect unauthorized users to storefront
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
       return NextResponse.redirect(url);
     }
   }

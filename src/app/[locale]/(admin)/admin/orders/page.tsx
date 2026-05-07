@@ -35,17 +35,33 @@ export default function AdminOrdersPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [stats, setStats] = useState({ total: 0, pending: 0, paid: 0, revenue: 0 });
+  const ITEMS_PER_PAGE = 15;
 
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const from = (page - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      let query = supabase.from("orders").select("*", { count: 'exact' });
+
+      if (search) {
+        query = query.or(`order_number.ilike.%${search}%,customer_name.ilike.%${search}%,customer_phone.ilike.%${search}%`);
+      }
+      if (filter !== "all") {
+        query = query.eq("order_status", filter);
+      }
+
+      const { data, error, count } = await query
+        .order("created_at", { ascending: false })
+        .range(from, to);
       
       if (error) throw error;
       setOrders(data || []);
+      setTotalCount(count || 0);
     } catch (err) {
       console.error("Error loading orders:", err);
     } finally {
@@ -53,13 +69,46 @@ export default function AdminOrdersPage() {
     }
   };
 
-  useEffect(() => { loadOrders(); }, []);
+  const loadStats = async () => {
+    const { count: total } = await supabase.from("orders").select("*", { count: 'exact', head: true });
+    const { count: pending } = await supabase.from("orders").select("*", { count: 'exact', head: true }).eq("order_status", "pending");
+    const { count: paidCount } = await supabase.from("orders").select("*", { count: 'exact', head: true }).eq("payment_status", "paid");
+    
+    // Revenue sum query
+    const { data: revenueData } = await supabase.from("orders").select("total").eq("payment_status", "paid");
+    const revenue = revenueData?.reduce((s, o) => s + o.total, 0) || 0;
+
+    setStats({ 
+      total: total || 0, 
+      pending: pending || 0, 
+      paid: paidCount || 0, 
+      revenue 
+    });
+  };
+
+  useEffect(() => { 
+    loadOrders(); 
+  }, [page, filter]);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  // Handle search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      loadOrders();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const updateOrderStatus = async (orderId: string, field: string, value: string) => {
     try {
       const { error } = await supabase.from("orders").update({ [field]: value }).eq("id", orderId);
       if (error) throw error;
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, [field]: value } : o));
+      loadStats(); // Update totals if status changed
     } catch (err) {
       console.error("Error updating order:", err);
       alert("Failed to update status.");
@@ -80,14 +129,8 @@ export default function AdminOrdersPage() {
     day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
   });
 
-  const filtered = orders.filter(o => {
-    const matchesSearch = !search ||
-      o.order_number.toLowerCase().includes(search.toLowerCase()) ||
-      o.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-      o.customer_phone.includes(search);
-    const matchesFilter = filter === "all" || o.order_status === filter;
-    return matchesSearch && matchesFilter;
-  });
+  // We use server-side filtering now
+  const filtered = orders;
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-6">
@@ -122,10 +165,10 @@ export default function AdminOrdersPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Total", value: orders.length, color: "text-[#171717]" },
-          { label: "Pending", value: orders.filter(o => o.order_status === "pending").length, color: "text-yellow-600" },
-          { label: "Paid", value: orders.filter(o => o.payment_status === "paid").length, color: "text-green-600" },
-          { label: "Revenue", value: `₹${orders.filter(o => o.payment_status === "paid").reduce((s, o) => s + o.total, 0).toLocaleString("en-IN")}`, color: "text-[#171717]" },
+          { label: "Total", value: stats.total, color: "text-[#171717]" },
+          { label: "Pending", value: stats.pending, color: "text-yellow-600" },
+          { label: "Paid", value: stats.paid, color: "text-green-600" },
+          { label: "Revenue", value: `₹${stats.revenue.toLocaleString("en-IN")}`, color: "text-[#171717]" },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)]">
             <p className="text-xs text-[#888] font-medium">{s.label}</p>
@@ -267,6 +310,30 @@ export default function AdminOrdersPage() {
               )}
             </div>
           ))}
+          {/* Pagination Controls */}
+          {totalCount > ITEMS_PER_PAGE && (
+            <div className="px-6 py-4 bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02),0_0_0_1px_rgba(0,0,0,0.08)] flex items-center justify-between">
+              <p className="text-xs text-[#888] font-medium">
+                Showing <span className="text-[#171717] font-bold">{(page - 1) * ITEMS_PER_PAGE + 1}</span> to <span className="text-[#171717] font-bold">{Math.min(page * ITEMS_PER_PAGE, totalCount)}</span> of <span className="text-[#171717] font-bold">{totalCount}</span> orders
+              </p>
+              <div className="flex items-center gap-2">
+                <button 
+                  disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 rounded-lg border border-[#eaeaea] text-xs font-bold bg-white text-[#171717] hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <button 
+                  disabled={page === Math.ceil(totalCount / ITEMS_PER_PAGE)}
+                  onClick={() => setPage(p => p + 1)}
+                  className="px-3 py-1.5 rounded-lg border border-[#eaeaea] text-xs font-bold bg-white text-[#171717] hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

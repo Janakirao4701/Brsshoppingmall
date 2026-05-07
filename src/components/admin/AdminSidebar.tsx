@@ -43,9 +43,13 @@ export function AdminSidebar({ className, onMobileClose }: { className?: string;
       className
     )}>
       <div className="h-20 flex-shrink-0 flex items-center px-8 border-b border-slate-50">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/admin" className="flex items-center gap-3 group">
           <div className="flex flex-col">
-            <span className="font-bold text-slate-900 text-lg leading-none tracking-tight">Admin Console</span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-black text-slate-900 text-2xl leading-none tracking-tighter">BSR</span>
+              <div className="size-1.5 rounded-full bg-brand-red animate-pulse" />
+            </div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-0.5 group-hover:text-slate-600 transition-colors">Admin Portal</span>
           </div>
         </Link>
       </div>

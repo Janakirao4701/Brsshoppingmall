@@ -14,6 +14,7 @@ interface Banner {
   cta_text: string;
   cta_link: string;
   image_url: string;
+  mobile_image_url: string | null;
   sort_order: number;
   is_active: boolean;
   text_position: "left" | "center" | "right";
@@ -34,8 +35,10 @@ export default function BannersPage() {
   const [success, setSuccess] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [mobileFile, setMobileFile] = useState<File | null>(null);
+  const [mobilePreview, setMobilePreview] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
-  const [rawImage, setRawImage] = useState<string | null>(null);
+  const [cropperConfig, setCropperConfig] = useState<{ type: 'desktop' | 'mobile', image: string } | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -74,6 +77,8 @@ export default function BannersPage() {
     });
     setImagePreview(null);
     setImageFile(null);
+    setMobilePreview(null);
+    setMobileFile(null);
     setEditingId(null);
     setShowForm(true);
   };
@@ -89,17 +94,18 @@ export default function BannersPage() {
       show_text: banner.show_text ?? true,
     });
     setImagePreview(banner.image_url);
+    setMobilePreview(banner.mobile_image_url);
     setEditingId(banner.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'desktop' | 'mobile') => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.onload = () => {
-        setRawImage(reader.result as string);
+        setCropperConfig({ type, image: reader.result as string });
         setShowCropper(true);
       };
       reader.readAsDataURL(file);
@@ -107,11 +113,20 @@ export default function BannersPage() {
   };
 
   const handleCropComplete = (croppedBlob: Blob) => {
-    const file = new File([croppedBlob], "banner_image.jpg", { type: "image/jpeg" });
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(croppedBlob));
+    if (!cropperConfig) return;
+    const isDesktop = cropperConfig.type === 'desktop';
+    const file = new File([croppedBlob], isDesktop ? "banner_desktop.jpg" : "banner_mobile.jpg", { type: "image/jpeg" });
+    
+    if (isDesktop) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(croppedBlob));
+    } else {
+      setMobileFile(file);
+      setMobilePreview(URL.createObjectURL(croppedBlob));
+    }
+    
     setShowCropper(false);
-    setRawImage(null);
+    setCropperConfig(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,23 +137,29 @@ export default function BannersPage() {
 
     try {
       let imageUrl = imagePreview || "";
+      let mobileImageUrl = mobilePreview || "";
 
+      // Upload Desktop
       if (imageFile) {
-        const fileExt = imageFile.name.split(".").pop();
-        const fileName = `banner_${Date.now()}.${fileExt}`;
+        const fileName = `banner_d_${Date.now()}.jpg`;
         const { error: uploadError } = await supabase.storage
           .from("products")
           .upload(`banners/${fileName}`, imageFile);
-
-        if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("products")
-          .getPublicUrl(`banners/${fileName}`);
-        imageUrl = publicUrl;
+        if (uploadError) throw new Error("Desktop upload failed: " + uploadError.message);
+        imageUrl = supabase.storage.from("products").getPublicUrl(`banners/${fileName}`).data.publicUrl;
       }
 
-      if (!imageUrl) throw new Error("Please select an image for the banner.");
+      // Upload Mobile
+      if (mobileFile) {
+        const fileName = `banner_m_${Date.now()}.jpg`;
+        const { error: uploadError } = await supabase.storage
+          .from("products")
+          .upload(`banners/${fileName}`, mobileFile);
+        if (uploadError) throw new Error("Mobile upload failed: " + uploadError.message);
+        mobileImageUrl = supabase.storage.from("products").getPublicUrl(`banners/${fileName}`).data.publicUrl;
+      }
+
+      if (!imageUrl) throw new Error("Please select a desktop image.");
 
       const bannerData = {
         title: form.title,
@@ -147,6 +168,7 @@ export default function BannersPage() {
         cta_text: form.cta_text,
         cta_link: form.cta_link,
         image_url: imageUrl,
+        mobile_image_url: mobileImageUrl || null,
         text_position: form.text_position,
         show_text: form.show_text,
         sort_order: editingId ? banners.find(b => b.id === editingId)?.sort_order : banners.length,
@@ -179,6 +201,8 @@ export default function BannersPage() {
       });
       setImageFile(null);
       setImagePreview(null);
+      setMobileFile(null);
+      setMobilePreview(null);
       setShowForm(false);
       setEditingId(null);
       fetchBanners();
@@ -311,44 +335,58 @@ export default function BannersPage() {
             </div>
           </div>
 
-          {/* Image Upload */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#171717]">Banner Image *</label>
-            <div className="border-2 border-dashed border-[#eaeaea] rounded-xl p-6 flex flex-col items-center justify-center bg-[#fafafa] relative hover:bg-[#f5f5f5] transition-colors">
-              {imagePreview ? (
-                <div className="relative w-full max-w-md h-40 group">
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-md shadow-sm" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md gap-3">
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        setRawImage(imagePreview);
-                        setShowCropper(true);
-                      }}
-                      className="bg-white text-brand-red rounded-full p-2.5 hover:bg-slate-50 transition-colors"
-                      title="Edit Crop"
-                    >
-                      <Crop size={18} />
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => { setImageFile(null); setImagePreview(null); }}
-                      className="bg-white text-red-500 rounded-full p-2.5 hover:bg-slate-50 transition-colors"
-                      title="Remove Image"
-                    >
-                      <X size={18} />
-                    </button>
+          {/* Image Uploads */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Desktop Banner */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-[#888] uppercase tracking-wider">Desktop Asset (16:9) *</label>
+              <div className="border-2 border-dashed border-[#eaeaea] rounded-xl p-4 flex flex-col items-center justify-center bg-[#fafafa] relative hover:bg-[#f5f5f5] transition-colors h-48">
+                {imagePreview ? (
+                  <div className="relative w-full h-full group">
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-md shadow-sm" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md gap-3">
+                      <button type="button" onClick={() => { setCropperConfig({ type: 'desktop', image: imagePreview }); setShowCropper(true); }}
+                        className="bg-white text-brand-red rounded-full p-2.5 hover:bg-slate-50 transition-colors shadow-lg"><Crop size={18} /></button>
+                      <button type="button" onClick={() => { setImageFile(null); setImagePreview(null); }}
+                        className="bg-white text-red-500 rounded-full p-2.5 hover:bg-slate-50 transition-colors shadow-lg"><X size={18} /></button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  <Upload className="size-8 text-[#888888] mb-3" />
-                  <p className="text-sm font-medium text-[#171717]">Click to upload banner image</p>
-                  <p className="text-xs text-[#888888] mt-1">Recommended: 1920×600px (PNG, JPG, WEBP)</p>
-                </>
-              )}
-              <input type="file" accept="image/*" onChange={handleImageChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                ) : (
+                  <>
+                    <Upload className="size-6 text-[#888888] mb-2" />
+                    <p className="text-[10px] font-bold text-[#171717] uppercase">Upload Desktop</p>
+                    <p className="text-[10px] text-[#888888] mt-1">1920×1080px Recommended</p>
+                  </>
+                )}
+                <input type="file" accept="image/*" onChange={(e) => handleImageChange(e, 'desktop')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+              </div>
+            </div>
+
+            {/* Mobile Banner */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-[#888] uppercase tracking-wider">Mobile Asset (4:5)</label>
+              <div className="border-2 border-dashed border-[#eaeaea] rounded-xl p-4 flex flex-col items-center justify-center bg-[#fafafa] relative hover:bg-[#f5f5f5] transition-colors h-48">
+                {mobilePreview ? (
+                  <div className="relative w-full h-full group">
+                    <div className="w-32 h-full mx-auto relative">
+                      <img src={mobilePreview} alt="Preview" className="w-full h-full object-cover rounded-md shadow-sm border border-slate-200" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md gap-3">
+                        <button type="button" onClick={() => { setCropperConfig({ type: 'mobile', image: mobilePreview }); setShowCropper(true); }}
+                          className="bg-white text-brand-red rounded-full p-2 hover:bg-slate-50 transition-colors shadow-lg"><Crop size={16} /></button>
+                        <button type="button" onClick={() => { setMobileFile(null); setMobilePreview(null); }}
+                          className="bg-white text-red-500 rounded-full p-2 hover:bg-slate-50 transition-colors shadow-lg"><X size={16} /></button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="size-6 text-[#888888] mb-2" />
+                    <p className="text-[10px] font-bold text-[#171717] uppercase">Upload Mobile</p>
+                    <p className="text-[10px] text-[#888888] mt-1">1080×1350px Recommended</p>
+                  </>
+                )}
+                <input type="file" accept="image/*" onChange={(e) => handleImageChange(e, 'mobile')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+              </div>
             </div>
           </div>
 
@@ -432,12 +470,12 @@ export default function BannersPage() {
         )}
       </div>
 
-      {showCropper && rawImage && (
+      {showCropper && cropperConfig && (
         <ImageCropper 
-          image={rawImage}
-          aspect={21/9}
+          image={cropperConfig.image}
+          aspect={cropperConfig.type === 'desktop' ? 16/9 : 4/5}
           onCropComplete={handleCropComplete}
-          onCancel={() => { setShowCropper(false); setRawImage(null); }}
+          onCancel={() => { setShowCropper(false); setCropperConfig(null); }}
         />
       )}
     </div>

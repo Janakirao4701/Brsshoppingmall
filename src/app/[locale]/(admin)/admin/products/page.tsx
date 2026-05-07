@@ -13,22 +13,40 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const ITEMS_PER_PAGE = 15;
 
   const loadProducts = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const from = (page - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      let query = supabase
         .from("products")
         .select(`
           *,
           brands(name),
           categories(name),
           product_variants(stock)
-        `)
-        .order("created_at", { ascending: false });
+        `, { count: 'exact' });
+
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%`);
+      }
+      
+      if (filter !== "all") {
+        query = query.eq("status", filter);
+      }
+
+      const { data, error, count } = await query
+        .order("created_at", { ascending: false })
+        .range(from, to);
       
       if (error) throw error;
       setProducts(data || []);
+      setTotalCount(count || 0);
     } catch (err) {
       console.error("Error loading products:", err);
     } finally {
@@ -36,7 +54,36 @@ export default function AdminProductsPage() {
     }
   };
 
-  useEffect(() => { loadProducts(); }, []);
+  const [stats, setStats] = useState({ total: 0, active: 0, lowStock: 0, drafts: 0 });
+
+  const loadStats = async () => {
+    const { count: total } = await supabase.from("products").select("*", { count: 'exact', head: true });
+    const { count: active } = await supabase.from("products").select("*", { count: 'exact', head: true }).eq("status", "active");
+    const { count: drafts } = await supabase.from("products").select("*", { count: 'exact', head: true }).eq("status", "draft");
+    
+    // For low stock, we need a slightly more complex query or a rough estimate
+    const { count: lowStock } = await supabase.from("product_variants").select("*", { count: 'exact', head: true }).lt("stock", 10);
+
+    setStats({ 
+      total: total || 0, 
+      active: active || 0, 
+      drafts: drafts || 0, 
+      lowStock: lowStock || 0 
+    });
+  };
+
+  useEffect(() => { loadStats(); }, []);
+
+  useEffect(() => { loadProducts(); }, [page, filter]);
+
+  // Handle search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      loadProducts();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const deleteProduct = async (id: string) => {
     if (!confirm("Are you sure? This will delete all variants and images for this product.")) return;
@@ -44,16 +91,14 @@ export default function AdminProductsPage() {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
       loadProducts();
+      loadStats();
     } catch (err: any) {
       alert(`Error: ${err.message}`);
     }
   };
 
-  const filtered = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.slug.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === "all" || p.status === filter;
-    return matchesSearch && matchesFilter;
-  });
+  // We use server-side filtering now
+  const filtered = products;
 
   const getStockStatus = (p: any) => {
     const totalStock = p.product_variants?.reduce((sum: number, v: any) => sum + v.stock, 0) || 0;
@@ -70,7 +115,7 @@ export default function AdminProductsPage() {
           <p className="text-sm text-[#888] mt-1">Manage your fashion catalog and inventory levels.</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={loadProducts} className="p-2 bg-white border border-[#eaeaea] rounded-lg hover:bg-[#fafafa] transition-colors shadow-sm">
+          <button onClick={() => { loadProducts(); loadStats(); }} className="p-2 bg-white border border-[#eaeaea] rounded-lg hover:bg-[#fafafa] transition-colors shadow-sm">
             <RefreshCw className="size-4" />
           </button>
           <Link href="/admin/products/new">
@@ -84,10 +129,10 @@ export default function AdminProductsPage() {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Products", value: products.length, icon: <Package className="size-4" /> },
-          { label: "Active", value: products.filter(p => p.status === "active").length, icon: <Tag className="size-4" /> },
-          { label: "Low Stock", value: products.filter(p => p.product_variants?.some((v: any) => v.stock < 5)).length, icon: <BarChart3 className="size-4" /> },
-          { label: "Drafts", value: products.filter(p => p.status === "draft").length, icon: <Edit2 className="size-4" /> },
+          { label: "Total Products", value: stats.total, icon: <Package className="size-4" /> },
+          { label: "Active", value: stats.active, icon: <Tag className="size-4" /> },
+          { label: "Low Stock Items", value: stats.lowStock, icon: <BarChart3 className="size-4" /> },
+          { label: "Drafts", value: stats.drafts, icon: <Edit2 className="size-4" /> },
         ].map(s => (
           <div key={s.label} className="bg-white p-4 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)]">
             <div className="flex items-center gap-2 text-[#888] mb-1">
@@ -202,6 +247,45 @@ export default function AdminProductsPage() {
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination Controls */}
+          {totalCount > ITEMS_PER_PAGE && (
+            <div className="px-6 py-4 bg-[#fafafa] border-t border-[#eaeaea] flex items-center justify-between">
+              <p className="text-xs text-[#888] font-medium">
+                Showing <span className="text-[#171717] font-bold">{(page - 1) * ITEMS_PER_PAGE + 1}</span> to <span className="text-[#171717] font-bold">{Math.min(page * ITEMS_PER_PAGE, totalCount)}</span> of <span className="text-[#171717] font-bold">{totalCount}</span> products
+              </p>
+              <div className="flex items-center gap-2">
+                <button 
+                  disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 rounded-lg border border-[#eaeaea] text-xs font-bold bg-white text-[#171717] hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.ceil(totalCount / ITEMS_PER_PAGE) }).map((_, i) => (
+                    <button 
+                      key={i}
+                      onClick={() => setPage(i + 1)}
+                      className={cn(
+                        "size-8 rounded-lg text-xs font-bold transition-all",
+                        page === i + 1 ? "bg-[#171717] text-white shadow-md" : "text-[#888] hover:text-[#171717] hover:bg-slate-50"
+                      )}
+                    >
+                      {i + 1}
+                    </button>
+                  )).slice(Math.max(0, page - 3), Math.min(Math.ceil(totalCount / ITEMS_PER_PAGE), page + 2))}
+                </div>
+                <button 
+                  disabled={page === Math.ceil(totalCount / ITEMS_PER_PAGE)}
+                  onClick={() => setPage(p => p + 1)}
+                  className="px-3 py-1.5 rounded-lg border border-[#eaeaea] text-xs font-bold bg-white text-[#171717] hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

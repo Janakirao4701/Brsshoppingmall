@@ -71,11 +71,12 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-16 bg-[#fafafa]">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-brand-red/10 text-brand-red mb-4 shadow-sm">
-            <ShieldCheck className="size-8" />
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="font-black text-slate-900 text-4xl leading-none tracking-tighter">BSR</span>
+            <div className="size-2.5 rounded-full bg-brand-red animate-pulse mt-1" />
           </div>
-          <h1 className="text-2xl font-heading font-normal text-slate-900 tracking-tight">Admin Console</h1>
-          <p className="text-slate-500 text-sm mt-2">Secure access for authorized personnel only</p>
+          <p className="text-slate-500 text-[10px] uppercase tracking-[0.4em] font-black opacity-60">Administrative Portal</p>
+          <p className="text-slate-400 text-xs mt-6">Secure access for authorized personnel only</p>
         </div>
 
         <form onSubmit={handleLogin} className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8 space-y-6">
