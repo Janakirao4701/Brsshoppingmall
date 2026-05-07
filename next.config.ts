@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "*.supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },
@@ -52,7 +56,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://*.supabase.co https://*.googleusercontent.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://*.supabase.co; connect-src 'self' https://*.supabase.co https://*.googleapis.com; base-uri 'self'; object-src 'none';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.googleapis.com https://checkout.razorpay.com https://*.razorpay.com https://*.vercel-scripts.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://*.supabase.co https://*.googleusercontent.com https://images.unsplash.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://*.supabase.co https://*.google.com https://checkout.razorpay.com; connect-src 'self' https://*.supabase.co https://*.googleapis.com https://*.razorpay.com https://vitals.vercel-insights.com https://va.vercel-scripts.com; base-uri 'self'; object-src 'none';",
           },
         ],
       },

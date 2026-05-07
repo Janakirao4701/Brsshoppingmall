@@ -30,7 +30,12 @@ import { SearchOverlay } from "./SearchOverlay";
 import { useCart, useWishlist } from "@/lib/store";
 import { OfferTicker } from "./OfferTicker";
 
-export function Navbar() {
+interface NavbarProps {
+  /** Server-fetched announcement settings data */
+  announcementData?: any;
+}
+
+export function Navbar({ announcementData }: NavbarProps) {
   const t = useTranslations("Navbar");
   const cart = useCart();
   const wishlist = useWishlist();
@@ -184,7 +189,7 @@ export function Navbar() {
 
         <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       </header>
-      <OfferTicker />
+      <OfferTicker initialData={announcementData} />
     </>
   );
 }

@@ -31,22 +31,20 @@ interface DashboardStats {
 
 export default async function AdminDashboard() {
   // Fetch data on the server in parallel
-  const [inquiryRes, productRes, categoryRes, variantRes] = await Promise.all([
+  const [inquiryRes, productRes, categoryRes, variantRes, inquiryCountRes] = await Promise.all([
     supabaseServer.from("bulk_inquiries").select("*").order("created_at", { ascending: false }).limit(5),
     supabaseServer.from("products").select("id", { count: "exact", head: true }),
     supabaseServer.from("categories").select("id", { count: "exact", head: true }),
-    supabaseServer.from("product_variants").select("stock")
+    supabaseServer.from("product_variants").select("stock"),
+    supabaseServer.from("bulk_inquiries").select("id", { count: "exact", head: true }),
   ]);
-
-  // Fetch total count for stats separately if needed (already got count in productRes/categoryRes)
-  const { count: totalInquiries } = await supabaseServer.from("bulk_inquiries").select("id", { count: "exact", head: true });
 
   const inquiries: Inquiry[] = inquiryRes.data || [];
   const lowStockCount = variantRes.data?.filter((v: any) => v.stock > 0 && v.stock < 10).length || 0;
 
   const stats: DashboardStats = {
     totalProducts: productRes.count || 0,
-    totalInquiries: totalInquiries || 0,
+    totalInquiries: inquiryCountRes.count || 0,
     lowStockCount,
     activeCategories: categoryRes.count || 0
   };

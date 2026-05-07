@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { Product } from "@/lib/types";
 import { getBrands, getSubcategories } from "@/lib/products";
+import { useProductGrid } from "@/hooks/useProductGrid";
 
 // Sub-components
 import { ProductGridHeader } from "./product-grid/ProductGridHeader";
@@ -23,73 +24,26 @@ export function ProductGrid({
   categoryTitle,
   categoryDescription,
 }: ProductGridProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-  const [selectedPriceRange, setSelectedPriceRange] = useState<[number, number] | null>(null);
-  const [sortBy, setSortBy] = useState<string>("newest");
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedBrand,
+    setSelectedBrand,
+    selectedSubcategory,
+    setSelectedSubcategory,
+    selectedPriceRange,
+    setSelectedPriceRange,
+    sortBy,
+    setSortBy,
+    filteredProducts,
+    handleClearAll,
+    hasFilters,
+  } = useProductGrid(allProducts);
+
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
-  // Apply filters & sorting
-  const filteredProducts = useMemo(() => {
-    let result = [...allProducts];
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          (p.brand?.name || "").toLowerCase().includes(q) ||
-          p.subcategory.toLowerCase().includes(q)
-      );
-    }
-
-    if (selectedBrand) {
-      result = result.filter((p) => p.brand?.name === selectedBrand);
-    }
-
-    if (selectedSubcategory) {
-      result = result.filter((p) => p.subcategory === selectedSubcategory);
-    }
-
-    if (selectedPriceRange) {
-      result = result.filter(
-        (p) => p.price >= selectedPriceRange[0] && p.price <= selectedPriceRange[1]
-      );
-    }
-
-    // Sort
-    switch (sortBy) {
-      case "price-low":
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case "price-high":
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case "discount":
-        result.sort((a, b) => {
-          const discA = a.original_price ? (a.original_price - a.price) / a.original_price : 0;
-          const discB = b.original_price ? (b.original_price - b.price) / b.original_price : 0;
-          return discB - discA;
-        });
-        break;
-      default:
-        break;
-    }
-
-    return result;
-  }, [allProducts, searchQuery, selectedBrand, selectedSubcategory, selectedPriceRange, sortBy]);
 
   const brands = getBrands(allProducts);
   const subcategories = getSubcategories(allProducts);
-  const hasFilters = !!(selectedBrand || selectedSubcategory || selectedPriceRange || searchQuery);
-
-  const handleClearAll = () => {
-    setSearchQuery("");
-    setSelectedBrand(null);
-    setSelectedSubcategory(null);
-    setSelectedPriceRange(null);
-  };
 
   const filters = (
     <ProductFilters 

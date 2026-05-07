@@ -3,8 +3,6 @@
 import * as React from "react";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
-import { useTranslations } from "next-intl";
-import { supabase } from "@/lib/supabase";
 import { 
   Carousel, 
   CarouselContent, 
@@ -15,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface HeroBannerSlide {
+export interface HeroBannerSlide {
   id: string;
   title: string;
   subtitle: string | null;
@@ -30,7 +28,7 @@ interface HeroBannerSlide {
 }
 
 // Fallback slides when database is empty
-const FALLBACK_SLIDES = [
+const FALLBACK_SLIDES: (HeroBannerSlide & { gradient: string })[] = [
   {
     id: "fallback-1",
     title: "Timeless Ethnic Collections",
@@ -81,26 +79,21 @@ const GRADIENTS = [
   "from-[#991b1b] to-[#c2410c]",
 ];
 
-export function HeroBanner() {
-  const t = useTranslations("Hero");
-  const [slides, setSlides] = React.useState<(HeroBannerSlide & { gradient: string })[]>(FALLBACK_SLIDES);
+interface HeroBannerProps {
+  /** Server-fetched slides. Falls back to hardcoded slides if empty/undefined. */
+  initialSlides?: HeroBannerSlide[];
+}
 
-  React.useEffect(() => {
-    supabase
-      .from("hero_banners")
-      .select("*")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true })
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          const enrichedData = data.map((s, i) => ({
-            ...s,
-            gradient: GRADIENTS[i % GRADIENTS.length],
-          }));
-          setSlides(enrichedData);
-        }
-      });
-  }, []);
+export function HeroBanner({ initialSlides }: HeroBannerProps) {
+  const slides = React.useMemo(() => {
+    if (initialSlides && initialSlides.length > 0) {
+      return initialSlides.map((s, i) => ({
+        ...s,
+        gradient: GRADIENTS[i % GRADIENTS.length],
+      }));
+    }
+    return FALLBACK_SLIDES;
+  }, [initialSlides]);
 
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })

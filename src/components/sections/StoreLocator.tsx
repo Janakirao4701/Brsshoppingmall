@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { 
   MapPin, 
@@ -16,6 +19,26 @@ import { Button } from "@/components/ui/button";
 
 export function StoreLocator() {
   const t = useTranslations("Store");
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsIntersecting(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" } // Load slightly before it comes into view
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const STORES = [
     {
@@ -37,7 +60,7 @@ export function StoreLocator() {
   ];
 
   return (
-    <section className="py-16 px-4 bg-slate-50">
+    <section ref={sectionRef} className="py-16 px-4 bg-slate-50">
       <div className="container mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-heading font-normal mb-4 tracking-tight">
@@ -51,17 +74,22 @@ export function StoreLocator() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {STORES.map((store, index) => (
             <Card key={index} className="overflow-hidden shadow-lg border-none">
-              <div className="aspect-video w-full">
-                <iframe
-                  src={store.mapEmbed}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title={store.name}
-                ></iframe>
+              <div className="aspect-video w-full bg-slate-200 animate-pulse flex items-center justify-center">
+                {isIntersecting ? (
+                  <iframe
+                    src={store.mapEmbed}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={store.name}
+                    className="animate-in fade-in duration-500"
+                  ></iframe>
+                ) : (
+                  <span className="text-slate-400 font-medium tracking-widest text-xs uppercase">Loading Map...</span>
+                )}
               </div>
               <CardHeader>
                 <CardTitle className="text-brand-red">{store.name}</CardTitle>

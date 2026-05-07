@@ -25,7 +25,7 @@ export function WhatsAppWidget() {
       { threshold: 0.1 }
     );
 
-    const footer = document.getElementById("main-footer");
+    const footer = document.querySelector("footer");
     if (footer) observer.observe(footer);
 
     return () => {

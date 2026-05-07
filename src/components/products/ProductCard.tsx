@@ -99,6 +99,7 @@ export function ProductCard({ product, showWishlist = true }: ProductCardProps) 
             src={product.images[1]}
             alt={`${product.name} - alternate view`}
             fill
+            loading="lazy"
             className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-105 group-hover:scale-100"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />

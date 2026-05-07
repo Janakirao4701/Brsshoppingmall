@@ -1,5 +1,4 @@
 import { getProducts } from "@/lib/products";
-export const dynamic = "force-dynamic";
 
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { setRequestLocale } from "next-intl/server";

@@ -67,10 +67,10 @@ export function ProductFilters({
                 key={sub}
                 onClick={() => setSelectedSubcategory(selectedSubcategory === sub ? null : sub)}
                 className={cn(
-                  "block w-full text-left text-sm px-3 py-2 rounded-lg transition-all",
+                  "block w-full text-left text-sm px-4 py-3 rounded-xl transition-all",
                   selectedSubcategory === sub
-                    ? "bg-brand-red/10 text-brand-red font-semibold"
-                    : "text-slate-600 hover:bg-slate-50"
+                    ? "bg-brand-red/10 text-brand-red font-semibold shadow-sm"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >
                 {sub}
@@ -90,10 +90,10 @@ export function ProductFilters({
                 key={brand}
                 onClick={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
                 className={cn(
-                  "block w-full text-left text-sm px-3 py-2 rounded-lg transition-all",
+                  "block w-full text-left text-sm px-4 py-3 rounded-xl transition-all",
                   selectedBrand === brand
-                    ? "bg-brand-red/10 text-brand-red font-semibold"
-                    : "text-slate-600 hover:bg-slate-50"
+                    ? "bg-brand-red/10 text-brand-red font-semibold shadow-sm"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >
                 {brand}
@@ -118,10 +118,10 @@ export function ProductFilters({
                 )
               }
               className={cn(
-                "block w-full text-left text-sm px-3 py-2 rounded-lg transition-all",
+                "block w-full text-left text-sm px-4 py-3 rounded-xl transition-all",
                 selectedPriceRange?.[0] === range[0] && selectedPriceRange?.[1] === range[1]
-                  ? "bg-brand-red/10 text-brand-red font-semibold"
-                  : "text-slate-600 hover:bg-slate-50"
+                  ? "bg-brand-red/10 text-brand-red font-semibold shadow-sm"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               )}
             >
               {label}

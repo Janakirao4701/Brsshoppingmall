@@ -205,7 +205,7 @@ export function Footer() {
         <div className="container mx-auto px-4 py-5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             <p className="text-[11px] text-white/20">
-              © {new Date().getFullYear()} BSR Shopping Mall. All rights reserved. A unit of Baratam Group.
+              © <span suppressHydrationWarning>{new Date().getFullYear()}</span> BSR Shopping Mall. All rights reserved. A unit of Baratam Group.
             </p>
             <p className="text-[11px] text-white/20">
               Made with care in Srikakulam, India 🇮🇳

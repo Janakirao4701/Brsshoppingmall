@@ -6,6 +6,7 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { setRequestLocale } from 'next-intl/server';
 import Image from "next/image";
+import { getHeroBanners } from "@/lib/storefront-data";
 
 const CATEGORIES = [
   { nameKey: "men", href: "/men", image: "/category-men.png" },
@@ -13,23 +14,29 @@ const CATEGORIES = [
   { nameKey: "kids", href: "/kids", image: "/category-kids.png" },
 ];
 
-export default function Home({
+export default async function Home({
   params
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  // Get the locale from params
-  const { locale } = React.use(params);
+  const { locale } = await params;
   
   // Enable static rendering
   setRequestLocale(locale);
 
+  // Fetch hero banners on the server — no client-side fetch needed
+  const heroBanners = await getHeroBanners();
+
+  return <HomeContent locale={locale} heroBanners={heroBanners} />;
+}
+
+function HomeContent({ locale, heroBanners }: { locale: string; heroBanners: any[] }) {
   const t = useTranslations("Navbar");
 
   return (
     <div className="flex flex-col w-full">
-      {/* Hero Section */}
-      <HeroBanner />
+      {/* Hero Section — data pre-fetched on server */}
+      <HeroBanner initialSlides={heroBanners} />
 
       {/* Visual Navigation */}
       <QuickCategories />
