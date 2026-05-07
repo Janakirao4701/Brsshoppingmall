@@ -39,6 +39,11 @@ export default async function AdminDashboard() {
     supabaseServer.from("bulk_inquiries").select("id", { count: "exact", head: true }),
   ]);
 
+  // Log errors but don't crash
+  if (inquiryRes.error) console.error("Error fetching inquiries:", inquiryRes.error.message);
+  if (productRes.error) console.error("Error fetching products:", productRes.error.message);
+  if (categoryRes.error) console.error("Error fetching categories:", categoryRes.error.message);
+
   const inquiries: Inquiry[] = inquiryRes.data || [];
   const lowStockCount = variantRes.data?.filter((v: any) => v.stock > 0 && v.stock < 10).length || 0;
 

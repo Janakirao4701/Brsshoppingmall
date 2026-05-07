@@ -13,24 +13,43 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoginPage) return;
 
+    // Safety timeout to prevent infinite spinning (10s)
+    const timeout = setTimeout(() => {
+      if (authorized === null) {
+        console.error("Auth verification timed out");
+        setAuthorized(false);
+        router.replace("/admin/login");
+      }
+    }, 10000);
+
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Use getUser() instead of getSession() for better security and server-side sync
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        if (!session) {
+        if (userError || !user) {
+          if (userError) console.error("Session retrieval error:", userError.message);
           setAuthorized(false);
           router.replace("/admin/login");
           return;
         }
 
-        const { data: profile, error } = await supabase
+        // Verify admin role in profiles table
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
-          .eq("id", session.user.id)
+          .eq("id", user.id)
           .single();
 
-        if (error || profile?.role !== "admin") {
-          console.error("Admin verification failed:", error || "Not an admin");
+        if (profileError) {
+          console.error("Profile fetch error:", profileError.message);
+          setAuthorized(false);
+          router.replace("/admin/login");
+          return;
+        }
+
+        if (profile?.role !== "admin") {
+          console.error("Unauthorized: Role is", profile?.role);
           setAuthorized(false);
           router.replace("/admin/login");
         } else {
@@ -40,10 +59,14 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         console.error("Auth check crash:", err);
         setAuthorized(false);
         router.replace("/admin/login");
+      } finally {
+        clearTimeout(timeout);
       }
     };
 
     checkAuth();
+    
+    return () => clearTimeout(timeout);
   }, [router, isLoginPage]);
 
   if (authorized === null) {

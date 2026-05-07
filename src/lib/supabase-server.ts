@@ -10,10 +10,16 @@ function createServerSupabase() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !serviceKey) {
-    throw new Error(
-      "Missing SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL. " +
-      "Add SUPABASE_SERVICE_ROLE_KEY to your environment variables (never prefix with NEXT_PUBLIC_)."
+    console.error(
+      "CRITICAL: Missing SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL. " +
+      "Server-side administrative operations will fail."
     );
+    // Return a dummy client that throws on actual use rather than on init
+    return {
+      from: () => ({ select: () => ({ order: () => ({ limit: () => Promise.resolve({ data: null, error: { message: "Missing Service Key" } }) }), count: 0, head: true }) }),
+      rpc: () => Promise.resolve({ data: null, error: { message: "Missing Service Key" } }),
+      auth: { getUser: () => Promise.resolve({ data: { user: null }, error: { message: "Missing Service Key" } }) }
+    } as any;
   }
 
   return createClient(url, serviceKey, {

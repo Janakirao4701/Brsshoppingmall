@@ -1,34 +1,20 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import createMiddleware from "next-intl/middleware";
-import { type NextRequest, NextResponse } from "next/server";
-import { routing } from "./i18n/routing";
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+import createIntlMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
 
-const intlMiddleware = createMiddleware(routing);
+const intlMiddleware = createIntlMiddleware(routing);
 
-/**
- * Middleware: handles i18n routing and admin authentication.
- * 
- * Security features:
- * - Graceful fallback when Supabase is not configured (dev mode)
- * - Session refresh on every request (prevents stale tokens)
- * - Admin route protection with auth check
- * - Role verification deferred to AdminGuard (avoids DB query in middleware for performance)
- */
 export async function proxy(request: NextRequest) {
-  let response = intlMiddleware(request);
+  // 1. Handle Locale first (next-intl)
+  // This will handle redirects and locale detection
+  const response = intlMiddleware(request);
 
-  // Skip Supabase auth if not configured (local dev without keys)
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes("placeholder")) {
-    return response;
-  }
-
-  // Create a Supabase client configured to use cookies
+  // 2. Initialize Supabase client with the response from intlMiddleware
+  // This allows us to share cookies between next-intl and Supabase
   const supabase = createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
@@ -36,54 +22,52 @@ export async function proxy(request: NextRequest) {
         },
         set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: "", ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({ name, value: "", ...options });
+          request.cookies.set({ name, value: '', ...options });
+          response.cookies.set({ name, value: '', ...options });
         },
       },
     }
   );
 
-  // Refresh session if expired - required for Server Components
-  const { data: { user } } = await supabase.auth.getUser();
+  // 3. Refresh session if it exists
+  // This is critical for keeping the session alive in the browser
+  await supabase.auth.getUser();
 
-  // Check if it's an admin route
-  const pathname = request.nextUrl.pathname;
-  const isAdminRoute = pathname.includes("/admin") && !pathname.includes("/admin/login");
-
-  if (isAdminRoute) {
+  // 4. (Optional) Protect admin routes at the middleware level
+  // This is a secondary layer of protection besides AdminGuard
+  const { pathname } = request.nextUrl;
+  
+  // We check for /admin (considering locale-free paths handled by next-intl)
+  // However, AdminGuard handles the specific 'admin' role check.
+  // Here we just ensure we don't block the login page itself.
+  const isAdminPath = pathname.includes('/admin') && !pathname.includes('/admin/login');
+  
+  if (isAdminPath) {
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      // Redirect to login if not authenticated
+      // Redirect to login if no user
       const url = request.nextUrl.clone();
-      url.pathname = "/admin/login"; // next-intl will handle locale
+      url.pathname = '/admin/login';
       return NextResponse.redirect(url);
     }
-
-    // Role check - for performance, we might want to skip this in middleware 
-    // and handle it in the layout/page, but let's do a basic session check here.
-    // If you need strict role check in middleware, you'd fetch the profile here.
   }
 
-  // Security headers
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  // 5. Apply security headers
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)" ],
+  // Match all pathnames except for
+  // - _next/static (static files)
+  // - _next/image (image optimization files)
+  // - favicon.ico (favicon file)
+  // - public folder files
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)']
 };

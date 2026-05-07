@@ -118,20 +118,8 @@ export function Navbar({ announcementData }: NavbarProps) {
             </Button>
           </div>
 
-          {/* Logo (Left on desktop, Center on mobile) */}
-          <Link href="/" className="flex flex-1 md:flex-none items-center justify-center md:justify-start order-2 md:order-1">
-            <Image
-              src="/bsr-logo.png"
-              alt="BSR Shopping Mall"
-              width={240}
-              height={96}
-              className="h-10 md:h-12 w-auto object-contain"
-              priority
-            />
-          </Link>
-
-          {/* Desktop Navigation (Center on desktop) */}
-          <nav className="hidden md:flex flex-1 items-center justify-center gap-8 order-none md:order-2">
+          {/* Desktop Navigation (Left on desktop) */}
+          <nav className="hidden md:flex flex-1 items-center justify-start gap-6 lg:gap-8 order-none md:order-1">
             {NAV_LINKS.map((link) => (
               <Link 
                 key={link.name}
@@ -143,6 +131,20 @@ export function Navbar({ announcementData }: NavbarProps) {
               </Link>
             ))}
           </nav>
+
+          {/* Logo (Center on both mobile and desktop) */}
+          <Link href="/" className="flex flex-1 md:flex-none items-center justify-center order-2">
+            <Image
+              src="/bsr-logo.png"
+              alt="BSR Shopping Mall"
+              width={240}
+              height={96}
+              className="h-10 md:h-12 w-auto object-contain"
+              priority
+            />
+          </Link>
+
+          {/* Desktop Navigation was moved above Logo */}
 
           {/* Right Icons (Desktop & Mobile) */}
           <div className="flex flex-1 items-center justify-end gap-1 md:gap-3 order-3">
