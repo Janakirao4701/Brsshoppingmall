@@ -61,7 +61,7 @@ export function Navbar({ announcementData }: NavbarProps) {
                 alt="BSR Shopping Mall"
                 width={200}
                 height={80}
-                className="h-9 lg:h-10 w-auto object-contain"
+                className="h-11 lg:h-12 w-auto object-contain"
                 priority
               />
             </Link>
@@ -202,7 +202,7 @@ export function Navbar({ announcementData }: NavbarProps) {
               alt="BSR Shopping Mall"
               width={200}
               height={80}
-              className="h-8 w-auto object-contain"
+              className="h-9 w-auto object-contain"
               priority
             />
           </Link>
