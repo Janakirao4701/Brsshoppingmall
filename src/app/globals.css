@@ -139,12 +139,12 @@ body {
   font-weight: 600;
 }
 
-/* ─── Navigation Text (sans-serif, uppercase, tracked) ─── */
+/* ─── Navigation Text (sans-serif, uppercase, tracked — luxury editorial) ─── */
 .text-nav {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 400;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
