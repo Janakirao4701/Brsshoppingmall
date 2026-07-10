@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import { MOCK_PRODUCTS } from "@/data/products";
 import { Product } from "@/lib/types";
 import { unstable_cache } from "next/cache";
@@ -12,6 +12,21 @@ const isSupabaseConfigured = () => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "placeholder"
   );
 };
+
+/**
+ * Server-safe Supabase client for product reads.
+ * Uses createClient (not createBrowserClient) so it works reliably
+ * inside unstable_cache on Vercel's server runtime.
+ */
+function getServerSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: { autoRefreshToken: false, persistSession: false },
+    }
+  );
+}
 
 /**
  * Fetch all products — from Supabase if configured, otherwise fallback to mock data in development.
@@ -29,7 +44,8 @@ export const getProducts = unstable_cache(
     if (isSupabaseConfigured()) {
       try {
         // Use simple selection since the database is flat
-        let query = supabase
+        const db = getServerSupabase();
+        let query = db
           .from("products")
           .select("*");
 
@@ -98,7 +114,8 @@ export const getProductBySlug = unstable_cache(
   async function(slug: string): Promise<Product | null> {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase
+        const db = getServerSupabase();
+        const { data, error } = await db
           .from("products")
           .select("*")
           .eq("slug", slug)
