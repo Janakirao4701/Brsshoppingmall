@@ -1,6 +1,7 @@
 import * as React from "react";
 import { HeroBanner } from "@/components/sections/HeroBanner";
 import { QuickCategories } from "@/components/sections/QuickCategories";
+import { WhyBSR } from "@/components/sections/WhyBSR";
 import { StoreLocator } from "@/components/sections/StoreLocator";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
@@ -87,54 +88,7 @@ function HomeContent({ locale, heroBanners }: { locale: string; heroBanners: any
       </section>
 
       {/* Why BSR Section */}
-      <section className="py-20 md:py-32 px-4 bg-slate-50 border-t border-slate-100">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-16 md:mb-24">
-            <h2 className="text-3xl md:text-5xl font-serif font-medium text-slate-900 tracking-tight mb-4">
-              Why <span className="text-italic-accent">BSR</span>
-            </h2>
-            <p className="text-sm uppercase tracking-[0.2em] text-slate-500">The BSR Boutique Experience</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
-            <div className="flex flex-col items-center text-center space-y-6">
-              <div className="size-16 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
-                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-serif font-medium text-slate-900 mb-3">Trusted <span className="text-italic-accent">Quality</span></h3>
-                <p className="text-slate-500 text-[13px] leading-relaxed max-w-xs mx-auto">Serving our community for over 20 years with premium readymade garments from top brands.</p>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-center text-center space-y-6">
-              <div className="size-16 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
-                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-serif font-medium text-slate-900 mb-3">Pan-India <span className="text-italic-accent">Delivery</span></h3>
-                <p className="text-slate-500 text-[13px] leading-relaxed max-w-xs mx-auto">We deliver our products to any corner of India, bringing BSR quality to your doorstep.</p>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-center text-center space-y-6">
-              <div className="size-16 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
-                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-serif font-medium text-slate-900 mb-3">Excellent <span className="text-italic-accent">Service</span></h3>
-                <p className="text-slate-500 text-[13px] leading-relaxed max-w-xs mx-auto">Personalized assistance for retail and bulk orders. Contact us on WhatsApp for inquiries.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <WhyBSR />
 
       {/* Store Locator Section */}
       <StoreLocator />
